@@ -1,0 +1,20 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { STORAGE_KEYS } from '@/config/constants';
+
+interface SidebarStore {
+  collapsed: boolean;
+  toggle: () => void;
+  setCollapsed: (collapsed: boolean) => void;
+}
+
+export const useSidebarStore = create<SidebarStore>()(
+  persist(
+    (set) => ({
+      collapsed: false,
+      toggle: () => set((state) => ({ collapsed: !state.collapsed })),
+      setCollapsed: (collapsed) => set({ collapsed }),
+    }),
+    { name: STORAGE_KEYS.sidebar }
+  )
+);

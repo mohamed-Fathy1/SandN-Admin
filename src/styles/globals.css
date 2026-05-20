@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Nunito+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Tajawal:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  /* ── Surfaces ───────────────────────────────────────── */
+  --color-background: #f8f5f3;
+  --color-foreground: #1a1a1a;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+
+  --color-muted: #f2eae7;
+  --color-muted-foreground: #6b5e5e;
+
+  --color-light-foreground: #9b8e8e;
+
+  /* ── Brand accent ────────────────────────────────────── */
+  --color-accent: #bf3c68;
+  --color-accent-hover: #a8305a;
+  --color-accent-soft: rgba(191, 60, 104, 0.08);
+  --color-accent-foreground: #ffffff;
+
+  /* ── Functional status ───────────────────────────────── */
+  --color-destructive: #dc2626;
+  --color-destructive-hover: #b91c1c;
+  --color-destructive-foreground: #ffffff;
+  --color-warning: #d97706;
+  --color-success: #059669;
+  --color-info: #2563eb;
+
+  /* ── Borders & focus ─────────────────────────────────── */
+  --color-border: rgba(64, 20, 35, 0.08);
+  --color-border-medium: rgba(64, 20, 35, 0.14);
+  --color-border-strong: rgba(64, 20, 35, 0.22);
+  --color-ring: #bf3c68;
+
+  /* ── Sidebar (dark surface) ──────────────────────────── */
+  --color-sidebar: #1c0b12;
+  --color-sidebar-foreground: rgba(255, 255, 255, 0.62);
+  --color-sidebar-foreground-active: #ffffff;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --color-sidebar-active: rgba(191, 60, 104, 0.16);
+
+  /* ── Order-status badge palette ─────────────────────── */
+  --color-status-ordered: #1e40af;
+  --color-status-ordered-bg: rgba(37, 99, 235, 0.12);
+  --color-status-confirmed: #6d28d9;
+  --color-status-confirmed-bg: rgba(139, 92, 246, 0.12);
+  --color-status-under-review: #b45309;
+  --color-status-under-review-bg: rgba(217, 119, 6, 0.12);
+  --color-status-shipped: #0e7490;
+  --color-status-shipped-bg: rgba(6, 182, 212, 0.12);
+  --color-status-delivered: #065f46;
+  --color-status-delivered-bg: rgba(5, 150, 105, 0.14);
+  --color-status-cancelled: #991b1b;
+  --color-status-cancelled-bg: rgba(220, 38, 38, 0.12);
+  --color-status-deleted: #4b5563;
+  --color-status-deleted-bg: rgba(107, 114, 128, 0.14);
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Nunito Sans', sans-serif;
+  --font-body-ar: 'Tajawal', 'Nunito Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* ── Radii ───────────────────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* ── Shadows ─────────────────────────────────────────── */
+  --shadow-card: 0 2px 12px rgba(64, 20, 35, 0.06);
+  --shadow-popover: 0 4px 24px rgba(64, 20, 35, 0.1);
+  --shadow-overlay: 0 12px 40px rgba(64, 20, 35, 0.14);
+  --shadow-accent: 0 4px 24px rgba(191, 60, 104, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-foreground);
+  background: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hidden until focused */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 8px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-muted) 0%,
+    color-mix(in srgb, var(--color-muted) 40%, transparent) 50%,
+    var(--color-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
