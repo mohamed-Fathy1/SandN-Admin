@@ -90,7 +90,12 @@ export function HeroPage() {
                   <Pencil size={14} strokeWidth={1.5} aria-hidden />
                   Edit
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setDeleting(hero)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeleting(hero)}
+                  aria-label="Delete hero slide"
+                >
                   <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
                 </Button>
               </div>

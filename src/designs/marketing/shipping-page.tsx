@@ -87,6 +87,7 @@ export function ShippingPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
+              aria-label={`Delete ${row.original.name.en}`}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>

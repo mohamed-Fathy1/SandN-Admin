@@ -152,6 +152,7 @@ export function OffersPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
+              aria-label="Delete offer"
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>

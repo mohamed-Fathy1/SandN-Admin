@@ -1,9 +1,12 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { toast } from 'sonner';
 import { Bell, Command, LogOut, User } from 'lucide-react';
 import { Breadcrumb } from './breadcrumb';
 import { Kbd } from '@/designs/shared/kbd';
 import { useAuthStore } from '@/features/auth/store/auth-store';
 import { logoutAndRedirect } from '@/features/auth/lib/logout';
+
+const COMMAND_PALETTE_PLACEHOLDER = 'Command palette is coming soon.';
 
 export function Header() {
   const email = useAuthStore((s) => s.session?.email);
@@ -15,10 +18,10 @@ export function Header() {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          disabled
-          aria-label="Command palette (coming soon)"
-          title="Coming soon"
-          className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={() => toast(COMMAND_PALETTE_PLACEHOLDER, { duration: 1500 })}
+          aria-label="Open command palette"
+          title="Command palette (coming soon)"
+          className="inline-flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-xs text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Command size={14} strokeWidth={1.5} aria-hidden />
           <Kbd>⌘K</Kbd>
