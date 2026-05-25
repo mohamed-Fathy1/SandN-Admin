@@ -121,7 +121,8 @@ export function SearchableSelect<T>({
           aria-expanded={open}
           aria-controls={open ? listboxId : undefined}
           className={cn(
-            'inline-flex h-11 w-full items-center justify-between gap-2 rounded-xl border bg-card px-4 text-sm text-foreground transition-all',
+            'inline-flex h-11 w-full items-center justify-between gap-2 rounded-xl border bg-card px-4 text-sm text-foreground',
+            'transition-[border-color,box-shadow,background-color] duration-150',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
             'disabled:cursor-not-allowed disabled:opacity-50',
             hasError
@@ -157,6 +158,10 @@ export function SearchableSelect<T>({
             />
             <input
               autoFocus
+              type="search"
+              inputMode="search"
+              autoComplete="off"
+              spellCheck={false}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -172,7 +177,13 @@ export function SearchableSelect<T>({
             />
           </div>
 
-          <ul ref={listRef} id={listboxId} role="listbox" className="max-h-56 overflow-y-auto">
+          <ul
+            ref={listRef}
+            id={listboxId}
+            role="listbox"
+            className="max-h-56 overflow-y-auto"
+            style={{ overscrollBehavior: 'contain' }}
+          >
             {filtered.length === 0 ? (
               <li className="px-3 py-4 text-center text-xs text-muted-foreground">
                 {emptyMessage}

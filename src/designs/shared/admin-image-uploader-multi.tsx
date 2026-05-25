@@ -60,11 +60,13 @@ export function AdminImageUploaderMulti({
             <img
               src={url}
               alt={`Image ${idx + 1}`}
+              width={320}
+              height={320}
               loading="lazy"
               decoding="async"
               className="h-full w-full object-cover"
             />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/60 to-transparent px-2 py-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/60 to-transparent px-2 py-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
               <button
                 type="button"
                 onClick={() => move(idx, idx - 1)}
@@ -88,7 +90,7 @@ export function AdminImageUploaderMulti({
               type="button"
               onClick={() => handleRemove(idx)}
               aria-label={`Remove image ${idx + 1}`}
-              className="absolute right-1.5 top-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100 focus:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="absolute right-1.5 top-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <X size={14} strokeWidth={1.75} aria-hidden />
             </button>

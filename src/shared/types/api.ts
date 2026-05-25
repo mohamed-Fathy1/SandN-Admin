@@ -1,6 +1,15 @@
 import type { BilingualText } from './index';
 import type { OrderStatus, OfferType, GroupName, HeroImageType } from '@/config/constants';
 
+/**
+ * Denormalized media document the backend returns on GETs.
+ * Writes still take a plain URL string (e.g. `imageUrl`, `defaultImage`).
+ */
+export interface Media {
+  mediaUrl: string;
+  mediaId: string;
+}
+
 export interface ApiGroup {
   _id: string;
   name: GroupName;
@@ -28,7 +37,7 @@ export interface ApiColor {
 export interface ApiCategory {
   _id: string;
   name: BilingualText;
-  imageUrl: string;
+  image: Media;
   groupSize: string | ApiGroup;
   isDeleted?: boolean;
   createdAt?: string;
@@ -38,7 +47,7 @@ export interface ApiCategory {
 export interface ApiSubCategory {
   _id: string;
   name: BilingualText;
-  imageUrl: string;
+  image: Media;
   groupSize: string | ApiGroup;
   category: string | ApiCategory;
   isDeleted?: boolean;
@@ -73,27 +82,26 @@ export interface ApiProduct {
   salePrice: number;
   saleStartDate: number;
   saleEndDate: number;
-  category: string | ApiCategory;
+  category: string | ApiCategory | null;
   subCategory: string | ApiSubCategory;
-  defaultImage: string;
-  albumImages: string[];
-  sizeChartImage?: string;
+  defaultImage: Media;
+  albumImages: Media[];
+  sizeChartImage?: Media;
   variants?: ApiVariant[];
   isDeleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: number | string;
+  updatedAt?: number | string;
 }
 
 export interface ApiProductListResponse {
   products: ApiProduct[];
   currentPage: number;
   totalPages: number;
-  total?: number;
+  totalItems?: number;
 }
 
-export interface ApiHeroImage {
-  imageUrl: string;
-  imageType: HeroImageType;
+export interface ApiHeroImage extends Media {
+  mediaType: HeroImageType;
 }
 
 export interface ApiHeroSection {
@@ -108,7 +116,7 @@ export interface ApiHeroSection {
 
 export interface ApiSocialReview {
   _id: string;
-  imageUrl: string;
+  image: Media;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -117,7 +125,7 @@ export interface ApiOffer {
   _id: string;
   type: OfferType;
   isActive: boolean;
-  image: string;
+  image: Media;
   description: BilingualText;
   minOrderAmount: number;
   discountAmount?: number;
@@ -131,7 +139,7 @@ export interface ApiOrderProduct {
   quantity: number;
   price: number;
   name?: BilingualText;
-  image?: string;
+  image?: Media | string;
   size?: string;
   color?: string;
 }

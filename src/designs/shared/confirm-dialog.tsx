@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Check } from 'lucide-react';
 import { Button } from './button';
 import { Input } from './input';
 import { cn } from '@/shared/utils/cn';
@@ -44,31 +44,41 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={handleOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <AlertDialog.Overlay
+          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+          style={{ WebkitBackdropFilter: 'blur(12px)' }}
+        />
         <AlertDialog.Content
           className={cn(
-            'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-6 shadow-overlay focus:outline-none',
+            'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border bg-card p-6 shadow-overlay focus:outline-none',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
             'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[state=open]:slide-in-from-bottom-1 data-[state=open]:duration-200'
           )}
+          style={{
+            borderColor: 'var(--glass-border)',
+            boxShadow: 'var(--shadow-overlay), var(--shadow-inset)',
+            overscrollBehavior: 'contain',
+            touchAction: 'manipulation',
+          }}
         >
-          <div className="mb-4 flex items-start gap-3">
+          <div className="mb-5 flex items-start gap-4">
             <span
               className={cn(
-                'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full ring-1 ring-inset',
                 variant === 'destructive'
-                  ? 'bg-status-cancelled-bg text-destructive'
-                  : 'bg-status-under-review-bg text-warning'
+                  ? 'bg-status-cancelled-bg text-destructive ring-destructive/15'
+                  : 'bg-status-under-review-bg text-warning ring-warning/15'
               )}
             >
-              <AlertTriangle size={20} strokeWidth={1.5} aria-hidden />
+              <AlertTriangle size={20} strokeWidth={1.75} aria-hidden />
             </span>
-            <div className="min-w-0 flex-1">
-              <AlertDialog.Title className="m-0 text-base font-semibold text-foreground">
+            <div className="min-w-0 flex-1 pt-0.5">
+              <AlertDialog.Title className="m-0 font-display text-xl italic leading-tight text-foreground">
                 {title}
               </AlertDialog.Title>
-              <AlertDialog.Description className="mt-1 text-sm text-muted-foreground">
+              <AlertDialog.Description className="mt-1.5 text-sm text-muted-foreground">
                 {description}
               </AlertDialog.Description>
             </div>
@@ -90,6 +100,16 @@ export function ConfirmDialog({
                 disabled={isPending}
                 aria-label="Confirmation phrase"
                 autoFocus
+                trailing={
+                  typedOk ? (
+                    <span
+                      aria-hidden
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-status-delivered-bg text-status-delivered"
+                    >
+                      <Check size={14} strokeWidth={2.25} />
+                    </span>
+                  ) : null
+                }
               />
             </div>
           ) : null}

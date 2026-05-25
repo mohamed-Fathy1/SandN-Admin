@@ -6,6 +6,7 @@ import { Button } from '@/designs/shared/button';
 import { Input } from '@/designs/shared/input';
 import { Card } from '@/designs/shared/card';
 import { AdminFormField } from '@/designs/shared/admin-form-field';
+import { FloatingOrb } from '@/designs/shared/motion';
 import { useRegisterEmail } from '@/features/auth/hooks/use-auth';
 import { emailSchema } from '@/features/auth/schemas/login-form';
 import { A } from '@/designs/layout/tokens';
@@ -38,15 +39,49 @@ export function LoginPage() {
   return (
     <main
       id="main-content"
-      className="flex min-h-screen items-center justify-center bg-background px-4 py-12"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12"
     >
+      <FloatingOrb
+        size={420}
+        color="rgba(191,60,104,0.22)"
+        top="-120px"
+        left="-80px"
+        delay={0}
+        opacity={0.6}
+      />
+      <FloatingOrb
+        size={340}
+        color="rgba(217,119,6,0.16)"
+        bottom="-100px"
+        right="-60px"
+        delay={2}
+        opacity={0.55}
+      />
+      <FloatingOrb
+        size={260}
+        color="rgba(64,20,35,0.12)"
+        top="20%"
+        right="12%"
+        delay={4}
+        opacity={0.35}
+      />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: A.easeOut }}
-        className="w-full max-w-md"
+        className="relative z-10 w-full max-w-md"
       >
-        <Card elevation="lg" padding="lg">
+        <Card
+          elevation="lg"
+          padding="lg"
+          style={{
+            background: 'var(--glass-bg)',
+            backdropFilter: 'var(--glass-blur)',
+            WebkitBackdropFilter: 'var(--glass-blur)',
+            borderColor: 'var(--glass-border)',
+            boxShadow: 'var(--shadow-overlay), var(--shadow-inset)',
+          }}
+        >
           <div className="mb-8 text-center">
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
               S&amp;N Admin
@@ -61,24 +96,19 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <AdminFormField label="Email" error={error}>
-              <div className="relative">
-                <Mail
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-light-foreground"
-                  size={18}
-                  strokeWidth={1.5}
-                  aria-hidden
-                />
-                <Input
-                  type="email"
-                  autoComplete="email"
-                  autoFocus
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  disabled={register.isPending}
-                />
-              </div>
+              <Input
+                type="email"
+                name="email"
+                autoComplete="email"
+                inputMode="email"
+                spellCheck={false}
+                autoFocus
+                placeholder="admin@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={register.isPending}
+                leadingIcon={<Mail size={18} strokeWidth={1.5} aria-hidden />}
+              />
             </AdminFormField>
 
             <Button
@@ -87,10 +117,13 @@ export function LoginPage() {
               className="w-full"
               isLoading={register.isPending}
               loadingText="Sending code…"
-              disabled={!email.trim()}
             >
               Send code
             </Button>
+
+            <p className="text-center text-[11px] text-light-foreground">
+              We'll email a 6-digit code that expires in 10 minutes.
+            </p>
           </form>
         </Card>
       </motion.div>

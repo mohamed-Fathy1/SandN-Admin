@@ -6,7 +6,7 @@ export const wishlistHandlers = [
   http.get(`${API}/wishlist`, () =>
     HttpResponse.json({
       statusCode: 200,
-      data: { wishlistItems: [], currentPage: 1, totalPages: 1 },
+      data: { wishlistItems: [], currentPage: 1, totalPages: 1, totalItems: 0 },
       message: 'OK',
       success: true,
     })

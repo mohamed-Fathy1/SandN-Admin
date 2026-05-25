@@ -63,9 +63,7 @@ export function AdminImageUploader({
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       {label ? (
-        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
-          {label}
-        </label>
+        <span className="text-sm font-medium text-foreground">{label}</span>
       ) : null}
 
       <label
@@ -77,7 +75,8 @@ export function AdminImageUploader({
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
         className={cn(
-          'group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-card transition-all',
+          'group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-card',
+          'transition-[border-color,background-color] duration-150',
           'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1',
           disabled && 'cursor-not-allowed opacity-50',
           isDragging
@@ -116,7 +115,7 @@ export function AdminImageUploader({
                   onClear();
                 }}
                 aria-label="Remove image"
-                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100 focus:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X size={14} strokeWidth={1.75} aria-hidden />
               </button>

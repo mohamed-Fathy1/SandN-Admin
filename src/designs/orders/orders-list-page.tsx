@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Eye, Search, X } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import {
   AdminTable,
   Button,
-  Input,
+  PageTransition,
   StatusBadge,
+  TableToolbar,
   Tabs,
   TabsList,
   TabsTrigger,
@@ -153,7 +154,7 @@ export function OrdersListPage({
   const tabValue = status ?? 'all';
 
   return (
-    <>
+    <PageTransition>
       <PageHeader
         title="Orders"
         subtitle="Filter by status, drill in to confirm, ship, or cancel an order."
@@ -173,38 +174,19 @@ export function OrdersListPage({
         }
       />
 
-      <div className="mb-4 flex items-center gap-3">
-        <div className="relative w-full max-w-sm">
-          <Search
-            size={16}
-            strokeWidth={1.5}
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-light-foreground"
-          />
-          <Input
-            type="search"
-            value={orderNumberFilter}
-            onChange={(e) => setOrderNumberFilter(e.target.value)}
-            placeholder="Filter by order number…"
-            className="pl-9 pr-9"
-            aria-label="Filter by order number"
-          />
-          {orderNumberFilter ? (
-            <button
-              type="button"
-              onClick={() => setOrderNumberFilter('')}
-              aria-label="Clear filter"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-light-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <X size={14} strokeWidth={1.5} aria-hidden />
-            </button>
-          ) : null}
-        </div>
-        {orderNumberFilter ? (
-          <span className="text-xs text-muted-foreground">
-            {orders.length} of {allOrders.length} on this page
-          </span>
-        ) : null}
+      <div className="mb-4">
+        <TableToolbar
+          search={orderNumberFilter}
+          onSearchChange={setOrderNumberFilter}
+          searchPlaceholder="Filter by order number…"
+          meta={
+            orderNumberFilter
+              ? `${orders.length} of ${allOrders.length} on this page`
+              : allOrders.length
+                ? `${allOrders.length} on this page`
+                : undefined
+          }
+        />
       </div>
 
       <AdminTable
@@ -217,18 +199,50 @@ export function OrdersListPage({
         getRowId={(o) => o._id}
         onRowHover={prefetchDetail}
         onRowClick={(o) => navigate({ to: ROUTES.orderDetail(o._id) })}
+        stickyFirstCol
+        isFiltered={Boolean(orderNumberFilter)}
+        onClearFilters={() => setOrderNumberFilter('')}
+        mobileRender={(order) => {
+          const info = order.customerInfo;
+          const name = `${info?.firstName ?? ''} ${info?.lastName ?? ''}`.trim() || '—';
+          return (
+            <button
+              type="button"
+              onClick={() => navigate({ to: ROUTES.orderDetail(order._id) })}
+              className="flex w-full items-start gap-3 rounded-2xl border border-border bg-card p-3 text-left shadow-card transition-colors hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs text-foreground">
+                    {order.orderNumber}
+                  </span>
+                  <StatusBadge status={order.status} size="sm" />
+                </div>
+                <p className="mt-1 truncate text-sm font-medium text-foreground">{name}</p>
+                <p className="mt-0.5 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                  <span>{order.products?.length ?? 0} items</span>
+                  <span className="tabular-nums font-medium text-foreground">
+                    {formatEGP(order.total)}
+                  </span>
+                </p>
+              </div>
+            </button>
+          );
+        }}
         pagination={{
           page,
           totalPages: listQuery.data?.totalPages ?? 1,
           onPageChange,
         }}
         emptyState={{
-          title: 'No orders',
-          description: status
-            ? `No orders with status "${status}".`
-            : 'No orders have been placed yet.',
+          title: orderNumberFilter ? undefined : 'No orders',
+          description: orderNumberFilter
+            ? undefined
+            : status
+              ? `No orders with status "${status}".`
+              : 'No orders have been placed yet.',
         }}
       />
-    </>
+    </PageTransition>
   );
 }

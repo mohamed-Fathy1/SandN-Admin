@@ -7,7 +7,7 @@ export interface OrdersListResponse {
   orders: ApiOrder[];
   currentPage: number;
   totalPages: number;
-  totalItems?: number;
+  totalItems: number;
 }
 
 interface OrderSingleResponse {
@@ -23,7 +23,7 @@ export async function fetchOrders(params: {
   const { data } = await api.get<ApiResponse<OrdersListResponse>>('/order/admin/all', {
     params: query,
   });
-  return data.data;
+  return data.data ?? { orders: [], currentPage: params.page, totalPages: 0, totalItems: 0 };
 }
 
 export async function fetchOrder(id: string): Promise<ApiOrder> {

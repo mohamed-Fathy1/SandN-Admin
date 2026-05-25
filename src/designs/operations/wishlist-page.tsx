@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ExternalLink } from 'lucide-react';
-import { AdminTable, Button } from '@/designs/shared';
+import { AdminTable, Button, TableToolbar, Thumbnail } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
 import { useWishlist } from '@/features/wishlist/hooks/use-wishlist';
@@ -22,7 +22,19 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const wishlistQuery = useWishlist(page);
-  const items = wishlistQuery.data?.wishlistItems ?? [];
+  const items = useMemo(
+    () => wishlistQuery.data?.wishlistItems ?? [],
+    [wishlistQuery.data?.wishlistItems]
+  );
+  const [search, setSearch] = useState('');
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredItems = useMemo(() => {
+    if (!normalizedSearch) return items;
+    return items.filter((i) =>
+      `${toEN(i.product?.name) ?? ''} ${i.customer ?? ''}`.toLowerCase().includes(normalizedSearch)
+    );
+  }, [items, normalizedSearch]);
+  const isFiltered = normalizedSearch.length > 0;
 
   const prefetchProduct = (row: ApiWishlistItem) => {
     const id = row.product?._id;
@@ -40,18 +52,9 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         header: '',
         enableSorting: false,
         size: 60,
-        cell: ({ row }) =>
-          row.original.product?.defaultImage ? (
-            <img
-              src={row.original.product.defaultImage}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-          ),
+        cell: ({ row }) => (
+          <Thumbnail src={row.original.product?.defaultImage?.mediaUrl} size="sm" />
+        ),
       },
       {
         id: 'name',
@@ -116,8 +119,21 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         subtitle="What customers are saving for later. Read-only."
       />
 
+      <div className="mb-4">
+        <TableToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by product name or customer id…"
+          meta={
+            wishlistQuery.data
+              ? `${filteredItems.length} of ${items.length}`
+              : undefined
+          }
+        />
+      </div>
+
       <AdminTable
-        data={items}
+        data={filteredItems}
         columns={columns}
         isLoading={wishlistQuery.isPending}
         isError={wishlistQuery.isError}
@@ -125,10 +141,43 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         onRetry={() => wishlistQuery.refetch()}
         getRowId={(i) => i._id}
         onRowHover={prefetchProduct}
+        isFiltered={isFiltered}
+        onClearFilters={() => setSearch('')}
         pagination={{
           page,
           totalPages: wishlistQuery.data?.totalPages ?? 1,
           onPageChange,
+        }}
+        mobileRender={(i) => {
+          const productId = i.product?._id;
+          return (
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+              <Thumbnail src={i.product?.defaultImage?.mediaUrl} size="lg" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-foreground">
+                  {toEN(i.product?.name) || '—'}
+                </p>
+                <p className="truncate font-mono text-[11px] text-muted-foreground">
+                  {i.customer ?? '—'}
+                </p>
+                <p className="text-[11px] text-light-foreground">
+                  {formatDateTime(i.createdAt)}
+                </p>
+              </div>
+              {productId ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate({ to: ROUTES.productDetail(productId) });
+                  }}
+                >
+                  <ExternalLink size={14} strokeWidth={1.5} aria-hidden />
+                </Button>
+              ) : null}
+            </div>
+          );
         }}
         emptyState={{
           title: 'No saved items',

@@ -22,32 +22,34 @@ export function PaginationControls({
   return (
     <nav
       aria-label="Pagination"
-      className={cn('flex items-center justify-between gap-3 px-4 py-3', className)}
+      className={cn('flex items-center justify-between gap-3 px-5 py-3', className)}
     >
       <p className="text-xs text-muted-foreground">
-        Page <span className="font-medium text-foreground">{page}</span> of{' '}
-        <span className="font-medium text-foreground">{totalPages}</span>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-light-foreground">Page</span>{' '}
+        <span className="font-display text-base italic text-foreground tabular-nums">{page}</span>
+        <span className="mx-1.5 text-light-foreground">/</span>
+        <span className="font-medium text-foreground tabular-nums">{totalPages}</span>
       </p>
       <div className="flex items-center gap-1">
         <PageButton onClick={() => onPageChange(1)} disabled={!canPrev} label="First page">
-          <ChevronsLeft size={14} strokeWidth={1.5} aria-hidden />
+          <ChevronsLeft size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
         <PageButton
           onClick={() => onPageChange(page - 1)}
           disabled={!canPrev}
           label="Previous page"
         >
-          <ChevronLeft size={14} strokeWidth={1.5} aria-hidden />
+          <ChevronLeft size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
         <PageButton onClick={() => onPageChange(page + 1)} disabled={!canNext} label="Next page">
-          <ChevronRight size={14} strokeWidth={1.5} aria-hidden />
+          <ChevronRight size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
         <PageButton
           onClick={() => onPageChange(totalPages)}
           disabled={!canNext}
           label="Last page"
         >
-          <ChevronsRight size={14} strokeWidth={1.5} aria-hidden />
+          <ChevronsRight size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
       </div>
     </nav>
@@ -71,7 +73,7 @@ function PageButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-medium bg-card text-muted-foreground transition-colors hover:border-accent/40 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-medium disabled:hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {children}
     </button>

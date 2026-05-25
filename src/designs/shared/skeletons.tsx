@@ -6,6 +6,9 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   return <div className={cn('shimmer rounded-lg', className)} aria-hidden {...props} />;
 }
 
+const SKELETON_WIDTHS = ['w-1/2', 'w-3/5', 'w-2/3', 'w-3/4', 'w-4/5'] as const;
+const HEADER_WIDTHS = ['w-16', 'w-20', 'w-24', 'w-14'] as const;
+
 export function TableSkeleton({ rows = 8, columns = 6 }: { rows?: number; columns?: number }) {
   return (
     <div
@@ -16,7 +19,7 @@ export function TableSkeleton({ rows = 8, columns = 6 }: { rows?: number; column
       <div className="border-b border-border bg-muted/50 px-6 py-3">
         <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
           {Array.from({ length: columns }).map((_, i) => (
-            <Skeleton key={i} className="h-3 w-20" />
+            <Skeleton key={i} className={cn('h-3', HEADER_WIDTHS[i % HEADER_WIDTHS.length])} />
           ))}
         </div>
       </div>
@@ -25,7 +28,10 @@ export function TableSkeleton({ rows = 8, columns = 6 }: { rows?: number; column
           <div key={r} className="px-6 py-4">
             <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
               {Array.from({ length: columns }).map((_, c) => (
-                <Skeleton key={c} className={cn('h-4', c === 0 && 'w-3/4', c > 0 && 'w-2/3')} />
+                <Skeleton
+                  key={c}
+                  className={cn('h-4', SKELETON_WIDTHS[(r * 7 + c * 3) % SKELETON_WIDTHS.length])}
+                />
               ))}
             </div>
           </div>

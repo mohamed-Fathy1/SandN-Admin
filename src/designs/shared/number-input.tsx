@@ -76,8 +76,9 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           disabled={disabled}
           aria-invalid={hasError || undefined}
           className={cn(
-            'flex h-11 w-full rounded-xl border bg-card px-4 text-sm text-foreground transition-all',
-            'placeholder:text-light-foreground text-right tabular-nums',
+            'flex h-11 w-full rounded-xl border bg-card px-4 text-sm text-foreground',
+            'transition-[border-color,box-shadow,background-color] duration-150',
+            'placeholder:text-light-foreground text-right tabular-nums touch-manipulation',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
             'disabled:cursor-not-allowed disabled:opacity-50',
             suffix && 'pr-14',

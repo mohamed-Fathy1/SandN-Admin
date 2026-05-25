@@ -6,27 +6,12 @@ export interface WishlistListResponse {
   wishlistItems: ApiWishlistItem[];
   currentPage: number;
   totalPages: number;
-  totalItems?: number;
-}
-
-interface RawWishlistResponse {
-  wishlistItems?: ApiWishlistItem[];
-  items?: ApiWishlistItem[];
-  wishlist?: ApiWishlistItem[];
-  currentPage?: number;
-  totalPages?: number;
-  totalItems?: number;
+  totalItems: number;
 }
 
 export async function fetchWishlist(page: number): Promise<WishlistListResponse> {
-  const { data } = await api.get<ApiResponse<RawWishlistResponse>>('/wishlist', {
+  const { data } = await api.get<ApiResponse<WishlistListResponse>>('/wishlist', {
     params: { page },
   });
-  const raw = data.data ?? {};
-  return {
-    wishlistItems: raw.wishlistItems ?? raw.items ?? raw.wishlist ?? [],
-    currentPage: raw.currentPage ?? page,
-    totalPages: raw.totalPages ?? 1,
-    totalItems: raw.totalItems,
-  };
+  return data.data ?? { wishlistItems: [], currentPage: page, totalPages: 0, totalItems: 0 };
 }

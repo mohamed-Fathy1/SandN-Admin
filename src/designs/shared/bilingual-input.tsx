@@ -39,6 +39,17 @@ export function BilingualInput({
   const hasEnError = Boolean(error?.en);
   const hasArError = Boolean(error?.ar);
 
+  // Snap to the offending language tab the first render an error arrives.
+  // Uses the React-docs "adjust state during render" pattern so user toggles
+  // are not clobbered while the same error remains.
+  const errorSig = `${error?.en ?? ''}|${error?.ar ?? ''}`;
+  const [seenErrorSig, setSeenErrorSig] = useState(errorSig);
+  if (errorSig !== seenErrorSig) {
+    setSeenErrorSig(errorSig);
+    if (error?.en && tab !== 'en') setTab('en');
+    else if (error?.ar && tab !== 'ar') setTab('ar');
+  }
+
   return (
     <div className="flex flex-col gap-1.5">
       {label ? (

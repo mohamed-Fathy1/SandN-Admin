@@ -31,6 +31,7 @@ export default defineConfig({
             '@radix-ui/react-tooltip',
           ],
           'motion': ['framer-motion'],
+          'recharts': ['recharts'],
         },
       },
     },

@@ -32,14 +32,14 @@ export async function fetchProducts(page: number): Promise<ApiProductListRespons
   const { data } = await api.get<ApiResponse<ApiProductListResponse>>(
     `/product/get-all-products?page=${page}`
   );
-  return data.data;
+  return data.data ?? { products: [], currentPage: page, totalPages: 0, total: 0 };
 }
 
 export async function searchProducts(query: string): Promise<ApiProduct[]> {
   const { data } = await api.get<ApiResponse<{ products: ApiProduct[] }>>(
     `/product/search?searchQuery=${encodeURIComponent(query)}`
   );
-  return data.data.products;
+  return data.data?.products ?? [];
 }
 
 export async function fetchProduct(id: string): Promise<ApiProduct> {

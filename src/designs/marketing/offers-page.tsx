@@ -13,6 +13,7 @@ import {
   NumberInput,
   Select,
   Switch,
+  Thumbnail,
   type SelectOption,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
@@ -55,18 +56,7 @@ export function OffersPage() {
         header: '',
         enableSorting: false,
         size: 60,
-        cell: ({ row }) =>
-          row.original.image ? (
-            <img
-              src={row.original.image}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-          ),
+        cell: ({ row }) => <Thumbnail src={row.original.image?.mediaUrl} size="sm" />,
       },
       {
         id: 'type',
@@ -240,7 +230,7 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
 
   const [type, setType] = useState<OfferType>(entity?.type ?? 'fixed_discount');
   const [isActive, setIsActive] = useState(entity?.isActive ?? true);
-  const [image, setImage] = useState(entity?.image ?? '');
+  const [image, setImage] = useState(entity?.image?.mediaUrl ?? '');
   const [description, setDescription] = useState(entity?.description ?? emptyBilingual());
   const [minOrderAmount, setMinOrderAmount] = useState<number | ''>(entity?.minOrderAmount ?? '');
   const [discountAmount, setDiscountAmount] = useState<number | ''>(entity?.discountAmount ?? '');
@@ -383,19 +373,26 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
             />
           </AdminFormField>
 
-          {showDiscount ? (
-            <AdminFormField label="Discount amount" required error={errors.discountAmount}>
-              <NumberInput
-                value={discountAmount}
-                onChange={setDiscountAmount}
-                suffix="EGP"
-                clampMin={0}
-                hasError={Boolean(errors.discountAmount)}
-                disabled={isPending}
-                placeholder="0"
-              />
-            </AdminFormField>
-          ) : null}
+          <AdminFormField
+            label="Discount amount"
+            required={showDiscount}
+            error={showDiscount ? errors.discountAmount : undefined}
+            hint={
+              showDiscount
+                ? 'Subtracted from the order total.'
+                : 'Only applies to "Fixed discount" offers.'
+            }
+          >
+            <NumberInput
+              value={showDiscount ? discountAmount : ''}
+              onChange={setDiscountAmount}
+              suffix="EGP"
+              clampMin={0}
+              hasError={Boolean(showDiscount && errors.discountAmount)}
+              disabled={isPending || !showDiscount}
+              placeholder="0"
+            />
+          </AdminFormField>
         </div>
 
       </form>

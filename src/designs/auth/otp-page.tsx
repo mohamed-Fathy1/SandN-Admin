@@ -70,7 +70,7 @@ export function OtpPage() {
           <button
             type="button"
             onClick={() => navigate({ to: '/login' })}
-            className="mb-6 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none"
+            className="mb-6 inline-flex items-center gap-1 rounded-md px-1 -mx-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
             Change email
@@ -108,21 +108,27 @@ export function OtpPage() {
               type="button"
               size="lg"
               className="w-full"
-              onClick={() => code.length === 6 && submitCode(code)}
+              onClick={() => {
+                if (code.length !== 6) {
+                  setError('Enter the 6-digit code.');
+                  otpRef.current?.focusFirst();
+                  return;
+                }
+                submitCode(code);
+              }}
               isLoading={activate.isPending}
               loadingText="Verifying…"
-              disabled={code.length !== 6}
             >
               Verify
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
-              Didn't get the code?{' '}
+              Didn&rsquo;t get the code?{' '}
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={cooldown.isActive || resend.isPending}
-                className="font-semibold text-accent hover:underline disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none"
+                className="rounded-md px-1 -mx-1 font-semibold text-accent transition-colors hover:underline disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {cooldown.isActive
                   ? `Resend in ${cooldown.secondsLeft}s`

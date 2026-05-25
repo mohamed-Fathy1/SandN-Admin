@@ -21,7 +21,7 @@ interface SingleResponse {
 
 export async function fetchOffers(): Promise<ApiOffer[]> {
   const { data } = await api.get<ApiResponse<ListResponse>>('/offers');
-  return data.data.offers;
+  return data.data.offers ?? [];
 }
 
 export async function createOffer(payload: OfferPayload): Promise<ApiOffer> {

@@ -7,14 +7,14 @@ const sample: ApiCategory[] = [
   {
     _id: 'cat-1',
     name: { en: 'Bras', ar: 'حمالة صدر' },
-    imageUrl: 'https://cdn.test/bras.jpg',
+    image: { mediaUrl: 'https://cdn.test/bras.jpg', mediaId: 'Category/bras' },
     groupSize: 'grp-1',
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
     _id: 'cat-2',
     name: { en: 'Panties', ar: 'سراويل' },
-    imageUrl: 'https://cdn.test/panties.jpg',
+    image: { mediaUrl: 'https://cdn.test/panties.jpg', mediaId: 'Category/panties' },
     groupSize: 'grp-1',
     createdAt: '2026-01-02T00:00:00.000Z',
   },

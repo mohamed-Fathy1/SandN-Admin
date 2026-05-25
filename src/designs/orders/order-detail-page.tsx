@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Truck } from 'lucide-react';
 import {
   Button,
   Card,
   ConfirmDialog,
+  NotFoundState,
   QueryErrorState,
   StatusBadge,
   PageSkeleton,
+  Thumbnail,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
@@ -29,6 +31,7 @@ import { cn } from '@/shared/utils/cn';
 import { formatDateTime, formatEGP } from '@/shared/utils/format';
 import { idOf, nameOf } from '@/shared/utils/relations';
 import { toEN } from '@/shared/utils/bilingual';
+import { isNotFoundError } from '@/shared/lib/api-error';
 import type { ApiOrder, ApiOrderProduct } from '@/shared/types/api';
 
 interface OrderDetailPageProps {
@@ -36,15 +39,26 @@ interface OrderDetailPageProps {
 }
 
 export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
+  const navigate = useNavigate();
   const orderQuery = useOrder(orderId);
   const updateStatus = useUpdateOrderStatus();
   const freeShipping = useApplyFreeShipping();
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   if (orderQuery.isPending) return <PageSkeleton />;
-  if (orderQuery.isError || !orderQuery.data) {
+  if (orderQuery.isError) {
+    if (isNotFoundError(orderQuery.error)) {
+      return (
+        <NotFoundState
+          error={orderQuery.error}
+          onBack={() => navigate({ to: ROUTES.orders, search: { page: 1, status: undefined } })}
+          backLabel="Back to orders"
+        />
+      );
+    }
     return <QueryErrorState error={orderQuery.error} onRetry={() => orderQuery.refetch()} />;
   }
+  if (!orderQuery.data) return <PageSkeleton />;
 
   const order = orderQuery.data;
   const next = nextStatus(order.status);
@@ -56,6 +70,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
     <>
       <PageHeader
         title={order.orderNumber}
+        breadcrumbLabel={`Order ${order.orderNumber}`}
         subtitle={`Placed ${formatDateTime(order.createdAt)}`}
         action={
           <div className="flex items-center gap-2">
@@ -131,7 +146,14 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
+          <Card>
+            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Summary
+            </h2>
+            <CostSummary order={order} />
+          </Card>
+
           <Card>
             <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Customer
@@ -171,14 +193,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
               </div>
             </div>
           </Card>
-
-          <Card>
-            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Summary
-            </h2>
-            <CostSummary order={order} />
-          </Card>
-        </div>
+        </aside>
       </div>
 
       <ConfirmDialog
@@ -270,23 +285,15 @@ function ProductsTable({ products }: { products: ApiOrderProduct[] }) {
           {products.map((p, idx) => {
             const productName =
               p.name?.en ?? (typeof p.productId === 'object' ? toEN(p.productId.name) : '—');
-            const image =
+            const imageMedia =
               p.image ?? (typeof p.productId === 'object' ? p.productId.defaultImage : undefined);
+            const imageUrl =
+              typeof imageMedia === 'string' ? imageMedia : imageMedia?.mediaUrl;
             return (
               <tr key={`${idOf(p.productId)}-${idOf(p.variantId)}-${idx}`}>
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-3">
-                    {image ? (
-                      <img
-                        src={image}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="h-10 w-10 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-                    )}
+                    <Thumbnail src={imageUrl} size="sm" />
                     <span className="font-medium text-foreground">{productName}</span>
                   </div>
                 </td>

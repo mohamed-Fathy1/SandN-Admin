@@ -8,8 +8,9 @@ import {
   type SortingState,
   type Updater,
 } from '@tanstack/react-table';
-import { ChevronDown, ChevronsUpDown, ChevronUp } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { ChevronsUpDown } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 const sortedRowModel = getSortedRowModel();
 import { Checkbox } from './checkbox';
@@ -17,6 +18,8 @@ import { EmptyState } from './empty-state';
 import { QueryErrorState } from './query-error-state';
 import { TableSkeleton } from './skeletons';
 import { PaginationControls } from './pagination-controls';
+import { usePrefersReducedMotion } from './motion';
+import { A } from '@/designs/layout/tokens';
 import { cn } from '@/shared/utils/cn';
 
 export interface AdminTableProps<T> {
@@ -29,11 +32,27 @@ export interface AdminTableProps<T> {
   pagination?: { page: number; totalPages: number; onPageChange: (page: number) => void };
   rowSelection?: boolean;
   onRowSelectionChange?: (rows: T[]) => void;
-  emptyState?: { title: string; description?: string; action?: React.ReactNode };
+  emptyState?: { title?: string; description?: string; action?: React.ReactNode };
+  /** Filtered state: switches EmptyState to no-results variant + offers Clear CTA. */
+  isFiltered?: boolean;
+  onClearFilters?: () => void;
   onRowClick?: (row: T) => void;
   onRowHover?: (row: T) => void;
   getRowId: (row: T) => string;
   enableSorting?: boolean;
+  /**
+   * Render a sticky selection bar above the table when ≥1 row is selected.
+   * Receives the selected rows + a callback that clears the selection.
+   */
+  bulkActions?: (selected: T[], clear: () => void) => React.ReactNode;
+  /** Pin the first non-selection column on horizontal scroll. */
+  stickyFirstCol?: boolean;
+  /**
+   * Render this in place of the table on screens below `md`. When provided,
+   * the table only shows from `md` upwards. Loading / empty / error states
+   * still go through the standard AdminTable layout.
+   */
+  mobileRender?: (row: T) => React.ReactNode;
   className?: string;
 }
 
@@ -48,14 +67,21 @@ export function AdminTable<T>({
   rowSelection,
   onRowSelectionChange,
   emptyState,
+  isFiltered,
+  onClearFilters,
   onRowClick,
   onRowHover,
   getRowId,
   enableSorting = true,
+  bulkActions,
+  stickyFirstCol,
+  mobileRender,
   className,
 }: AdminTableProps<T>) {
   const [selection, setSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
+  const reduced = usePrefersReducedMotion();
+  const hasAnimatedRef = useRef(false);
 
   const allColumns = useMemo<ColumnDef<T>[]>(() => {
     if (!rowSelection) return columns;
@@ -121,12 +147,26 @@ export function AdminTable<T>({
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title={emptyState?.title ?? 'Nothing here yet'}
+        variant={isFiltered ? 'no-results' : 'no-data'}
+        title={emptyState?.title}
         description={emptyState?.description}
         action={emptyState?.action}
+        onClearFilters={onClearFilters}
       />
     );
   }
+
+  const selectedRows = (data ?? []).filter((row) => selection[getRowId(row)]);
+  const selectedCount = selectedRows.length;
+  const clearSelection = () => setSelection({});
+
+  const shouldAnimateRows = !reduced && !hasAnimatedRef.current;
+  if (data && data.length > 0) hasAnimatedRef.current = true;
+
+  // First non-selection column id — used for sticky-col targeting.
+  const firstDataColId = allColumns.find((c) => c.id !== '__select')?.id;
+  const isStickyCol = (colId: string | undefined) =>
+    Boolean(stickyFirstCol && colId && colId === firstDataColId);
 
   return (
     <div
@@ -135,19 +175,67 @@ export function AdminTable<T>({
         className
       )}
     >
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border bg-muted/50">
+      {bulkActions && selectedCount > 0 ? (
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-accent-soft/60 px-5 py-3"
+          role="region"
+          aria-label="Bulk actions"
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-flex h-7 items-center rounded-full bg-accent px-3 text-xs font-semibold text-accent-foreground"
+              aria-live="polite"
+            >
+              {selectedCount} selected
+            </span>
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="flex items-center gap-2">{bulkActions(selectedRows, clearSelection)}</div>
+        </div>
+      ) : null}
+      {mobileRender ? (
+        <ul className="grid gap-2 p-3 md:hidden" role="list">
+          {table.getRowModel().rows.map((row) => (
+            <li key={row.id}>{mobileRender(row.original)}</li>
+          ))}
+        </ul>
+      ) : null}
+      <div className={cn('overflow-x-auto', mobileRender && 'hidden md:block')}>
+        <table
+          className={cn(
+            'w-full text-sm',
+            stickyFirstCol && 'border-separate border-spacing-0'
+          )}
+        >
+          <thead
+            className="border-b border-border"
+            style={{
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              WebkitBackdropFilter: 'var(--glass-blur)',
+            }}
+          >
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
                   const sortDir = header.column.getIsSorted();
+                  const sticky = isStickyCol(header.column.id);
                   return (
                     <th
                       key={header.id}
                       scope="col"
-                      className="sticky top-0 z-[1] px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
+                      className={cn(
+                        'sticky top-0 z-[1] px-6 py-3.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground',
+                        sticky &&
+                          'md:sticky md:left-0 md:z-[2] md:bg-[color-mix(in_srgb,var(--card)_92%,transparent)] md:shadow-[1px_0_0_0_var(--border)]'
+                      )}
                       style={{ width: header.getSize() === 0 ? undefined : header.getSize() }}
                     >
                       {header.isPlaceholder ? null : canSort ? (
@@ -168,7 +256,7 @@ export function AdminTable<T>({
                           }
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          <SortIcon dir={sortDir} />
+                          <SortIcon dir={sortDir} reduced={reduced} />
                         </button>
                       ) : (
                         flexRender(header.column.columnDef.header, header.getContext())
@@ -179,25 +267,68 @@ export function AdminTable<T>({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-border">
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                onMouseEnter={onRowHover ? () => onRowHover(row.original) : undefined}
-                className={cn(
-                  'transition-colors',
-                  onRowClick && 'cursor-pointer hover:bg-muted/60',
-                  !onRowClick && 'hover:bg-muted/30'
-                )}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-3.5 align-middle text-foreground">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
+          <tbody className="divide-y divide-border/60">
+            {table.getRowModel().rows.map((row, idx) => {
+              const initial = shouldAnimateRows ? { opacity: 0, y: 6 } : false;
+              const animate = shouldAnimateRows ? { opacity: 1, y: 0 } : undefined;
+              const delay = Math.min(idx, 11) * 0.025;
+              return (
+                <motion.tr
+                  key={row.id}
+                  initial={initial}
+                  animate={animate}
+                  transition={{
+                    duration: A.motionDuration.fast,
+                    delay,
+                    ease: A.easeOut,
+                  }}
+                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                  onMouseEnter={onRowHover ? () => onRowHover(row.original) : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  aria-label={onRowClick ? 'Open row' : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onRowClick(row.original);
+                          }
+                        }
+                      : undefined
+                  }
+                  className={cn(
+                    'group/row transition-[color,background-color] duration-150 ease-out',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+                    onRowClick &&
+                      'cursor-pointer hover:bg-accent-soft/60 motion-safe:hover:shadow-[inset_3px_0_0_0_var(--accent)]',
+                    !onRowClick && 'hover:bg-accent-soft/30',
+                    row.getIsSelected() && 'bg-accent-soft/30'
+                  )}
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    const sticky = isStickyCol(cell.column.id);
+                    const isSelected = row.getIsSelected();
+                    return (
+                      <td
+                        key={cell.id}
+                        className={cn(
+                          'px-6 py-4 align-middle text-foreground',
+                          stickyFirstCol && 'border-b border-border/60',
+                          sticky &&
+                            'md:sticky md:left-0 md:z-[1] md:shadow-[1px_0_0_0_var(--border)]',
+                          sticky &&
+                            (isSelected
+                              ? 'md:bg-[color-mix(in_srgb,var(--accent-soft)_30%,var(--card))]'
+                              : 'md:bg-card')
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    );
+                  })}
+                </motion.tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -215,15 +346,29 @@ export function AdminTable<T>({
   );
 }
 
-function SortIcon({ dir }: { dir: false | 'asc' | 'desc' }) {
-  if (dir === 'asc') return <ChevronUp size={12} strokeWidth={2} aria-hidden />;
-  if (dir === 'desc') return <ChevronDown size={12} strokeWidth={2} aria-hidden />;
+function SortIcon({ dir, reduced }: { dir: false | 'asc' | 'desc'; reduced: boolean }) {
+  if (!dir) {
+    return (
+      <ChevronsUpDown
+        size={12}
+        strokeWidth={1.5}
+        aria-hidden
+        className="text-light-foreground"
+      />
+    );
+  }
+  const rotate = dir === 'asc' ? 180 : 0;
   return (
-    <ChevronsUpDown
-      size={12}
-      strokeWidth={1.5}
+    <motion.span
       aria-hidden
-      className="text-light-foreground"
-    />
+      initial={false}
+      animate={{ rotate }}
+      transition={reduced ? { duration: 0 } : A.springSnappy}
+      style={{ display: 'inline-flex', transformOrigin: 'center' }}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </motion.span>
   );
 }

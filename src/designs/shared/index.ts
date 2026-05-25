@@ -17,8 +17,10 @@ export { BilingualInput } from './bilingual-input';
 
 export { ConfirmDialog } from './confirm-dialog';
 export { FormSheet } from './form-sheet';
+export { StickyActionBar, type StickyActionStatus } from './sticky-action-bar';
 
 export { AdminTable, type AdminTableProps } from './admin-table';
+export { TableToolbar } from './table-toolbar';
 export { PaginationControls } from './pagination-controls';
 
 export { AdminImageUploader, ImageAddTile } from './admin-image-uploader';
@@ -26,6 +28,7 @@ export { AdminImageUploaderMulti } from './admin-image-uploader-multi';
 
 export { StatusBadge, GenericBadge, ActiveBadge } from './status-badge';
 export { EmptyState } from './empty-state';
+export { NotFoundState } from './not-found-state';
 export { QueryErrorState } from './query-error-state';
 export {
   Skeleton,
@@ -35,3 +38,12 @@ export {
   CardGridSkeleton,
 } from './skeletons';
 export { Kbd } from './kbd';
+export { Thumbnail } from './thumbnail';
+
+export {
+  FadeUp,
+  StaggerList,
+  FloatingOrb,
+  PageTransition,
+  usePrefersReducedMotion,
+} from './motion';

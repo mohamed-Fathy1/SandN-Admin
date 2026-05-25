@@ -42,6 +42,16 @@ export const A = {
   shadowMd: '0 4px 24px rgba(64, 20, 35, 0.10)',
   shadowLg: '0 12px 40px rgba(64, 20, 35, 0.14)',
   shadowOverlay: '0 24px 64px rgba(0, 0, 0, 0.24)',
+  shadowInset: 'inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(64,20,35,0.04)',
+  shadowGlow: '0 0 0 6px rgba(191,60,104,0.10)',
+
+  // Surface treatments
+  bgVignette: 'linear-gradient(180deg, rgba(64,20,35,0) 0%, rgba(64,20,35,0.04) 100%)',
+  glass: {
+    bg: 'rgba(255,255,255,0.72)',
+    blur: 'blur(16px)',
+    border: 'rgba(64,20,35,0.08)',
+  },
 
   // Order status palette
   status: {
@@ -92,6 +102,9 @@ export const A = {
   // Animation
   easeOut: [0.22, 1, 0.36, 1] as const,
   spring: { type: 'spring' as const, stiffness: 380, damping: 28 },
+  springSoft: { type: 'spring' as const, stiffness: 280, damping: 26 },
+  springSnappy: { type: 'spring' as const, stiffness: 420, damping: 28 },
+  motionDuration: { fast: 0.18, base: 0.28, slow: 0.45 },
 } as const;
 
 export type StatusKey = keyof typeof A.status;

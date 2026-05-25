@@ -15,19 +15,22 @@ interface SubCategoryListResponse {
 interface SubCategorySingleResponse {
   subCategory: ApiSubCategory;
 }
+interface SubCategoryUpdateResponse {
+  updates: ApiSubCategory;
+}
 
 export async function fetchSubCategories(): Promise<ApiSubCategory[]> {
   const { data } = await api.get<ApiResponse<SubCategoryListResponse>>(
     '/sub-category/get-all-sub-categories'
   );
-  return data.data.subCategories;
+  return data.data?.subCategories ?? [];
 }
 
 export async function fetchDeletedSubCategories(): Promise<ApiSubCategory[]> {
   const { data } = await api.get<ApiResponse<SubCategoryListResponse>>(
     '/sub-category/all-deleted-sub-categories'
   );
-  return data.data.subCategories;
+  return data.data?.subCategories ?? [];
 }
 
 export async function fetchSubCategory(id: string): Promise<ApiSubCategory> {
@@ -49,11 +52,11 @@ export async function updateSubCategory(
   id: string,
   payload: SubCategoryPayload
 ): Promise<ApiSubCategory> {
-  const { data } = await api.patch<ApiResponse<SubCategorySingleResponse>>(
+  const { data } = await api.patch<ApiResponse<SubCategoryUpdateResponse>>(
     `/sub-category/update/${id}`,
     payload
   );
-  return data.data.subCategory;
+  return data.data.updates;
 }
 
 export async function softDeleteSubCategory(id: string): Promise<void> {

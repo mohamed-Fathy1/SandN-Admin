@@ -6,20 +6,25 @@ import { cn } from '@/shared/utils/cn';
 
 const buttonVariants = cva(
   [
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-all',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-    'disabled:cursor-not-allowed disabled:opacity-50',
+    'group/btn relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold',
+    'transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-out',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
     'aria-busy:cursor-progress',
+    'active:translate-y-px motion-safe:active:scale-[0.98]',
   ].join(' '),
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-accent-foreground hover:bg-accent-hover shadow-accent',
-        secondary: 'bg-card text-foreground border border-border-medium hover:bg-muted',
+        primary:
+          'bg-accent text-accent-foreground shadow-accent hover:bg-accent-hover hover:shadow-[0_10px_30px_-8px_rgba(191,60,104,0.45)] hover:-translate-y-px focus-visible:shadow-[var(--shadow-glow)]',
+        secondary:
+          'bg-card text-foreground border border-border-medium hover:border-border-strong hover:bg-muted',
         ghost: 'bg-transparent text-foreground hover:bg-muted',
         outline:
-          'bg-transparent text-foreground border border-border-strong hover:border-accent hover:text-accent',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive-hover',
+          'bg-transparent text-foreground border border-border-strong hover:border-accent hover:text-accent hover:bg-accent-soft',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-[0_4px_20px_-4px_rgba(220,38,38,0.4)] hover:bg-destructive-hover hover:-translate-y-px',
         link: 'bg-transparent text-accent hover:text-accent-hover underline-offset-4 hover:underline rounded-none',
       },
       size: {
@@ -60,7 +65,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} aria-hidden />
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.75} aria-hidden />
             <span className="sr-only">Loading…</span>
             <span>{loadingText ?? children}</span>
           </>

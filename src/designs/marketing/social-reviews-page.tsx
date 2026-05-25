@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import {
+  AdminImageUploader,
   Card,
   CardGridSkeleton,
   ConfirmDialog,
-  EmptyState,
   ImageAddTile,
   QueryErrorState,
 } from '@/designs/shared';
@@ -37,24 +37,25 @@ export function SocialReviewsPage() {
       ) : reviewsQuery.isError ? (
         <QueryErrorState error={reviewsQuery.error} onRetry={() => reviewsQuery.refetch()} />
       ) : !hasReviews ? (
-        <EmptyState
-          title="No reviews yet"
-          description="Upload your first social proof image."
-          action={
-            <div className="w-40">
-              <ImageAddTile
-                folder="SocialReview"
-                onUploaded={(fileUrl) => createReview.mutate(fileUrl)}
-              />
-            </div>
-          }
-        />
+        <div className="mx-auto max-w-md text-center">
+          <h3 className="font-display text-2xl italic text-foreground">No reviews yet</h3>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Upload your first social proof image to start a feed.
+          </p>
+          <div className="mt-6">
+            <AdminImageUploader
+              folder="SocialReview"
+              onChange={(fileUrl) => createReview.mutate(fileUrl)}
+              aspectRatio="3 / 2"
+            />
+          </div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {reviews.map((review) => (
             <Card key={review._id} padding="none" className="group relative overflow-hidden">
               <img
-                src={review.imageUrl}
+                src={review.image?.mediaUrl}
                 alt="Social review"
                 loading="lazy"
                 decoding="async"

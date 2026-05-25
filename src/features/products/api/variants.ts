@@ -33,7 +33,7 @@ export async function fetchVariantsByProduct(productId: string): Promise<ApiVari
   const { data } = await api.get<ApiResponse<VariantListResponse>>(
     `/variant/product/${productId}`
   );
-  return data.data.variants;
+  return data.data?.variants ?? [];
 }
 
 export async function createVariant(payload: CreateVariantPayload): Promise<ApiVariant> {

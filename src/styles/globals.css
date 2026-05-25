@@ -73,6 +73,14 @@
   --shadow-popover: 0 4px 24px rgba(64, 20, 35, 0.1);
   --shadow-overlay: 0 12px 40px rgba(64, 20, 35, 0.14);
   --shadow-accent: 0 4px 24px rgba(191, 60, 104, 0.18);
+  --shadow-glow: 0 0 0 6px rgba(191, 60, 104, 0.1);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(64, 20, 35, 0.04);
+
+  /* ── Glass + vignette ────────────────────────────────── */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-blur: blur(16px);
+  --glass-border: rgba(64, 20, 35, 0.08);
+  --bg-vignette: linear-gradient(180deg, rgba(64, 20, 35, 0) 0%, rgba(64, 20, 35, 0.04) 100%);
 }
 
 * {

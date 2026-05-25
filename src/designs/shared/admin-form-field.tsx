@@ -46,14 +46,23 @@ export function AdminFormField({
   }
 
   return (
-    <div className={cn('flex flex-col gap-1.5', className)}>
+    <div className={cn('group/field flex flex-col gap-1.5', className)}>
       {label ? (
         <LabelPrimitive.Root
           htmlFor={fieldId}
-          className="text-sm font-medium text-foreground"
+          className={cn(
+            'text-sm font-medium transition-colors duration-150',
+            error
+              ? 'text-destructive'
+              : 'text-foreground group-focus-within/field:text-accent'
+          )}
         >
           {label}
-          {required && <span className="ml-1 text-destructive">*</span>}
+          {required && (
+            <span className="ml-1 text-destructive" aria-hidden>
+              *
+            </span>
+          )}
         </LabelPrimitive.Root>
       ) : null}
       {renderedChild}

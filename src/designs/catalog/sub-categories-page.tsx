@@ -10,9 +10,12 @@ import {
   ConfirmDialog,
   FormSheet,
   SearchableSelect,
+  Select,
+  TableToolbar,
   Tabs,
   TabsList,
   TabsTrigger,
+  Thumbnail,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { useCategories } from '@/features/catalog/categories/hooks/use-categories';
@@ -43,6 +46,8 @@ export function SubCategoriesPage() {
   const [editing, setEditing] = useState<ApiSubCategory | null>(null);
   const [softDeleting, setSoftDeleting] = useState<ApiSubCategory | null>(null);
   const [hardDeleting, setHardDeleting] = useState<ApiSubCategory | null>(null);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
 
   const activeQuery = useSubCategories();
   const deletedQuery = useDeletedSubCategories();
@@ -53,6 +58,21 @@ export function SubCategoriesPage() {
   const hardDelete = useHardDeleteSubCategory();
 
   const currentQuery = tab === 'active' ? activeQuery : deletedQuery;
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredData = useMemo(() => {
+    let rows = currentQuery.data;
+    if (!rows) return rows;
+    if (normalizedSearch) {
+      rows = rows.filter((c) =>
+        `${c.name.en} ${c.name.ar}`.toLowerCase().includes(normalizedSearch)
+      );
+    }
+    if (categoryFilter) {
+      rows = rows.filter((c) => idOf(c.category) === categoryFilter);
+    }
+    return rows;
+  }, [currentQuery.data, normalizedSearch, categoryFilter]);
+  const isFiltered = normalizedSearch.length > 0 || Boolean(categoryFilter);
 
   const categoryNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -67,18 +87,7 @@ export function SubCategoriesPage() {
         header: '',
         enableSorting: false,
         size: 60,
-        cell: ({ row }) =>
-          row.original.imageUrl ? (
-            <img
-              src={row.original.imageUrl}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-          ),
+        cell: ({ row }) => <Thumbnail src={row.original.image?.mediaUrl} size="sm" />,
       },
       {
         id: 'nameEn',
@@ -190,20 +199,115 @@ export function SubCategoriesPage() {
         }
       />
 
+      <div className="mb-4">
+        <TableToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search sub-categories by name…"
+          filters={
+            categoriesQuery.data && categoriesQuery.data.length > 0 ? (
+              <Select
+                value={categoryFilter || '__all'}
+                onValueChange={(v) => setCategoryFilter(v === '__all' ? '' : v)}
+                placeholder="All categories"
+                options={[
+                  { value: '__all', label: 'All categories' },
+                  ...categoriesQuery.data.map((c) => ({ value: c._id, label: c.name.en })),
+                ]}
+                aria-label="Filter by parent category"
+                className="min-w-[180px]"
+              />
+            ) : null
+          }
+          meta={
+            currentQuery.data
+              ? `${filteredData?.length ?? 0} of ${currentQuery.data.length}`
+              : undefined
+          }
+        />
+      </div>
+
       <AdminTable
-        data={currentQuery.data}
+        data={filteredData}
         columns={columns}
         isLoading={currentQuery.isPending}
         isError={currentQuery.isError}
         error={currentQuery.error}
         onRetry={() => currentQuery.refetch()}
         getRowId={(c) => c._id}
+        isFiltered={isFiltered}
+        onClearFilters={() => {
+          setSearch('');
+          setCategoryFilter('');
+        }}
+        mobileRender={(c) => (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+            <Thumbnail src={c.image?.mediaUrl} size="lg" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-foreground">{c.name.en}</p>
+              <p
+                dir="rtl"
+                className="truncate font-body-ar text-xs text-muted-foreground"
+              >
+                {c.name.ar}
+              </p>
+              <p className="mt-0.5 text-[11px] text-light-foreground">
+                {categoryNameById.get(idOf(c.category)) ?? '—'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              {tab === 'active' ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditing(c);
+                    }}
+                  >
+                    <Pencil size={14} strokeWidth={1.5} aria-hidden />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSoftDeleting(c);
+                    }}
+                  >
+                    <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    restore.mutate(c._id);
+                  }}
+                  isLoading={restore.isPending && restore.variables === c._id}
+                >
+                  <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         emptyState={{
           title: tab === 'active' ? 'No sub-categories yet' : 'Nothing in the trash',
           description:
             tab === 'active'
               ? 'Create a parent category first, then add sub-categories underneath.'
               : 'Soft-deleted sub-categories will appear here.',
+          action:
+            tab === 'active' && categoriesQuery.data?.length ? (
+              <Button onClick={() => setCreating(true)} size="sm">
+                <Plus size={14} strokeWidth={1.5} aria-hidden />
+                Add sub-category
+              </Button>
+            ) : undefined,
         }}
       />
 
@@ -274,7 +378,7 @@ function SubCategoryFormSheet({
     name: entity?.name ?? emptyBilingual(),
     groupSize: entity ? idOf(entity.groupSize) : '',
     category: entity ? idOf(entity.category) : '',
-    imageUrl: entity?.imageUrl ?? '',
+    imageUrl: entity?.image?.mediaUrl ?? '',
   };
   const [values, setValues] = useState<SubCategoryFormValues>(initial);
   const [errors, setErrors] = useState<{

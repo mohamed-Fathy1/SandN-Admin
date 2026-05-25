@@ -16,7 +16,7 @@ interface ColorSingleResponse {
 
 export async function fetchColors(): Promise<ApiColor[]> {
   const { data } = await api.get<ApiResponse<ColorListResponse>>('/color');
-  return data.data.colors;
+  return data.data?.colors ?? [];
 }
 
 export async function fetchColor(id: string): Promise<ApiColor> {

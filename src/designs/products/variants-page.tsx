@@ -8,9 +8,12 @@ import {
   ConfirmDialog,
   Input,
   NumberInput,
+  NotFoundState,
   PageSkeleton,
   QueryErrorState,
   SearchableSelect,
+  StickyActionBar,
+  type StickyActionStatus,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
@@ -24,6 +27,7 @@ import {
   useVariantsByProduct,
 } from '@/features/products/hooks/use-variants';
 import type { ApiColor, ApiVariant } from '@/shared/types/api';
+import { isNotFoundError } from '@/shared/lib/api-error';
 
 interface VariantsPageProps {
   productId: string;
@@ -38,14 +42,25 @@ interface DraftRow {
 }
 
 export function VariantsPage({ productId }: VariantsPageProps) {
+  const navigate = useNavigate();
   const productQuery = useProduct(productId);
   const variantsQuery = useVariantsByProduct(productId);
+  const loadError = productQuery.error ?? variantsQuery.error;
 
   if (productQuery.isPending || variantsQuery.isPending) return <PageSkeleton />;
   if (productQuery.isError || variantsQuery.isError) {
+    if (isNotFoundError(loadError)) {
+      return (
+        <NotFoundState
+          error={loadError}
+          onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '' } })}
+          backLabel="Back to products"
+        />
+      );
+    }
     return (
       <QueryErrorState
-        error={productQuery.error ?? variantsQuery.error}
+        error={loadError}
         onRetry={() => {
           productQuery.refetch();
           variantsQuery.refetch();
@@ -176,10 +191,29 @@ function VariantsInner({
   const allChecked = drafts.length > 0 && drafts.every((d) => selected.has(d._id));
   const someChecked = !allChecked && drafts.some((d) => selected.has(d._id));
 
+  const handleDiscard = () =>
+    setDrafts((p) =>
+      p.map((d) => ({ ...d, size: d.original.size, color: d.original.color, quantity: d.original.quantity }))
+    );
+
+  const stickyOpen = dirtyRows.length > 0 || selected.size > 0;
+  const stickyStatus: StickyActionStatus = bulkUpdate.isPending
+    ? 'saving'
+    : dirtyRows.length > 0
+      ? 'dirty'
+      : 'idle';
+  const stickyLabel =
+    bulkUpdate.isPending
+      ? `Saving ${dirtyRows.length} row${dirtyRows.length === 1 ? '' : 's'}…`
+      : dirtyRows.length > 0
+        ? `${dirtyRows.length} unsaved row${dirtyRows.length === 1 ? '' : 's'}`
+        : `${selected.size} selected`;
+
   return (
     <>
       <PageHeader
         title={`${productName} — Variants`}
+        breadcrumbLabel={`${productName} variants`}
         subtitle="Inline-edit stock, sizes, and colors. Save dirty rows in one shot."
         action={
           <div className="flex items-center gap-2">
@@ -192,22 +226,6 @@ function VariantsInner({
               onClick={() => navigate({ to: ROUTES.productDetail(productId) })}
             >
               Edit product
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => setBulkDeleting(true)}
-              disabled={selected.size === 0 || bulkDelete.isPending}
-            >
-              <Trash2 size={14} strokeWidth={1.5} aria-hidden />
-              Delete selected ({selected.size})
-            </Button>
-            <Button
-              onClick={handleBulkSave}
-              disabled={dirtyRows.length === 0 || bulkUpdate.isPending}
-              isLoading={bulkUpdate.isPending}
-            >
-              <Save size={14} strokeWidth={1.5} aria-hidden />
-              Save {dirtyRows.length > 0 ? `(${dirtyRows.length})` : ''}
             </Button>
           </div>
         }
@@ -255,7 +273,10 @@ function VariantsInner({
                     d.color !== d.original.color ||
                     d.quantity !== d.original.quantity;
                   return (
-                    <tr key={d._id} className="hover:bg-muted/30">
+                    <tr
+                      key={d._id}
+                      className={`group/row transition-shadow hover:bg-muted/30 ${isDirty ? 'bg-accent-soft/30 shadow-[inset_3px_0_0_0_var(--color-accent)]' : ''}`}
+                    >
                       <td className="px-4 py-3">
                         <Checkbox
                           checked={selected.has(d._id)}
@@ -369,6 +390,48 @@ function VariantsInner({
           </table>
         </div>
       </Card>
+
+      {/* Reserve clearance so the table never sits under the sticky action bar */}
+      <div aria-hidden className="h-24" />
+
+      <StickyActionBar
+        open={stickyOpen}
+        status={stickyStatus}
+        statusLabel={stickyLabel}
+        destructive={
+          selected.size > 0 ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setBulkDeleting(true)}
+              isLoading={bulkDelete.isPending}
+              loadingText={`Deleting ${selected.size}…`}
+            >
+              <Trash2 size={14} strokeWidth={1.5} aria-hidden />
+              Delete selected ({selected.size})
+            </Button>
+          ) : null
+        }
+        secondary={
+          dirtyRows.length > 0 ? (
+            <Button variant="ghost" onClick={handleDiscard} disabled={bulkUpdate.isPending}>
+              Discard
+            </Button>
+          ) : null
+        }
+        primary={
+          dirtyRows.length > 0 ? (
+            <Button
+              onClick={handleBulkSave}
+              isLoading={bulkUpdate.isPending}
+              loadingText={`Saving ${dirtyRows.length}…`}
+            >
+              <Save size={14} strokeWidth={1.5} aria-hidden />
+              Save {dirtyRows.length} change{dirtyRows.length === 1 ? '' : 's'}
+            </Button>
+          ) : null
+        }
+      />
 
       <ConfirmDialog
         open={bulkDeleting}

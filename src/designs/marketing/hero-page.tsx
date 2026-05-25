@@ -50,23 +50,23 @@ export function HeroPage() {
         <QueryErrorState error={heroQuery.error} onRetry={() => heroQuery.refetch()} />
       ) : !heroQuery.data || heroQuery.data.length === 0 ? (
         <EmptyState
-          title="No slides yet"
-          description="Add one to feature it on the storefront hero."
+          title="Homepage hero is empty"
+          description="Without a slide the storefront's homepage will load with a blank banner. Add one to bring it back."
           action={
             <Button onClick={() => setCreating(true)}>
               <Plus size={16} strokeWidth={1.5} aria-hidden />
-              Add slide
+              Add first slide
             </Button>
           }
         />
       ) : (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {heroQuery.data.map((hero) => (
-            <Card key={hero._id} padding="none" className="overflow-hidden">
-              <div className="grid grid-cols-3 gap-2 p-3">
-                <div className="col-span-1 overflow-hidden rounded-lg bg-muted">
+            <Card key={hero._id} padding="none" className="group overflow-hidden">
+              <div className="flex gap-2 p-3">
+                <div className="w-1/3 shrink-0 overflow-hidden rounded-lg bg-muted">
                   <img
-                    src={hero.images.image1.imageUrl}
+                    src={hero.images.image1.mediaUrl}
                     alt="Small banner"
                     loading="lazy"
                     decoding="async"
@@ -74,14 +74,14 @@ export function HeroPage() {
                     style={{ aspectRatio: '3 / 4' }}
                   />
                 </div>
-                <div className="col-span-2 overflow-hidden rounded-lg bg-muted">
+                <div className="flex-1 overflow-hidden rounded-lg bg-muted">
                   <img
-                    src={hero.images.image2.imageUrl}
+                    src={hero.images.image2.mediaUrl}
                     alt="Large banner"
                     loading="lazy"
                     decoding="async"
                     className="h-full w-full object-cover"
-                    style={{ aspectRatio: '3 / 4' }}
+                    style={{ aspectRatio: '16 / 9' }}
                   />
                 </div>
               </div>
@@ -142,8 +142,8 @@ function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
   const isEdit = Boolean(entity);
   const isPending = create.isPending || update.isPending;
 
-  const [smallImage, setSmallImage] = useState(entity?.images.image1.imageUrl ?? '');
-  const [largeImage, setLargeImage] = useState(entity?.images.image2.imageUrl ?? '');
+  const [smallImage, setSmallImage] = useState(entity?.images.image1.mediaUrl ?? '');
+  const [largeImage, setLargeImage] = useState(entity?.images.image2.mediaUrl ?? '');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {

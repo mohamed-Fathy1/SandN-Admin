@@ -7,8 +7,16 @@ const sample: ApiHeroSection[] = [
   {
     _id: 'hero-1',
     images: {
-      image1: { imageUrl: 'https://cdn.test/h1-small.jpg', imageType: 'small' },
-      image2: { imageUrl: 'https://cdn.test/h1-large.jpg', imageType: 'large' },
+      image1: {
+        mediaUrl: 'https://cdn.test/h1-small.jpg',
+        mediaId: 'ImageSlider/h1-small',
+        mediaType: 'small',
+      },
+      image2: {
+        mediaUrl: 'https://cdn.test/h1-large.jpg',
+        mediaId: 'ImageSlider/h1-large',
+        mediaType: 'large',
+      },
     },
   },
 ];
@@ -17,7 +25,7 @@ export const heroHandlers = [
   http.get(`${API}/hero-section/all`, () =>
     HttpResponse.json({
       statusCode: 200,
-      data: { heroSections: sample },
+      data: { imageSlider: sample },
       message: 'OK',
       success: true,
     })

@@ -27,6 +27,15 @@ if (typeof globalThis.sessionStorage === 'undefined') {
   Object.defineProperty(globalThis, 'sessionStorage', { value: createMemoryStorage() });
 }
 
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  Object.defineProperty(globalThis, 'ResizeObserver', { value: ResizeObserverStub });
+}
+
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();

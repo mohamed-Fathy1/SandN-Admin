@@ -12,7 +12,7 @@ interface GroupSingleResponse {
 
 export async function fetchGroups(): Promise<ApiGroup[]> {
   const { data } = await api.get<ApiResponse<GroupListResponse>>('/group-size/group-all');
-  return data.data.groups;
+  return data.data?.groups ?? [];
 }
 
 export async function fetchGroup(id: string): Promise<ApiGroup> {

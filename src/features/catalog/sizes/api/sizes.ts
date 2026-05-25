@@ -17,14 +17,14 @@ interface SizeSingleResponse {
 
 export async function fetchSizes(): Promise<ApiSize[]> {
   const { data } = await api.get<ApiResponse<SizeListResponse>>('/group-size/all-size');
-  return data.data.sizes;
+  return data.data?.sizes ?? [];
 }
 
 export async function fetchSizesByGroup(groupId: string): Promise<ApiSize[]> {
   const { data } = await api.get<ApiResponse<SizeListResponse>>(
     `/group-size/all-sizes-by-group/${groupId}`
   );
-  return data.data.sizes;
+  return data.data?.sizes ?? [];
 }
 
 export async function fetchSize(id: string): Promise<ApiSize> {

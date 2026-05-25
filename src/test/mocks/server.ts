@@ -8,10 +8,14 @@ import { shippingHandlers } from './handlers/shipping';
 import { heroHandlers } from './handlers/hero';
 import { socialReviewHandlers } from './handlers/social-reviews';
 import { wishlistHandlers } from './handlers/wishlist';
+import { catalogSupportHandlers } from './handlers/catalog-support';
+import { productsHandlers } from './handlers/products';
 
 export const server = setupServer(
   ...authHandlers,
   ...categoryHandlers,
+  ...catalogSupportHandlers,
+  ...productsHandlers,
   ...s3Handlers,
   ...ordersHandlers,
   ...offersHandlers,

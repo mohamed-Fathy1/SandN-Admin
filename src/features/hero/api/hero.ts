@@ -8,10 +8,13 @@ export interface HeroPayload {
 }
 
 interface HeroListResponse {
-  heroSections: ApiHeroSection[];
+  imageSlider: ApiHeroSection[];
 }
 interface HeroSingleResponse {
-  heroSection: ApiHeroSection;
+  imageSlider: ApiHeroSection;
+}
+interface HeroWriteResponse {
+  media: ApiHeroSection;
 }
 
 function toServerBody(payload: HeroPayload) {
@@ -25,26 +28,31 @@ function toServerBody(payload: HeroPayload) {
 
 export async function fetchHeroSections(): Promise<ApiHeroSection[]> {
   const { data } = await api.get<ApiResponse<HeroListResponse>>('/hero-section/all');
-  return data.data.heroSections;
+  return data.data.imageSlider ?? [];
+}
+
+export async function fetchHeroSection(id: string): Promise<ApiHeroSection> {
+  const { data } = await api.get<ApiResponse<HeroSingleResponse>>(`/hero-section/${id}`);
+  return data.data.imageSlider;
 }
 
 export async function createHeroSection(payload: HeroPayload): Promise<ApiHeroSection> {
-  const { data } = await api.post<ApiResponse<HeroSingleResponse>>(
+  const { data } = await api.post<ApiResponse<HeroWriteResponse>>(
     '/hero-section/create',
     toServerBody(payload)
   );
-  return data.data.heroSection;
+  return data.data.media;
 }
 
 export async function updateHeroSection(
   id: string,
   payload: HeroPayload
 ): Promise<ApiHeroSection> {
-  const { data } = await api.patch<ApiResponse<HeroSingleResponse>>(
+  const { data } = await api.patch<ApiResponse<HeroWriteResponse>>(
     `/hero-section/${id}`,
     toServerBody(payload)
   );
-  return data.data.heroSection;
+  return data.data.media;
 }
 
 export async function deleteHeroSection(id: string): Promise<void> {

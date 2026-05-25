@@ -1,9 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, Plus, Search, Trash2, X } from 'lucide-react';
-import { AdminTable, Button, ConfirmDialog, Input } from '@/designs/shared';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  AdminTable,
+  Button,
+  ConfirmDialog,
+  PageTransition,
+  TableToolbar,
+  Thumbnail,
+} from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
 import {
@@ -13,7 +20,6 @@ import {
 } from '@/features/products/hooks/use-products';
 import { fetchProduct } from '@/features/products/api/products';
 import { adminQueryKeys } from '@/shared/lib/query-keys';
-import { useDebouncedValue } from '@/shared/hooks/use-debounced-value';
 import type { ApiProduct } from '@/shared/types/api';
 import { formatDate, formatEGP } from '@/shared/utils/format';
 import { nameOf } from '@/shared/utils/relations';
@@ -33,11 +39,11 @@ export function ProductsListPage({
 }: ProductsListPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const debouncedSearch = useDebouncedValue(search, 300);
-  const isSearching = debouncedSearch.trim().length >= 2;
+  const deferredSearch = useDeferredValue(search);
+  const isSearching = deferredSearch.trim().length >= 2;
 
   const listQuery = useProducts(page);
-  const searchQuery = useProductSearch(debouncedSearch, isSearching);
+  const searchQuery = useProductSearch(deferredSearch, isSearching);
 
   const activeQuery = isSearching ? searchQuery : listQuery;
 
@@ -56,19 +62,8 @@ export function ProductsListPage({
         id: 'image',
         header: '',
         enableSorting: false,
-        size: 60,
-        cell: ({ row }) =>
-          row.original.defaultImage ? (
-            <img
-              src={row.original.defaultImage}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-          ),
+        size: 56,
+        cell: ({ row }) => <Thumbnail src={row.original.defaultImage?.mediaUrl} size="md" />,
       },
       {
         id: 'name',
@@ -173,50 +168,33 @@ export function ProductsListPage({
   };
 
   return (
-    <>
+    <PageTransition>
       <PageHeader
         title="Products"
         subtitle="The full catalog. Edit details, manage variants, or take a product offline."
         action={
           <Button onClick={() => navigate({ to: ROUTES.productsNew })}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add product
+            Add Product
           </Button>
         }
       />
 
-      <div className="mb-4 flex items-center gap-3">
-        <div className="relative w-full max-w-sm">
-          <Search
-            size={16}
-            strokeWidth={1.5}
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-light-foreground"
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search products…"
-            className="pl-9 pr-9"
-            aria-label="Search products"
-          />
-          {search ? (
-            <button
-              type="button"
-              onClick={() => onSearchChange('')}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-light-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <X size={14} strokeWidth={1.5} aria-hidden />
-            </button>
-          ) : null}
-        </div>
-        {isSearching ? (
-          <span className="text-xs text-muted-foreground">
-            {searchQuery.isFetching ? 'Searching…' : `${products.length} result(s)`}
-          </span>
-        ) : null}
+      <div className="mb-4">
+        <TableToolbar
+          search={search}
+          onSearchChange={onSearchChange}
+          searchPlaceholder="Search products…"
+          meta={
+            isSearching
+              ? searchQuery.isFetching
+                ? 'Searching…'
+                : `${products.length} result${products.length === 1 ? '' : 's'}`
+              : (listQuery.data?.totalItems ?? products.length)
+                ? `${listQuery.data?.totalItems ?? products.length} products`
+                : undefined
+          }
+        />
       </div>
 
       <AdminTable
@@ -228,6 +206,36 @@ export function ProductsListPage({
         onRetry={() => activeQuery.refetch()}
         getRowId={(p) => p._id}
         onRowHover={prefetchDetail}
+        stickyFirstCol
+        isFiltered={isSearching}
+        onClearFilters={() => onSearchChange('')}
+        mobileRender={(product) => (
+          <Link
+            to={ROUTES.productDetail(product._id)}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-card transition-colors hover:border-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Thumbnail src={product.defaultImage?.mediaUrl} size="lg" rounded="xl" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-foreground">
+                {product.name.en}
+              </p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                {nameOf(product.category)}
+              </p>
+              <p className="mt-1 flex items-baseline gap-2 text-xs">
+                <span className="tabular-nums font-medium text-foreground">
+                  {formatEGP(product.price)}
+                </span>
+                {product.salePrice > 0 ? (
+                  <span className="tabular-nums text-light-foreground line-through">
+                    {formatEGP(product.salePrice)}
+                  </span>
+                ) : null}
+              </p>
+            </div>
+            <Pencil size={14} strokeWidth={1.5} aria-hidden className="text-light-foreground" />
+          </Link>
+        )}
         pagination={
           isSearching
             ? undefined
@@ -238,15 +246,15 @@ export function ProductsListPage({
               }
         }
         emptyState={{
-          title: isSearching ? 'No matches' : 'No products yet',
+          title: isSearching ? undefined : 'No products yet',
           description: isSearching
-            ? 'Try a different search term.'
+            ? undefined
             : 'Create your first product to populate the storefront.',
           action: !isSearching ? (
             <Button asChild>
               <Link to={ROUTES.productsNew}>
                 <Plus size={16} strokeWidth={1.5} aria-hidden />
-                Add product
+                Add Product
               </Link>
             </Button>
           ) : undefined,
@@ -266,6 +274,6 @@ export function ProductsListPage({
           softDelete.mutate(softDeleting._id, { onSuccess: () => setSoftDeleting(null) });
         }}
       />
-    </>
+    </PageTransition>
   );
 }

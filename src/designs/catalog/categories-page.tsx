@@ -10,9 +10,11 @@ import {
   ConfirmDialog,
   FormSheet,
   SearchableSelect,
+  TableToolbar,
   Tabs,
   TabsList,
   TabsTrigger,
+  Thumbnail,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { useGroups } from '@/features/catalog/groups/hooks/use-groups';
@@ -42,6 +44,7 @@ export function CategoriesPage() {
   const [editing, setEditing] = useState<ApiCategory | null>(null);
   const [softDeleting, setSoftDeleting] = useState<ApiCategory | null>(null);
   const [hardDeleting, setHardDeleting] = useState<ApiCategory | null>(null);
+  const [search, setSearch] = useState('');
 
   const activeQuery = useCategories();
   const deletedQuery = useDeletedCategories();
@@ -51,6 +54,14 @@ export function CategoriesPage() {
   const hardDelete = useHardDeleteCategory();
 
   const currentQuery = tab === 'active' ? activeQuery : deletedQuery;
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredData = useMemo(() => {
+    if (!normalizedSearch) return currentQuery.data;
+    return currentQuery.data?.filter((c) =>
+      `${c.name.en} ${c.name.ar}`.toLowerCase().includes(normalizedSearch)
+    );
+  }, [currentQuery.data, normalizedSearch]);
+  const isFiltered = normalizedSearch.length > 0;
 
   const groupNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -65,18 +76,7 @@ export function CategoriesPage() {
         header: '',
         enableSorting: false,
         size: 60,
-        cell: ({ row }) =>
-          row.original.imageUrl ? (
-            <img
-              src={row.original.imageUrl}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <span className="inline-block h-10 w-10 rounded-lg bg-muted" />
-          ),
+        cell: ({ row }) => <Thumbnail src={row.original.image?.mediaUrl} size="sm" />,
       },
       {
         id: 'nameEn',
@@ -198,20 +198,97 @@ export function CategoriesPage() {
         }
       />
 
+      <div className="mb-4">
+        <TableToolbar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search categories by name…"
+          meta={
+            currentQuery.data
+              ? `${filteredData?.length ?? 0} of ${currentQuery.data.length}`
+              : undefined
+          }
+        />
+      </div>
+
       <AdminTable
-        data={currentQuery.data}
+        data={filteredData}
         columns={columns}
         isLoading={currentQuery.isPending}
         isError={currentQuery.isError}
         error={currentQuery.error}
         onRetry={() => currentQuery.refetch()}
         getRowId={(c) => c._id}
+        isFiltered={isFiltered}
+        onClearFilters={() => setSearch('')}
+        mobileRender={(c) => (
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+            <Thumbnail src={c.image?.mediaUrl} size="lg" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-foreground">{c.name.en}</p>
+              <p
+                dir="rtl"
+                className="truncate font-body-ar text-xs text-muted-foreground"
+              >
+                {c.name.ar}
+              </p>
+              <p className="mt-0.5 text-[11px] text-light-foreground">
+                {groupNameById.get(idOf(c.groupSize)) ?? '—'}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              {tab === 'active' ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditing(c);
+                    }}
+                  >
+                    <Pencil size={14} strokeWidth={1.5} aria-hidden />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSoftDeleting(c);
+                    }}
+                  >
+                    <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    restore.mutate(c._id);
+                  }}
+                  isLoading={restore.isPending && restore.variables === c._id}
+                >
+                  <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
         emptyState={{
           title: tab === 'active' ? 'No categories yet' : 'Nothing in the trash',
           description:
             tab === 'active'
               ? 'Set up at least one size group before creating categories.'
               : 'Soft-deleted categories will appear here.',
+          action:
+            tab === 'active' ? (
+              <Button onClick={() => setCreating(true)} size="sm">
+                <Plus size={14} strokeWidth={1.5} aria-hidden />
+                Add category
+              </Button>
+            ) : undefined,
         }}
       />
 
@@ -273,7 +350,7 @@ function CategoryFormSheet({ open, onClose, entity, groups }: CategoryFormSheetP
   const initial: CategoryFormValues = {
     name: entity?.name ?? emptyBilingual(),
     groupSize: entity ? idOf(entity.groupSize) : '',
-    imageUrl: entity?.imageUrl ?? '',
+    imageUrl: entity?.image?.mediaUrl ?? '',
   };
   const [values, setValues] = useState<CategoryFormValues>(initial);
   const [errors, setErrors] = useState<{

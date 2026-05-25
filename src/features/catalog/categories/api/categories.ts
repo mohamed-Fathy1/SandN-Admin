@@ -14,19 +14,22 @@ interface CategoryListResponse {
 interface CategorySingleResponse {
   category: ApiCategory;
 }
+interface CategoryUpdateResponse {
+  updates: ApiCategory;
+}
 
 export async function fetchCategories(): Promise<ApiCategory[]> {
   const { data } = await api.get<ApiResponse<CategoryListResponse>>(
     '/category/get-all-categories'
   );
-  return data.data.categories;
+  return data.data?.categories ?? [];
 }
 
 export async function fetchDeletedCategories(): Promise<ApiCategory[]> {
   const { data } = await api.get<ApiResponse<CategoryListResponse>>(
     '/category/all-categories-deleted'
   );
-  return data.data.categories;
+  return data.data?.categories ?? [];
 }
 
 export async function fetchCategory(id: string): Promise<ApiCategory> {
@@ -48,11 +51,11 @@ export async function updateCategory(
   id: string,
   payload: CategoryPayload
 ): Promise<ApiCategory> {
-  const { data } = await api.patch<ApiResponse<CategorySingleResponse>>(
+  const { data } = await api.patch<ApiResponse<CategoryUpdateResponse>>(
     `/category/update/${id}`,
     payload
   );
-  return data.data.category;
+  return data.data.updates;
 }
 
 // Backend uses PATCH for soft-delete (flips an `isDeleted` flag). The DELETE verb is reserved for

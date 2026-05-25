@@ -16,7 +16,7 @@ interface ShippingSingleResponse {
 
 export async function fetchShipping(): Promise<ApiShipping[]> {
   const { data } = await api.get<ApiResponse<ShippingListResponse>>('/shipping');
-  return data.data.shipping;
+  return data.data?.shipping ?? [];
 }
 
 export async function fetchShippingOne(id: string): Promise<ApiShipping> {

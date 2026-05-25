@@ -3,22 +3,22 @@ import type { ApiResponse } from '@/shared/types';
 import type { ApiSocialReview } from '@/shared/types/api';
 
 interface ListResponse {
-  socialReviews: ApiSocialReview[];
+  reviews: ApiSocialReview[];
 }
 interface SingleResponse {
-  socialReview: ApiSocialReview;
+  review: ApiSocialReview;
 }
 
 export async function fetchSocialReviews(): Promise<ApiSocialReview[]> {
   const { data } = await api.get<ApiResponse<ListResponse>>('/social-review');
-  return data.data.socialReviews;
+  return data.data.reviews ?? [];
 }
 
 export async function createSocialReview(imageUrl: string): Promise<ApiSocialReview> {
   const { data } = await api.post<ApiResponse<SingleResponse>>('/social-review', {
     imageUrl,
   });
-  return data.data.socialReview;
+  return data.data.review;
 }
 
 export async function deleteSocialReview(id: string): Promise<void> {
