@@ -69,7 +69,11 @@ export function GroupsPage() {
     []
   );
 
-  const usedNames = new Set(groupsQuery.data?.map((g) => g.name) ?? []);
+  const usedNames = new Set<GroupName>(
+    (groupsQuery.data ?? [])
+      .map((g) => g.name)
+      .filter((n): n is GroupName => (GROUP_NAMES as readonly string[]).includes(n))
+  );
   const allUsed = GROUP_NAMES.every((n) => usedNames.has(n));
 
   return (
@@ -126,7 +130,9 @@ function GroupFormSheet({ open, onClose, entity, excludeNames }: GroupFormSheetP
   const isEdit = Boolean(entity);
   const isPending = create.isPending || update.isPending;
 
-  const initial: GroupFormValues = { name: entity?.name ?? GROUP_NAMES[0] };
+  const initial: GroupFormValues = {
+    name: (entity?.name as GroupName | undefined) ?? GROUP_NAMES[0],
+  };
   const [values, setValues] = useState<GroupFormValues>(initial);
   const [error, setError] = useState<string | undefined>();
 
