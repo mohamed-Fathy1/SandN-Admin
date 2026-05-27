@@ -7,8 +7,7 @@ import { AdminTable, Button, TableToolbar, Thumbnail } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
 import { useWishlist } from '@/features/wishlist/hooks/use-wishlist';
-import { fetchProduct } from '@/features/products/api/products';
-import { adminQueryKeys } from '@/shared/lib/query-keys';
+import { prefetchProduct } from '@/features/products/hooks/use-products';
 import type { ApiWishlistItem } from '@/shared/types/api';
 import { formatDateTime } from '@/shared/utils/format';
 import { toEN } from '@/shared/utils/bilingual';
@@ -36,13 +35,10 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
   }, [items, normalizedSearch]);
   const isFiltered = normalizedSearch.length > 0;
 
-  const prefetchProduct = (row: ApiWishlistItem) => {
+  const prefetchRow = (row: ApiWishlistItem) => {
     const id = row.product?._id;
     if (!id) return;
-    qc.prefetchQuery({
-      queryKey: adminQueryKeys.products.detail(id),
-      queryFn: () => fetchProduct(id),
-    });
+    prefetchProduct(qc, id);
   };
 
   const columns = useMemo<ColumnDef<ApiWishlistItem>[]>(
@@ -140,7 +136,7 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         error={wishlistQuery.error}
         onRetry={() => wishlistQuery.refetch()}
         getRowId={(i) => i._id}
-        onRowHover={prefetchProduct}
+        onRowHover={prefetchRow}
         isFiltered={isFiltered}
         onClearFilters={() => setSearch('')}
         pagination={{

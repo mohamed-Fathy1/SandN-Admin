@@ -35,6 +35,7 @@ import {
 } from '@/features/catalog/sub-categories/schemas/sub-category-form';
 import type { ApiCategory, ApiGroup, ApiSubCategory } from '@/shared/types/api';
 import { emptyBilingual } from '@/shared/utils/bilingual';
+import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 import { idOf } from '@/shared/utils/relations';
 
@@ -90,11 +91,20 @@ export function SubCategoriesPage() {
         cell: ({ row }) => <Thumbnail src={row.original.image?.mediaUrl} size="sm" />,
       },
       {
-        id: 'nameEn',
-        header: 'Name (EN)',
+        id: 'name',
+        header: 'Name',
         accessorFn: (c) => c.name.en,
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">{row.original.name.en}</span>
+          <div className="min-w-0">
+            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p
+              dir="rtl"
+              className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
+              title={row.original.name.ar}
+            >
+              {row.original.name.ar}
+            </p>
+          </div>
         ),
       },
       {
@@ -141,6 +151,7 @@ export function SubCategoriesPage() {
                   e.stopPropagation();
                   setSoftDeleting(row.original);
                 }}
+                aria-label={`Hide ${row.original.name.en}`}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -166,6 +177,7 @@ export function SubCategoriesPage() {
                   e.stopPropagation();
                   setHardDeleting(row.original);
                 }}
+                aria-label={`Permanently delete ${row.original.name.en}`}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -265,6 +277,7 @@ export function SubCategoriesPage() {
                       e.stopPropagation();
                       setEditing(c);
                     }}
+                    aria-label={`Edit ${c.name.en}`}
                   >
                     <Pencil size={14} strokeWidth={1.5} aria-hidden />
                   </Button>
@@ -275,6 +288,7 @@ export function SubCategoriesPage() {
                       e.stopPropagation();
                       setSoftDeleting(c);
                     }}
+                    aria-label={`Hide ${c.name.en}`}
                   >
                     <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
                   </Button>
@@ -410,10 +424,31 @@ function SubCategoryFormSheet({
       setErrors(next);
       return;
     }
+    const onError = (err: unknown) => {
+      const fieldMap = mapApiErrorsToFields(err);
+      if (!fieldMap) return;
+      const next: typeof errors = {};
+      for (const [path, msg] of Object.entries(fieldMap)) {
+        const [head, leaf] = path.split('.');
+        if (head === 'name' && (leaf === 'en' || leaf === 'ar')) {
+          next.name = { ...(next.name ?? {}), [leaf]: msg };
+        } else if (head === 'groupSize') {
+          next.groupSize = msg;
+        } else if (head === 'category') {
+          next.category = msg;
+        } else if (head === 'imageUrl') {
+          next.imageUrl = msg;
+        }
+      }
+      setErrors(next);
+    };
     if (isEdit && entity) {
-      update.mutate({ id: entity._id, payload: parsed.data }, { onSuccess: onClose });
+      update.mutate(
+        { id: entity._id, payload: parsed.data },
+        { onSuccess: onClose, onError }
+      );
     } else {
-      create.mutate(parsed.data, { onSuccess: onClose });
+      create.mutate(parsed.data, { onSuccess: onClose, onError });
     }
   };
 

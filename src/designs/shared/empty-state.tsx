@@ -1,5 +1,6 @@
 import { Inbox, SearchX, type LucideIcon } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
+import { accentAlpha } from '@/designs/layout/tokens';
 import { FloatingOrb } from './motion';
 import { Button } from './button';
 
@@ -64,36 +65,28 @@ export function EmptyState({
         <>
           <FloatingOrb
             size={180}
-            color="rgba(191,60,104,0.18)"
+            color={accentAlpha(0.14)}
             top="-40px"
             left="20%"
             delay={0}
-            opacity={0.35}
+            opacity={0.24}
           />
           <FloatingOrb
             size={140}
-            color="rgba(217,119,6,0.14)"
+            color="rgba(217,119,6,0.10)"
             bottom="-30px"
             right="18%"
             delay={1.5}
-            opacity={0.3}
+            opacity={0.22}
           />
         </>
       ) : null}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-50"
-        style={{
-          background:
-            'radial-gradient(40% 50% at 50% 0%, rgba(191,60,104,0.04), transparent 70%)',
-        }}
+        className="pointer-events-none absolute inset-0 opacity-40 [background:var(--gradient-empty-bg)]"
       />
       <div
-        className="relative mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full text-accent"
-        style={{
-          background:
-            'radial-gradient(circle at 30% 30%, rgba(191,60,104,0.14), rgba(191,60,104,0.04))',
-        }}
+        className="relative mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full text-accent [background:var(--gradient-empty-orb)]"
       >
         <Icon size={20} strokeWidth={1.75} aria-hidden />
       </div>

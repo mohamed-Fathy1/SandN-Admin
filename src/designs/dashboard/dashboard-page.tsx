@@ -1,6 +1,5 @@
 import { lazy, Suspense, useMemo } from 'react';
 import { Link } from '@tanstack/react-router';
-import { useQueries } from '@tanstack/react-query';
 import {
   ArrowUpRight,
   Megaphone,
@@ -25,9 +24,7 @@ import { PageHeader } from '@/designs/layout/page-header';
 import { useProductAnalysis } from '@/features/products/hooks/use-products';
 import { useCategories } from '@/features/catalog/categories/hooks/use-categories';
 import { useOffers } from '@/features/offers/hooks/use-offers';
-import { useOrders } from '@/features/orders/hooks/use-orders';
-import { fetchOrders } from '@/features/orders/api/orders';
-import { adminQueryKeys } from '@/shared/lib/query-keys';
+import { useOrders, useOrdersByStatusCounts } from '@/features/orders/hooks/use-orders';
 import { ORDER_STATUSES, ROUTES, type OrderStatus } from '@/config/constants';
 import { ORDER_STATUS_META } from '@/features/orders/lib/status-meta';
 import { formatDateTime, formatEGP, formatNumber } from '@/shared/utils/format';
@@ -130,10 +127,11 @@ function KpiCard({
               <button
                 type="button"
                 onClick={onRetry}
-                aria-label={`Retry loading ${label}`}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <RefreshCw size={13} strokeWidth={1.75} aria-hidden />
+                <RefreshCw size={11} strokeWidth={1.75} aria-hidden />
+                <span>Retry</span>
+                <span className="sr-only">loading {label}</span>
               </button>
             </div>
           ) : (
@@ -287,7 +285,7 @@ function RecentOrdersCard() {
 
   return (
     <Card padding="none">
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-6">
         <div>
           <h2 className="m-0 font-display text-xl italic text-foreground">Recent orders</h2>
           <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -332,13 +330,7 @@ function RecentOrdersCard() {
 }
 
 function OrdersByStatusCard() {
-  const queries = useQueries({
-    queries: ORDER_STATUSES.map((status) => ({
-      queryKey: adminQueryKeys.orders.list({ page: 1, status }),
-      queryFn: () => fetchOrders({ page: 1, status }),
-      staleTime: 30_000,
-    })),
-  });
+  const queries = useOrdersByStatusCounts();
 
   const counts: Array<{ status: OrderStatus; count: number; isPending: boolean; isError: boolean }> =
     ORDER_STATUSES.map((status, idx) => {

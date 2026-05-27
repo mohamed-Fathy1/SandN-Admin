@@ -22,12 +22,12 @@ export function PaginationControls({
   return (
     <nav
       aria-label="Pagination"
-      className={cn('flex items-center justify-between gap-3 px-5 py-3', className)}
+      className={cn('flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-5', className)}
     >
-      <p className="text-xs text-muted-foreground">
-        <span className="text-[10px] uppercase tracking-[0.14em] text-light-foreground">Page</span>{' '}
-        <span className="font-display text-base italic text-foreground tabular-nums">{page}</span>
-        <span className="mx-1.5 text-light-foreground">/</span>
+      <p className="text-[10px] text-muted-foreground sm:text-xs">
+        <span className="text-[9px] uppercase tracking-[0.14em] text-light-foreground sm:text-[10px]">Page</span>{' '}
+        <span className="font-display text-sm italic text-foreground tabular-nums sm:text-base">{page}</span>
+        <span className="mx-1 text-light-foreground sm:mx-1.5">/</span>
         <span className="font-medium text-foreground tabular-nums">{totalPages}</span>
       </p>
       <div className="flex items-center gap-1">

@@ -18,8 +18,7 @@ import {
   useProducts,
   useSoftDeleteProduct,
 } from '@/features/products/hooks/use-products';
-import { fetchProduct } from '@/features/products/api/products';
-import { adminQueryKeys } from '@/shared/lib/query-keys';
+import { prefetchProduct } from '@/features/products/hooks/use-products';
 import type { ApiProduct } from '@/shared/types/api';
 import { formatDate, formatEGP } from '@/shared/utils/format';
 import { nameOf } from '@/shared/utils/relations';
@@ -161,10 +160,7 @@ export function ProductsListPage({
   );
 
   const prefetchDetail = (row: ApiProduct) => {
-    qc.prefetchQuery({
-      queryKey: adminQueryKeys.products.detail(row._id),
-      queryFn: () => fetchProduct(row._id),
-    });
+    prefetchProduct(qc, row._id);
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminQueryKeys } from '@/shared/lib/query-keys';
 import { invalidators } from '@/shared/lib/cache-invalidation';
@@ -15,6 +15,13 @@ import {
   softDeleteProduct,
   updateProduct,
 } from '../api/products';
+
+export function prefetchProduct(qc: QueryClient, id: string) {
+  return qc.prefetchQuery({
+    queryKey: adminQueryKeys.products.detail(id),
+    queryFn: () => fetchProduct(id),
+  });
+}
 
 export function useProducts(page: number) {
   return useQuery({

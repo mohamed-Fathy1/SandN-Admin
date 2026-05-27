@@ -9,7 +9,7 @@ export const TabsList = ({
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>) => (
   <TabsPrimitive.List
     className={cn(
-      'inline-flex h-10 items-center justify-start gap-1 rounded-full border border-border bg-card p-1 shadow-[0_1px_0_rgba(64,20,35,0.02)]',
+      'inline-flex h-10 max-w-full items-center justify-start gap-0.5 overflow-x-auto rounded-full border border-border bg-card p-1 shadow-[0_1px_0_rgba(64,20,35,0.02)] [scrollbar-width:none] sm:gap-1 [&::-webkit-scrollbar]:hidden',
       className
     )}
     {...props}
@@ -22,7 +22,7 @@ export const TabsTrigger = ({
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) => (
   <TabsPrimitive.Trigger
     className={cn(
-      'inline-flex h-8 items-center justify-center rounded-full px-3.5 text-xs font-semibold tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200',
+      'inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-[11px] font-semibold tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200 sm:px-3.5 sm:text-xs',
       'hover:text-foreground',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
       'data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-accent',

@@ -28,11 +28,7 @@ export function Sidebar() {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          background:
-            'radial-gradient(120% 60% at 0% 0%, rgba(191,60,104,0.10), transparent 60%), radial-gradient(80% 40% at 100% 100%, rgba(191,60,104,0.06), transparent 70%)',
-        }}
+        className="pointer-events-none absolute inset-0 opacity-60 [background:var(--gradient-sidebar-bg)]"
       />
       <div className="relative flex h-full flex-col">
         <SidebarNav

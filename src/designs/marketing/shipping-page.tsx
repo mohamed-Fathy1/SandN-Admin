@@ -22,7 +22,9 @@ import {
   type ShippingFormValues,
 } from '@/features/shipping/schemas/shipping-form';
 import type { ApiShipping } from '@/shared/types/api';
+import { CURRENCY_SUFFIX } from '@/config/constants';
 import { emptyBilingual } from '@/shared/utils/bilingual';
+import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { formatEGP } from '@/shared/utils/format';
 
 export function ShippingPage() {
@@ -36,21 +38,20 @@ export function ShippingPage() {
   const columns = useMemo<ColumnDef<ApiShipping>[]>(
     () => [
       {
-        id: 'nameEn',
-        header: 'Region (EN)',
+        id: 'region',
+        header: 'Region',
         accessorFn: (s) => s.name.en,
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">{row.original.name.en}</span>
-        ),
-      },
-      {
-        id: 'nameAr',
-        header: 'Region (AR)',
-        accessorFn: (s) => s.name.ar,
-        cell: ({ row }) => (
-          <span dir="rtl" className="font-body-ar text-muted-foreground">
-            {row.original.name.ar}
-          </span>
+          <div className="min-w-0">
+            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p
+              dir="rtl"
+              className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
+              title={row.original.name.ar}
+            >
+              {row.original.name.ar}
+            </p>
+          </div>
         ),
       },
       {
@@ -198,10 +199,24 @@ function ShippingFormSheet({ open, onClose, entity }: ShippingFormSheetProps) {
       return;
     }
     const payload: ShippingFormValues = parsed.data;
+    const onError = (err: unknown) => {
+      const fieldMap = mapApiErrorsToFields(err);
+      if (!fieldMap) return;
+      const next: typeof errors = {};
+      for (const [path, msg] of Object.entries(fieldMap)) {
+        const [head, leaf] = path.split('.');
+        if (head === 'name' && (leaf === 'en' || leaf === 'ar')) {
+          next.name = { ...(next.name ?? {}), [leaf]: msg };
+        } else if (head === 'cost') {
+          next.cost = msg;
+        }
+      }
+      setErrors(next);
+    };
     if (isEdit && entity) {
-      update.mutate({ id: entity._id, payload }, { onSuccess: onClose });
+      update.mutate({ id: entity._id, payload }, { onSuccess: onClose, onError });
     } else {
-      create.mutate(payload, { onSuccess: onClose });
+      create.mutate(payload, { onSuccess: onClose, onError });
     }
   };
 
@@ -236,7 +251,7 @@ function ShippingFormSheet({ open, onClose, entity }: ShippingFormSheetProps) {
           <NumberInput
             value={values.cost}
             onChange={(cost) => setValues((p) => ({ ...p, cost }))}
-            suffix="EGP"
+            suffix={CURRENCY_SUFFIX}
             clampMin={0}
             hasError={Boolean(errors.cost)}
             disabled={isPending}

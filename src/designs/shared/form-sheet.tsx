@@ -45,11 +45,10 @@ export function FormSheet({
             'focus:outline-none'
           )}
         >
-          <div className="relative flex items-start justify-between gap-4 border-b border-border px-6 py-5">
+          <div className="relative flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:gap-4 sm:px-6 sm:py-5">
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-px"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(191,60,104,0.40), transparent)' }}
+              className="pointer-events-none absolute inset-x-0 top-0 h-px [background:var(--gradient-form-sheet-underline)]"
             />
             <div className="min-w-0">
               <Dialog.Title className="m-0 font-display text-2xl italic leading-tight text-foreground">
@@ -74,14 +73,14 @@ export function FormSheet({
           </div>
 
           <div
-            className="flex-1 overflow-y-auto px-6 py-5"
+            className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5"
             style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
           >
             {children}
           </div>
 
           {footer ? (
-            <div className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-border bg-card px-6 py-4">
+            <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-2 border-t border-border bg-card/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/85 sm:px-6 sm:py-4">
               {footer}
             </div>
           ) : null}

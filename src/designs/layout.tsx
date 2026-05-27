@@ -37,11 +37,7 @@ export function AdminLayout() {
     <div className="relative flex min-h-screen bg-background">
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 opacity-[0.6]"
-        style={{
-          background:
-            'radial-gradient(60% 40% at 85% -5%, rgba(191,60,104,0.06), transparent 60%), radial-gradient(50% 35% at 5% 110%, rgba(191,60,104,0.04), transparent 70%)',
-        }}
+        className="pointer-events-none fixed inset-0 opacity-[0.6] [background:var(--gradient-page-bg)]"
       />
       <a
         href="#main-content"
@@ -56,7 +52,7 @@ export function AdminLayout() {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10"
+          className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 sm:py-8 lg:px-10 lg:py-10"
         >
           <div className="mx-auto w-full max-w-[1400px]">
             <Outlet />

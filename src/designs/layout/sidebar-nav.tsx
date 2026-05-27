@@ -103,7 +103,7 @@ export function SidebarNav({
                 onClick={logoutAndRedirect}
                 aria-label="Log out"
                 className={cn(
-                  'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   collapsed && 'justify-center px-0'
                 )}
               >
@@ -159,7 +159,7 @@ function SidebarLink({ item, collapsed, pathname, onNavigate }: SidebarLinkProps
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               isActive
                 ? 'text-sidebar-foreground-active'
-                : 'text-sidebar-foreground hover:bg-white/[0.05] hover:text-white',
+                : 'text-sidebar-foreground hover:bg-white/[0.08] hover:text-white',
               collapsed && 'justify-center px-0'
             )}
             aria-current={isActive ? 'page' : undefined}

@@ -36,16 +36,19 @@ export function PageHeader({
   }, [pathname, breadcrumbLabel, setCrumbOverride]);
 
   return (
-    <div className={cn('mb-8', className)}>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className={cn('mb-6 sm:mb-8', className)}>
+      <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="mb-2 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
-              <span aria-hidden className="inline-block h-px w-6 bg-accent/60" />
+            <p className="mb-2 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">
+              <span
+                aria-hidden
+                className="inline-block h-px w-8 bg-gradient-to-r from-transparent via-accent/70 to-accent"
+              />
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="m-0 font-display text-[2.25rem] italic leading-[1.05] text-foreground text-balance">
+          <h1 className="m-0 font-display text-2xl italic leading-[1.1] tracking-tight text-foreground text-balance sm:text-3xl lg:text-[2.25rem] lg:leading-[1.05]">
             {title}
           </h1>
           {subtitle && (
@@ -56,7 +59,7 @@ export function PageHeader({
         </div>
         {action && <div className="flex flex-wrap items-center gap-2">{action}</div>}
       </div>
-      {tabs && <div className="mt-6">{tabs}</div>}
+      {tabs && <div className="mt-4 sm:mt-6">{tabs}</div>}
     </div>
   );
 }

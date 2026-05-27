@@ -14,11 +14,11 @@ const cardVariants = cva(
       },
       padding: {
         none: '',
-        md: 'p-6',
-        lg: 'p-10',
+        md: 'p-4 sm:p-6',
+        lg: 'p-6 sm:p-10',
       },
       interactive: {
-        true: 'hover:-translate-y-0.5 hover:border-border-medium hover:shadow-popover',
+        true: 'motion-safe:hover:-translate-y-0.5 hover:border-border-medium hover:shadow-popover',
         false: '',
       },
     },

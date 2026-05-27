@@ -14,8 +14,23 @@ export async function fetchSocialReviews(): Promise<ApiSocialReview[]> {
   return data.data.reviews ?? [];
 }
 
+export async function fetchSocialReview(id: string): Promise<ApiSocialReview> {
+  const { data } = await api.get<ApiResponse<SingleResponse>>(`/social-review/${id}`);
+  return data.data.review;
+}
+
 export async function createSocialReview(imageUrl: string): Promise<ApiSocialReview> {
   const { data } = await api.post<ApiResponse<SingleResponse>>('/social-review', {
+    imageUrl,
+  });
+  return data.data.review;
+}
+
+export async function updateSocialReview(
+  id: string,
+  imageUrl: string
+): Promise<ApiSocialReview> {
+  const { data } = await api.patch<ApiResponse<SingleResponse>>(`/social-review/${id}`, {
     imageUrl,
   });
   return data.data.review;

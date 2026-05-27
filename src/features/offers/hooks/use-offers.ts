@@ -12,6 +12,7 @@ import {
   toggleOffer,
   updateOffer,
 } from '../api/offers';
+export type { OfferPayload } from '../api/offers';
 
 export function useOffers() {
   return useQuery({

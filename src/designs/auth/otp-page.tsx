@@ -66,7 +66,16 @@ export function OtpPage() {
         transition={{ duration: 0.5, ease: A.easeOut }}
         className="w-full max-w-md"
       >
-        <Card elevation="lg" padding="lg">
+        <Card
+          elevation="lg"
+          padding="lg"
+          className={`backdrop-blur-xl transition-colors ${error ? 'border-destructive/30' : ''}`}
+          style={{
+            background: 'var(--glass-bg)',
+            borderColor: error ? undefined : 'var(--glass-border)',
+            boxShadow: 'var(--shadow-overlay), var(--shadow-inset)',
+          }}
+        >
           <button
             type="button"
             onClick={() => navigate({ to: '/login' })}
@@ -77,13 +86,15 @@ export function OtpPage() {
           </button>
 
           <div className="mb-8 text-center">
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
+            <p className="mb-3 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
+              <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-r from-transparent to-accent/70" />
               Verify
+              <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-l from-transparent to-accent/70" />
             </p>
-            <h1 className="m-0 font-display text-3xl italic leading-tight text-foreground">
+            <h1 className="m-0 font-display text-3xl italic leading-tight tracking-tight text-foreground">
               Enter the code
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               We sent a 6-digit code to <strong className="text-foreground">{email}</strong>.
             </p>
           </div>

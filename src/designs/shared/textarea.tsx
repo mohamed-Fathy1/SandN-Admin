@@ -17,8 +17,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         'focus-visible:outline-none',
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/50',
         hasError
-          ? 'border-destructive focus-visible:border-destructive focus-visible:shadow-[0_0_0_4px_rgba(220,38,38,0.12)]'
-          : 'border-border-medium hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[0_0_0_4px_rgba(191,60,104,0.14)]',
+          ? 'border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--shadow-focus-destructive)]'
+          : 'border-border-medium hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[var(--shadow-focus-accent)]',
         className
       )}
       aria-invalid={hasError || undefined}

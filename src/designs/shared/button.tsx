@@ -9,7 +9,7 @@ const buttonVariants = cva(
     'group/btn relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold',
     'transition-[transform,box-shadow,background-color,border-color,color] duration-200 ease-out',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-    'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
+    'disabled:cursor-not-allowed disabled:shadow-none disabled:translate-y-0 disabled:hover:translate-y-0',
     'aria-busy:cursor-progress',
     'active:translate-y-px motion-safe:active:scale-[0.98]',
   ].join(' '),
@@ -17,15 +17,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'bg-accent text-accent-foreground shadow-accent hover:bg-accent-hover hover:shadow-[0_10px_30px_-8px_rgba(191,60,104,0.45)] hover:-translate-y-px focus-visible:shadow-[var(--shadow-glow)]',
+          'bg-accent text-accent-foreground shadow-accent hover:bg-accent-hover hover:shadow-[var(--shadow-accent-hover)] motion-safe:hover:-translate-y-px focus-visible:shadow-[var(--shadow-glow)] disabled:bg-accent/40 disabled:hover:bg-accent/40 disabled:hover:shadow-accent',
         secondary:
-          'bg-card text-foreground border border-border-medium hover:border-border-strong hover:bg-muted',
-        ghost: 'bg-transparent text-foreground hover:bg-muted',
+          'bg-card text-foreground border border-border-medium hover:border-border-strong hover:bg-muted disabled:bg-muted/60 disabled:text-muted-foreground disabled:border-border disabled:hover:bg-muted/60 disabled:hover:border-border',
+        ghost:
+          'bg-transparent text-foreground hover:bg-muted disabled:text-muted-foreground disabled:hover:bg-transparent',
         outline:
-          'bg-transparent text-foreground border border-border-strong hover:border-accent hover:text-accent hover:bg-accent-soft',
+          'bg-transparent text-foreground border border-border-strong hover:border-accent hover:text-accent hover:bg-accent-soft disabled:text-muted-foreground disabled:border-border disabled:hover:bg-transparent disabled:hover:text-muted-foreground disabled:hover:border-border',
         destructive:
-          'bg-destructive text-destructive-foreground shadow-[0_4px_20px_-4px_rgba(220,38,38,0.4)] hover:bg-destructive-hover hover:-translate-y-px',
-        link: 'bg-transparent text-accent hover:text-accent-hover underline-offset-4 hover:underline rounded-none',
+          'bg-destructive text-destructive-foreground shadow-[var(--shadow-destructive-rest)] hover:bg-destructive-hover motion-safe:hover:-translate-y-px disabled:bg-destructive/40 disabled:hover:bg-destructive/40',
+        link:
+          'bg-transparent text-accent hover:text-accent-hover underline-offset-4 hover:underline rounded-none disabled:text-muted-foreground disabled:hover:no-underline',
       },
       size: {
         sm: 'h-9 px-4 text-sm',

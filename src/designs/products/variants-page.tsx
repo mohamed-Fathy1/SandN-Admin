@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import {
   Button,
@@ -114,6 +114,18 @@ function VariantsInner({
       ),
     [drafts]
   );
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (dirtyRows.length === 0) return false;
+      return !window.confirm(
+        `You have ${dirtyRows.length} unsaved variant ${
+          dirtyRows.length === 1 ? 'change' : 'changes'
+        }. Leave and discard?`
+      );
+    },
+    enableBeforeUnload: () => dirtyRows.length > 0,
+  });
 
   const setRow = (id: string, patch: Partial<DraftRow>) =>
     setDrafts((p) => p.map((d) => (d._id === id ? { ...d, ...patch } : d)));
@@ -232,7 +244,143 @@ function VariantsInner({
       />
 
       <Card padding="md" className="overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="space-y-3 md:hidden">
+          {drafts.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+              No variants yet. Add the first one below.
+            </p>
+          ) : (
+            drafts.map((d) => {
+              const isDirty =
+                d.size !== d.original.size ||
+                d.color !== d.original.color ||
+                d.quantity !== d.original.quantity;
+              return (
+                <div
+                  key={d._id}
+                  className={`rounded-xl border p-3 transition-colors ${
+                    isDirty
+                      ? 'border-accent/40 bg-accent-soft/30 shadow-[inset_3px_0_0_0_var(--color-accent)]'
+                      : 'border-border bg-card'
+                  }`}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <Checkbox
+                      checked={selected.has(d._id)}
+                      onCheckedChange={(c) => toggleSelected(d._id, Boolean(c))}
+                      aria-label="Select variant"
+                    />
+                    <div className="flex items-center gap-2">
+                      {isDirty ? (
+                        <span
+                          className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-accent"
+                          aria-label="Unsaved"
+                        >
+                          <span className="inline-flex h-2 w-2 rounded-full bg-accent" />
+                          Unsaved
+                        </span>
+                      ) : bulkUpdate.isPending && bulkUpdate.variables?.some((v) => v._id === d._id) ? (
+                        <Loader2 size={14} className="animate-spin text-muted-foreground" aria-hidden />
+                      ) : (
+                        <Check size={14} className="text-success" aria-hidden />
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteOne(d._id)}
+                        aria-label="Delete variant"
+                        disabled={deleteOne.isPending && deleteOne.variables === d._id}
+                      >
+                        <Trash2 size={14} strokeWidth={1.5} className="text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Size</span>
+                      <Input
+                        value={d.size}
+                        onChange={(e) => setRow(d._id, { size: e.target.value })}
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Qty</span>
+                      <NumberInput
+                        value={d.quantity}
+                        onChange={(v) => setRow(d._id, { quantity: typeof v === 'number' ? v : 0 })}
+                        clampMin={0}
+                      />
+                    </label>
+                    <label className="col-span-2 flex flex-col gap-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Color</span>
+                      <SearchableSelect<ApiColor>
+                        value={d.color || undefined}
+                        onChange={(v) => setRow(d._id, { color: v ?? '' })}
+                        items={colorsQuery.data ?? []}
+                        getKey={(c) => c._id}
+                        getLabel={(c) => c.name.en}
+                        renderItem={(c) => (
+                          <span className="flex items-center gap-2">
+                            <span
+                              className="inline-block h-3.5 w-3.5 rounded-full border border-border"
+                              style={{ backgroundColor: c.hex }}
+                              aria-hidden
+                            />
+                            {c.name.en}
+                          </span>
+                        )}
+                        placeholder="Color"
+                        clearable={false}
+                      />
+                    </label>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Add variant
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={newRow.size}
+                onChange={(e) => setNewRow((p) => ({ ...p, size: e.target.value }))}
+                placeholder="Size (e.g. m)"
+                aria-label="New variant size"
+              />
+              <NumberInput
+                value={newRow.quantity}
+                onChange={(v) => setNewRow((p) => ({ ...p, quantity: v }))}
+                clampMin={0}
+              />
+              <div className="col-span-2">
+                <SearchableSelect<ApiColor>
+                  value={newRow.color || undefined}
+                  onChange={(v) => setNewRow((p) => ({ ...p, color: v ?? '' }))}
+                  items={colorsQuery.data ?? []}
+                  getKey={(c) => c._id}
+                  getLabel={(c) => c.name.en}
+                  placeholder="Color"
+                  clearable={false}
+                />
+              </div>
+              <Button
+                size="sm"
+                onClick={handleAdd}
+                isLoading={createOne.isPending}
+                disabled={!newRow.size.trim() || !newRow.color}
+                className="col-span-2"
+              >
+                <Plus size={14} strokeWidth={1.5} aria-hidden />
+                Add variant
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-muted/50">
               <tr>

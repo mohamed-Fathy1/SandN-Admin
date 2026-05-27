@@ -8,13 +8,27 @@ import type { ApiSocialReview } from '@/shared/types/api';
 import {
   createSocialReview,
   deleteSocialReview,
+  fetchSocialReview,
   fetchSocialReviews,
+  updateSocialReview,
 } from '../api/social-reviews';
 
 export function useSocialReviews() {
   return useQuery({
     queryKey: adminQueryKeys.socialReviews.all,
     queryFn: fetchSocialReviews,
+    staleTime: QUERY_STALE_TIME.default,
+  });
+}
+
+export function useSocialReview(id: string | undefined) {
+  return useQuery({
+    queryKey: adminQueryKeys.socialReviews.detail(id ?? ''),
+    queryFn: () => {
+      if (!id) throw new Error('useSocialReview called without id');
+      return fetchSocialReview(id);
+    },
+    enabled: Boolean(id),
     staleTime: QUERY_STALE_TIME.default,
   });
 }
@@ -32,6 +46,20 @@ export function useCreateSocialReview() {
       toast.success('Social review added');
     },
     onError: (err) => toastError(err, 'Failed to add social review'),
+  });
+}
+
+export function useUpdateSocialReview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, imageUrl }: { id: string; imageUrl: string }) =>
+      updateSocialReview(id, imageUrl),
+    onSuccess: (_data, vars) => {
+      invalidators.afterSocialReviewWrite(qc);
+      qc.invalidateQueries({ queryKey: adminQueryKeys.socialReviews.detail(vars.id) });
+      toast.success('Social review updated');
+    },
+    onError: (err) => toastError(err, 'Failed to update social review'),
   });
 }
 

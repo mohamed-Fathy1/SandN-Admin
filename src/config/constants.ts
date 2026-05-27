@@ -52,6 +52,9 @@ export const UPLOAD_LIMITS = {
   acceptedImageTypes: 'image/jpeg,image/jpg,image/png,image/webp',
 } as const;
 
+export const CURRENCY_CODE = 'EGP';
+export const CURRENCY_SUFFIX = CURRENCY_CODE;
+
 export const ROUTES = {
   login: '/login',
   loginVerify: '/login/verify',

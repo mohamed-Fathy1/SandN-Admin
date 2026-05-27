@@ -25,11 +25,7 @@ export function MobileSidebar() {
         >
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-60"
-            style={{
-              background:
-                'radial-gradient(120% 60% at 0% 0%, rgba(191,60,104,0.12), transparent 60%)',
-            }}
+            className="pointer-events-none absolute inset-0 opacity-60 [background:var(--gradient-mobile-sidebar-bg)]"
           />
           <div className="relative flex h-full flex-col">
             <div className="flex h-16 items-center justify-between px-4">

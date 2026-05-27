@@ -10,6 +10,7 @@ import {
   fetchHeroSections,
   updateHeroSection,
 } from '../api/hero';
+export type { HeroPayload } from '../api/hero';
 
 export function useHeroSections() {
   return useQuery({

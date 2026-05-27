@@ -15,9 +15,10 @@
   --color-light-foreground: #9b8e8e;
 
   /* ── Brand accent ────────────────────────────────────── */
+  --accent-rgb: 191, 60, 104;
   --color-accent: #bf3c68;
   --color-accent-hover: #a8305a;
-  --color-accent-soft: rgba(191, 60, 104, 0.08);
+  --color-accent-soft: rgba(var(--accent-rgb), 0.08);
   --color-accent-foreground: #ffffff;
 
   /* ── Functional status ───────────────────────────────── */
@@ -69,18 +70,63 @@
   --radius-lg: 20px;
 
   /* ── Shadows ─────────────────────────────────────────── */
-  --shadow-card: 0 2px 12px rgba(64, 20, 35, 0.06);
-  --shadow-popover: 0 4px 24px rgba(64, 20, 35, 0.1);
+  --shadow-card:
+    0 2px 12px rgba(64, 20, 35, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-popover:
+    0 4px 24px rgba(64, 20, 35, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   --shadow-overlay: 0 12px 40px rgba(64, 20, 35, 0.14);
-  --shadow-accent: 0 4px 24px rgba(191, 60, 104, 0.18);
-  --shadow-glow: 0 0 0 6px rgba(191, 60, 104, 0.1);
+  --shadow-accent: 0 4px 24px rgba(var(--accent-rgb), 0.18);
+  --shadow-accent-hover: 0 10px 30px -8px rgba(var(--accent-rgb), 0.45);
+  --shadow-focus-accent: 0 0 0 4px rgba(var(--accent-rgb), 0.14);
+  --shadow-focus-destructive: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  --shadow-destructive-rest: 0 4px 20px -4px rgba(220, 38, 38, 0.4);
+  --shadow-glow: 0 0 0 6px rgba(var(--accent-rgb), 0.1);
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(64, 20, 35, 0.04);
+  --shadow-header: 0 1px 0 rgba(64, 20, 35, 0.04), 0 8px 24px -16px rgba(64, 20, 35, 0.1);
 
   /* ── Glass + vignette ────────────────────────────────── */
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-blur: blur(16px);
   --glass-border: rgba(64, 20, 35, 0.08);
   --bg-vignette: linear-gradient(180deg, rgba(64, 20, 35, 0) 0%, rgba(64, 20, 35, 0.04) 100%);
+
+  /* ── Brand gradients ─────────────────────────────────── */
+  --gradient-accent: linear-gradient(135deg, #bf3c68 0%, #8e2a4e 100%);
+  --gradient-page-bg:
+    radial-gradient(55% 38% at 88% -8%, rgba(var(--accent-rgb), 0.08), transparent 62%),
+    radial-gradient(45% 35% at 2% 105%, rgba(var(--accent-rgb), 0.05), transparent 68%),
+    radial-gradient(70% 50% at 50% 120%, rgba(64, 20, 35, 0.04), transparent 75%);
+  --gradient-sidebar-bg:
+    radial-gradient(120% 60% at 0% 0%, rgba(var(--accent-rgb), 0.1), transparent 60%),
+    radial-gradient(80% 40% at 100% 100%, rgba(var(--accent-rgb), 0.06), transparent 70%);
+  --gradient-mobile-sidebar-bg:
+    radial-gradient(120% 60% at 0% 0%, rgba(var(--accent-rgb), 0.12), transparent 60%);
+  --gradient-form-sheet-underline: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--accent-rgb), 0.4),
+    transparent
+  );
+  --gradient-empty-orb: radial-gradient(
+    circle at 30% 30%,
+    rgba(var(--accent-rgb), 0.14),
+    rgba(var(--accent-rgb), 0.04)
+  );
+  --gradient-empty-bg: radial-gradient(
+    40% 50% at 50% 0%,
+    rgba(var(--accent-rgb), 0.04),
+    transparent 70%
+  );
+}
+
+/* Brand avatar gradient pill used in header/dropdown account chips. */
+.avatar-accent {
+  background: var(--gradient-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 12px rgba(var(--accent-rgb), 0.3);
 }
 
 * {
@@ -104,6 +150,30 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/*
+ * Atmospheric grain overlay — sits above the page background gradient but
+ * below content. Uses SVG turbulence at very low opacity so the surface
+ * feels paper-like rather than flat. Disabled when reduced motion is
+ * requested to avoid even subtle visual noise.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.08 0 0 0 0 0.14 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    display: none;
+  }
 }
 
 button,

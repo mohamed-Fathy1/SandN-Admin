@@ -18,7 +18,7 @@ import {
   useHeroSections,
   useUpdateHeroSection,
 } from '@/features/hero/hooks/use-hero';
-import type { HeroPayload } from '@/features/hero/api/hero';
+import type { HeroPayload } from '@/features/hero/hooks/use-hero';
 import type { ApiHeroSection } from '@/shared/types/api';
 
 export function HeroPage() {
@@ -63,8 +63,8 @@ export function HeroPage() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {heroQuery.data.map((hero) => (
             <Card key={hero._id} padding="none" className="group overflow-hidden">
-              <div className="flex gap-2 p-3">
-                <div className="w-1/3 shrink-0 overflow-hidden rounded-lg bg-muted">
+              <div className="flex flex-col gap-2 p-3 sm:flex-row">
+                <div className="overflow-hidden rounded-lg bg-muted sm:w-1/3 sm:shrink-0">
                   <img
                     src={hero.images.image1.mediaUrl}
                     alt="Small banner"

@@ -71,7 +71,7 @@ export function BilingualInput({
       ) : null}
 
       <TabsPrimitive.Root value={tab} onValueChange={(v) => setTab(v as Lang)}>
-        <TabsPrimitive.List className="relative mb-2 inline-flex gap-1 rounded-full border border-border bg-card p-1">
+        <TabsPrimitive.List className="relative mb-2 inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <BilingualTabTrigger value="en" current={tab} hasError={hasEnError}>
             English
           </BilingualTabTrigger>
@@ -164,7 +164,7 @@ function BilingualTabTrigger({
     <TabsPrimitive.Trigger
       value={value}
       className={cn(
-        'relative inline-flex h-7 items-center gap-1 rounded-full px-3 text-[11px] font-medium transition-colors',
+        'relative inline-flex h-7 shrink-0 items-center gap-1 rounded-full px-2.5 text-[10px] font-medium transition-colors sm:px-3 sm:text-[11px]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         isActive ? 'text-accent-foreground' : 'text-muted-foreground hover:text-foreground'
       )}

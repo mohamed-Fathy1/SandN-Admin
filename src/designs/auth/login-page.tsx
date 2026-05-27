@@ -9,7 +9,7 @@ import { AdminFormField } from '@/designs/shared/admin-form-field';
 import { FloatingOrb } from '@/designs/shared/motion';
 import { useRegisterEmail } from '@/features/auth/hooks/use-auth';
 import { emailSchema } from '@/features/auth/schemas/login-form';
-import { A } from '@/designs/layout/tokens';
+import { A, accentAlpha } from '@/designs/layout/tokens';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export function LoginPage() {
     >
       <FloatingOrb
         size={420}
-        color="rgba(191,60,104,0.22)"
+        color={accentAlpha(0.22)}
         top="-120px"
         left="-80px"
         delay={0}
@@ -74,22 +74,23 @@ export function LoginPage() {
         <Card
           elevation="lg"
           padding="lg"
+          className="backdrop-blur-xl"
           style={{
             background: 'var(--glass-bg)',
-            backdropFilter: 'var(--glass-blur)',
-            WebkitBackdropFilter: 'var(--glass-blur)',
             borderColor: 'var(--glass-border)',
             boxShadow: 'var(--shadow-overlay), var(--shadow-inset)',
           }}
         >
           <div className="mb-8 text-center">
-            <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
+            <p className="mb-3 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
+              <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-r from-transparent to-accent/70" />
               S&amp;N Admin
+              <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-l from-transparent to-accent/70" />
             </p>
-            <h1 className="m-0 font-display text-4xl italic leading-tight text-foreground">
+            <h1 className="m-0 font-display text-4xl italic leading-tight tracking-tight text-foreground">
               Sign in
             </h1>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Enter your admin email and we'll send you a one-time code.
             </p>
           </div>

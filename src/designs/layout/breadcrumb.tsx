@@ -18,11 +18,11 @@ export function Breadcrumb() {
   }
 
   return (
-    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm">
+    <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1 text-sm sm:gap-2">
       {crumbs.map((crumb, idx) => {
         const isLast = idx === crumbs.length - 1;
         return (
-          <div key={crumb.to} className="flex min-w-0 items-center gap-2">
+          <div key={crumb.to} className="flex min-w-0 items-center gap-1 sm:gap-2">
             {idx > 0 && (
               <span aria-hidden className="select-none text-light-foreground">
                 /
@@ -31,14 +31,14 @@ export function Breadcrumb() {
             {isLast ? (
               <span
                 aria-current="page"
-                className="truncate font-display text-base italic text-foreground"
+                className="truncate font-display text-sm italic text-foreground sm:text-base"
               >
                 {crumb.label}
               </span>
             ) : (
               <Link
                 to={crumb.to as never}
-                className="shrink-0 text-xs uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-accent"
+                className="hidden truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-accent sm:inline sm:text-xs"
               >
                 {crumb.label}
               </Link>

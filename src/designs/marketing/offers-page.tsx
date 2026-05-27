@@ -24,12 +24,13 @@ import {
   useToggleOffer,
   useUpdateOffer,
 } from '@/features/offers/hooks/use-offers';
-import type { OfferPayload } from '@/features/offers/api/offers';
+import type { OfferPayload } from '@/features/offers/hooks/use-offers';
 import { offerFormSchema } from '@/features/offers/schemas/offer-form';
-import type { OfferType } from '@/config/constants';
+import { CURRENCY_SUFFIX, type OfferType } from '@/config/constants';
 import type { ApiOffer } from '@/shared/types/api';
 import { emptyBilingual } from '@/shared/utils/bilingual';
 import { formatEGP } from '@/shared/utils/format';
+import { mapApiErrorsToFields } from '@/shared/utils/forms';
 
 const OFFER_TYPE_OPTIONS: ReadonlyArray<SelectOption<OfferType>> = [
   { value: 'fixed_discount', label: 'Fixed discount' },
@@ -180,6 +181,68 @@ export function OffersPage() {
           title: 'No offers',
           description: 'Create an offer to start running promotions.',
         }}
+        mobileRender={(o) => (
+          <div className="rounded-xl border border-border bg-card p-3">
+            <div className="flex items-start gap-3">
+              <Thumbnail src={o.image?.mediaUrl} size="sm" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <GenericBadge
+                    label={offerTypeLabel(o.type)}
+                    tone={o.type === 'fixed_discount' ? 'accent' : 'info'}
+                    size="sm"
+                  />
+                  <Switch
+                    checked={o.isActive}
+                    onCheckedChange={(checked) =>
+                      toggleOffer.mutate({ id: o._id, isActive: Boolean(checked) })
+                    }
+                    label={`Toggle ${o.description.en}`}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm text-foreground">
+                  {o.description.en}
+                </p>
+                <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                  Min {formatEGP(o.minOrderAmount)}
+                  {o.type === 'fixed_discount' ? (
+                    <>
+                      <span className="mx-1.5 text-light-foreground">·</span>
+                      <span className="font-medium text-foreground">
+                        − {formatEGP(o.discountAmount ?? 0)}
+                      </span>
+                    </>
+                  ) : null}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2 flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditing(o);
+                }}
+              >
+                <Pencil size={14} strokeWidth={1.5} aria-hidden />
+                Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleting(o);
+                }}
+                aria-label="Delete offer"
+              >
+                <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
+              </Button>
+            </div>
+          </div>
+        )}
       />
 
       <OfferFormSheet
@@ -283,10 +346,30 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
         ? { discountAmount: parsed.data.discountAmount }
         : {}),
     };
+    const onError = (err: unknown) => {
+      const fieldMap = mapApiErrorsToFields(err);
+      if (!fieldMap) return;
+      const next: OfferFormErrors = {};
+      for (const [path, msg] of Object.entries(fieldMap)) {
+        const [head, leaf] = path.split('.');
+        if (head === 'description' && (leaf === 'en' || leaf === 'ar')) {
+          next.description = { ...(next.description ?? {}), [leaf]: msg };
+        } else if (head === 'image') {
+          next.image = msg;
+        } else if (head === 'minOrderAmount') {
+          next.minOrderAmount = msg;
+        } else if (head === 'discountAmount') {
+          next.discountAmount = msg;
+        } else if (head === 'type') {
+          next.type = msg;
+        }
+      }
+      setErrors(next);
+    };
     if (isEdit && entity) {
-      update.mutate({ id: entity._id, payload }, { onSuccess: onClose });
+      update.mutate({ id: entity._id, payload }, { onSuccess: onClose, onError });
     } else {
-      create.mutate(payload, { onSuccess: onClose });
+      create.mutate(payload, { onSuccess: onClose, onError });
     }
   };
 
@@ -365,7 +448,7 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
             <NumberInput
               value={minOrderAmount}
               onChange={setMinOrderAmount}
-              suffix="EGP"
+              suffix={CURRENCY_SUFFIX}
               clampMin={0}
               hasError={Boolean(errors.minOrderAmount)}
               disabled={isPending}
@@ -386,7 +469,7 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
             <NumberInput
               value={showDiscount ? discountAmount : ''}
               onChange={setDiscountAmount}
-              suffix="EGP"
+              suffix={CURRENCY_SUFFIX}
               clampMin={0}
               hasError={Boolean(showDiscount && errors.discountAmount)}
               disabled={isPending || !showDiscount}

@@ -15,22 +15,21 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card/85 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-card/70 sm:px-6"
-      style={{ boxShadow: '0 1px 0 rgba(64,20,35,0.04), 0 8px 24px -16px rgba(64,20,35,0.10)' }}
+      className="sticky top-0 z-10 flex h-14 items-center justify-between gap-2 border-b border-border bg-card/85 px-3 shadow-[var(--shadow-header)] backdrop-blur-md supports-[backdrop-filter]:bg-card/70 sm:h-16 sm:px-6"
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
           aria-label="Open navigation menu"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-10 sm:w-10 lg:hidden"
         >
           <Menu size={20} strokeWidth={1.5} aria-hidden />
         </button>
         <Breadcrumb />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         <button
           type="button"
           onClick={openPalette}
@@ -71,12 +70,7 @@ export function Header() {
               aria-label="Account menu"
             >
               <span
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-                style={{
-                  background:
-                    'linear-gradient(135deg, #BF3C68 0%, #8E2A4E 100%)',
-                  boxShadow: '0 1px 0 rgba(255,255,255,0.20) inset, 0 4px 12px rgba(191,60,104,0.30)',
-                }}
+                className="avatar-accent inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
                 aria-hidden
               >
                 {initial}
@@ -95,10 +89,7 @@ export function Header() {
               {email && (
                 <div className="flex items-center gap-3 px-3 py-2.5">
                   <span
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-                    style={{
-                      background: 'linear-gradient(135deg, #BF3C68 0%, #8E2A4E 100%)',
-                    }}
+                    className="avatar-accent inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
                     aria-hidden
                   >
                     {initial}

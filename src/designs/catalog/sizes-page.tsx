@@ -106,6 +106,7 @@ export function SizesPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
+              aria-label={`Delete size ${row.original.size}`}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>

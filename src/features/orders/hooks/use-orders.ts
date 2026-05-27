@@ -1,15 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminQueryKeys } from '@/shared/lib/query-keys';
 import { invalidators } from '@/shared/lib/cache-invalidation';
 import { ApiError } from '@/shared/lib/axios';
-import { QUERY_STALE_TIME, type OrderStatus } from '@/config/constants';
+import { QUERY_STALE_TIME, ORDER_STATUSES, type OrderStatus } from '@/config/constants';
 import {
   applyFreeShipping,
   fetchOrder,
   fetchOrders,
   updateOrderStatus,
 } from '../api/orders';
+
+export function prefetchOrder(qc: QueryClient, id: string) {
+  return qc.prefetchQuery({
+    queryKey: adminQueryKeys.orders.detail(id),
+    queryFn: () => fetchOrder(id),
+  });
+}
+
+export function useOrdersByStatusCounts() {
+  return useQueries({
+    queries: ORDER_STATUSES.map((status) => ({
+      queryKey: adminQueryKeys.orders.list({ page: 1, status }),
+      queryFn: () => fetchOrders({ page: 1, status }),
+      staleTime: 30_000,
+    })),
+  });
+}
 
 interface UseOrdersArgs {
   page: number;

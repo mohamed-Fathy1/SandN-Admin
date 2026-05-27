@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import {
+  AdminFormField,
   AdminImageUploader,
+  Button,
   Card,
   CardGridSkeleton,
   ConfirmDialog,
+  FormSheet,
   ImageAddTile,
   QueryErrorState,
 } from '@/designs/shared';
@@ -13,14 +16,34 @@ import {
   useCreateSocialReview,
   useDeleteSocialReview,
   useSocialReviews,
+  useUpdateSocialReview,
 } from '@/features/social-reviews/hooks/use-social-reviews';
 import type { ApiSocialReview } from '@/shared/types/api';
 
 export function SocialReviewsPage() {
   const [deleting, setDeleting] = useState<ApiSocialReview | null>(null);
+  const [editing, setEditing] = useState<ApiSocialReview | null>(null);
+  const [editImageUrl, setEditImageUrl] = useState('');
   const reviewsQuery = useSocialReviews();
   const createReview = useCreateSocialReview();
+  const updateReview = useUpdateSocialReview();
   const deleteReview = useDeleteSocialReview();
+
+  const openEdit = (review: ApiSocialReview) => {
+    setEditImageUrl(review.image?.mediaUrl ?? '');
+    setEditing(review);
+  };
+  const closeEdit = () => {
+    setEditing(null);
+    setEditImageUrl('');
+  };
+  const submitEdit = () => {
+    if (!editing || !editImageUrl) return;
+    updateReview.mutate(
+      { id: editing._id, imageUrl: editImageUrl },
+      { onSuccess: closeEdit }
+    );
+  };
 
   const reviews = reviewsQuery.data ?? [];
   const hasReviews = reviews.length > 0;
@@ -61,14 +84,24 @@ export function SocialReviewsPage() {
                 decoding="async"
                 className="aspect-square w-full object-cover"
               />
-              <button
-                type="button"
-                onClick={() => setDeleting(review)}
-                aria-label="Delete social review"
-                className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <X size={16} strokeWidth={1.75} aria-hidden />
-              </button>
+              <div className="absolute right-2 top-2 flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                <button
+                  type="button"
+                  onClick={() => openEdit(review)}
+                  aria-label="Edit social review"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <Pencil size={14} strokeWidth={1.75} aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleting(review)}
+                  aria-label="Delete social review"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <X size={16} strokeWidth={1.75} aria-hidden />
+                </button>
+              </div>
             </Card>
           ))}
           <ImageAddTile
@@ -77,6 +110,37 @@ export function SocialReviewsPage() {
           />
         </div>
       )}
+
+      <FormSheet
+        open={editing !== null}
+        onOpenChange={(o) => !o && closeEdit()}
+        title="Replace review image"
+        description="Upload a new image to replace this social review."
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeEdit}>
+              Cancel
+            </Button>
+            <Button
+              onClick={submitEdit}
+              disabled={!editImageUrl || updateReview.isPending}
+              loadingText="Saving…"
+              isLoading={updateReview.isPending}
+            >
+              Save
+            </Button>
+          </>
+        }
+      >
+        <AdminFormField label="Image" htmlFor="social-review-image" required>
+          <AdminImageUploader
+            folder="SocialReview"
+            value={editImageUrl}
+            onChange={(fileUrl) => setEditImageUrl(fileUrl)}
+            aspectRatio="1 / 1"
+          />
+        </AdminFormField>
+      </FormSheet>
 
       <ConfirmDialog
         open={deleting !== null}

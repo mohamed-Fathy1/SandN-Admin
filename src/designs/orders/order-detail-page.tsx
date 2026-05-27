@@ -65,6 +65,9 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   const allowCancel = canCancel(order.status);
   const terminal = isTerminal(order.status);
   const hasShipping = (order.shippingCost ?? 0) > 0;
+  const customerName =
+    `${order.customerInfo?.firstName ?? ''} ${order.customerInfo?.lastName ?? ''}`.trim() || '—';
+  const itemCount = order.products?.reduce((n, p) => n + (p.quantity ?? 0), 0) ?? 0;
 
   return (
     <>
@@ -73,27 +76,54 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         breadcrumbLabel={`Order ${order.orderNumber}`}
         subtitle={`Placed ${formatDateTime(order.createdAt)}`}
         action={
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to={ROUTES.orders} search={{ page: 1 }}>
-                <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
-                All orders
-              </Link>
-            </Button>
-            <StatusBadge status={order.status} />
-          </div>
+          <Button asChild variant="ghost" size="sm">
+            <Link to={ROUTES.orders} search={{ page: 1 }}>
+              <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
+              All orders
+            </Link>
+          </Button>
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Status
-            </h2>
-            <StatusStepper currentStatus={order.status} />
+      <section
+        className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-background to-muted motion-safe:animate-[fadeUp_.45s_cubic-bezier(.22,1,.36,1)]"
+        style={{
+          animationFillMode: 'both',
+        }}
+      >
+        <div className="relative px-5 py-6 sm:px-8 sm:py-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                Order
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-foreground tabular-nums sm:text-3xl">
+                {order.orderNumber}
+              </h1>
+              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <span>{formatDateTime(order.createdAt)}</span>
+                <span aria-hidden className="text-light-foreground">·</span>
+                <span className="text-foreground">{customerName}</span>
+                <span aria-hidden className="text-light-foreground">·</span>
+                <span>
+                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                </span>
+              </p>
+            </div>
+            <StatusBadge status={order.status} />
+          </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-border pt-5">
+          <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                Total
+              </p>
+              <p className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-accent tabular-nums sm:text-3xl">
+                {formatEGP(order.total)}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
               {next ? (
                 <Button
                   onClick={() => updateStatus.mutate({ id: order._id, status: next })}
@@ -108,8 +138,8 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                   Mark as {ORDER_STATUS_META[next].label.toLowerCase()}
                 </Button>
               ) : terminal ? (
-                <span className="text-sm text-muted-foreground">
-                  Order is {ORDER_STATUS_META[order.status].label.toLowerCase()} — no further actions.
+                <span className="text-sm italic text-muted-foreground">
+                  No further actions.
                 </span>
               ) : null}
 
@@ -134,64 +164,45 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 </Button>
               ) : null}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <Card>
+            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Progress
+            </h2>
+            <StatusTimeline currentStatus={order.status} />
           </Card>
 
           <Card padding="none">
-            <div className="border-b border-border px-6 py-4">
-              <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+              <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Products
               </h2>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {itemCount} {itemCount === 1 ? 'unit' : 'units'}
+              </span>
             </div>
-            <ProductsTable products={order.products ?? []} />
+            <ProductsList products={order.products ?? []} />
           </Card>
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
           <Card>
-            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Summary
             </h2>
             <CostSummary order={order} />
           </Card>
 
           <Card>
-            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Customer
+            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Recipient
             </h2>
-            <div className="mt-3 space-y-1.5 text-sm">
-              <div className="font-medium text-foreground">
-                {order.customerInfo?.firstName} {order.customerInfo?.lastName}
-              </div>
-              <div className="text-muted-foreground">{order.customerPhone ?? '—'}</div>
-              {order.customerInfo?.email ? (
-                <div className="text-muted-foreground">{order.customerInfo.email}</div>
-              ) : null}
-              {order.customerInfo?.additionalPhone ? (
-                <div className="text-muted-foreground">
-                  Alt: {order.customerInfo.additionalPhone}
-                </div>
-              ) : null}
-            </div>
-          </Card>
-
-          <Card>
-            <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Shipping
-            </h2>
-            <div className="mt-3 space-y-1.5 text-sm">
-              <div className="font-medium text-foreground">
-                {nameOf(order.customerInfo?.shipping)}
-              </div>
-              <div className="text-muted-foreground">{order.customerInfo?.address}</div>
-              {order.customerInfo?.apartmentSuite ? (
-                <div className="text-muted-foreground">
-                  {order.customerInfo.apartmentSuite}
-                </div>
-              ) : null}
-              <div className="text-muted-foreground">
-                Postal code: {order.customerInfo?.postalCode || '—'}
-              </div>
-            </div>
+            <Recipient order={order} />
           </Card>
         </aside>
       </div>
@@ -211,40 +222,74 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           );
         }}
       />
+
+      <style>{`
+        @keyframes fadeUp {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </>
   );
 }
 
-function StatusStepper({ currentStatus }: { currentStatus: ApiOrder['status'] }) {
+function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }) {
   const offPath = currentStatus === 'cancelled' || currentStatus === 'deleted';
-  const currentIdx = ORDER_STEPPER_STATUSES.indexOf(currentStatus);
+
+  if (offPath) {
+    return (
+      <div className="mt-4 flex items-start gap-3 rounded-xl border border-dashed border-status-cancelled/40 bg-status-cancelled-bg/40 px-4 py-3">
+        <StatusBadge status={currentStatus} size="sm" />
+        <p className="text-sm text-muted-foreground">
+          {ORDER_STATUS_META[currentStatus].description}
+        </p>
+      </div>
+    );
+  }
+
+  const steps = ORDER_STEPPER_STATUSES;
+  const currentIdx = steps.indexOf(currentStatus);
+  const progressPct = steps.length > 1 ? (currentIdx / (steps.length - 1)) * 100 : 0;
 
   return (
-    <div className="mt-4">
-      <ol className="grid grid-cols-5 gap-2">
-        {ORDER_STEPPER_STATUSES.map((status, idx) => {
+    <div className="mt-5">
+      {/* Desktop / tablet — horizontal */}
+      <ol className="relative hidden sm:grid sm:grid-cols-5">
+        <div
+          aria-hidden
+          className="absolute left-[10%] right-[10%] top-[18px] h-px bg-border"
+        />
+        <div
+          aria-hidden
+          className="absolute left-[10%] top-[18px] h-px bg-accent transition-[width] duration-500 ease-out"
+          style={{ width: `calc((100% - 20%) * ${progressPct / 100})` }}
+        />
+        {steps.map((status, idx) => {
           const meta = ORDER_STATUS_META[status];
           const Icon = meta.icon;
-          const reached = !offPath && currentIdx >= idx;
-          const current = !offPath && currentIdx === idx;
+          const reached = currentIdx >= idx;
+          const current = currentIdx === idx;
           return (
-            <li key={status} className="flex flex-col items-center gap-2 text-center">
+            <li key={status} className="relative flex flex-col items-center gap-2 text-center">
               <span
                 className={cn(
-                  'flex h-9 w-9 items-center justify-center rounded-full border transition-colors',
+                  'relative z-[1] flex h-9 w-9 items-center justify-center rounded-full border bg-card transition-colors',
                   reached
                     ? 'border-accent bg-accent text-accent-foreground'
-                    : 'border-border bg-muted text-light-foreground'
+                    : 'border-border text-light-foreground',
+                  current && 'ring-4 ring-accent/15'
                 )}
               >
                 <Icon size={14} strokeWidth={1.75} aria-hidden />
               </span>
               <span
                 className={cn(
-                  'text-[11px] leading-tight',
-                  current && 'font-semibold text-foreground',
-                  !current && reached && 'text-foreground',
-                  !reached && 'text-light-foreground'
+                  'leading-tight',
+                  current
+                    ? 'font-semibold text-foreground text-[12px]'
+                    : reached
+                      ? 'text-[11px] text-foreground'
+                      : 'text-[11px] text-light-foreground'
                 )}
               >
                 {meta.label}
@@ -253,77 +298,167 @@ function StatusStepper({ currentStatus }: { currentStatus: ApiOrder['status'] })
           );
         })}
       </ol>
-      {offPath ? (
-        <div className="mt-5 flex items-center justify-center gap-2 rounded-xl border border-dashed border-status-cancelled bg-status-cancelled-bg/40 px-4 py-2.5">
-          <StatusBadge status={currentStatus} size="sm" />
-          <span className="text-xs text-muted-foreground">
-            {ORDER_STATUS_META[currentStatus].description}
-          </span>
-        </div>
-      ) : null}
+
+      {/* Mobile — vertical */}
+      <ol className="relative space-y-3 sm:hidden">
+        <div aria-hidden className="absolute left-[17px] top-3 bottom-3 w-px bg-border" />
+        <div
+          aria-hidden
+          className="absolute left-[17px] top-3 w-px bg-accent transition-[height] duration-500 ease-out"
+          style={{ height: `calc((100% - 24px) * ${progressPct / 100})` }}
+        />
+        {steps.map((status, idx) => {
+          const meta = ORDER_STATUS_META[status];
+          const Icon = meta.icon;
+          const reached = currentIdx >= idx;
+          const current = currentIdx === idx;
+          return (
+            <li key={status} className="relative flex items-center gap-3">
+              <span
+                className={cn(
+                  'relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-card transition-colors',
+                  reached
+                    ? 'border-accent bg-accent text-accent-foreground'
+                    : 'border-border text-light-foreground',
+                  current && 'ring-4 ring-accent/15'
+                )}
+              >
+                <Icon size={14} strokeWidth={1.75} aria-hidden />
+              </span>
+              <span
+                className={cn(
+                  'text-sm leading-tight',
+                  current
+                    ? 'font-semibold text-foreground'
+                    : reached
+                      ? 'text-foreground'
+                      : 'text-light-foreground'
+                )}
+              >
+                {meta.label}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
 
-function ProductsTable({ products }: { products: ApiOrderProduct[] }) {
-  if (products.length === 0) {
-    return <div className="px-6 py-6 text-sm text-muted-foreground">No products on this order.</div>;
+function normalizeSize(v: unknown): string | null {
+  if (!v) return null;
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    const o = v as { size?: unknown; name?: unknown };
+    if (typeof o.size === 'string') return o.size;
+    if (o.name) return typeof o.name === 'string' ? o.name : toEN(o.name as never);
   }
+  return null;
+}
+
+function normalizeColor(v: unknown): { label: string; hex?: string } | null {
+  if (!v) return null;
+  if (typeof v === 'string') return { label: v };
+  if (typeof v === 'object') {
+    const o = v as { name?: unknown; hex?: unknown };
+    const label =
+      typeof o.name === 'string' ? o.name : o.name ? toEN(o.name as never) : '';
+    if (!label) return null;
+    return { label, hex: typeof o.hex === 'string' ? o.hex : undefined };
+  }
+  return null;
+}
+
+function ProductsList({ products }: { products: ApiOrderProduct[] }) {
+  if (products.length === 0) {
+    return (
+      <div className="px-5 py-8 text-center text-sm text-muted-foreground sm:px-6">
+        No products on this order.
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
-          <tr>
-            <th className="px-6 py-3 text-left font-semibold">Product</th>
-            <th className="px-6 py-3 text-left font-semibold">Variant</th>
-            <th className="px-6 py-3 text-right font-semibold">Qty</th>
-            <th className="px-6 py-3 text-right font-semibold">Price</th>
-            <th className="px-6 py-3 text-right font-semibold">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {products.map((p, idx) => {
-            const productName =
-              p.name?.en ?? (typeof p.productId === 'object' ? toEN(p.productId.name) : '—');
-            const imageMedia =
-              p.image ?? (typeof p.productId === 'object' ? p.productId.defaultImage : undefined);
-            const imageUrl =
-              typeof imageMedia === 'string' ? imageMedia : imageMedia?.mediaUrl;
-            return (
-              <tr key={`${idOf(p.productId)}-${idOf(p.variantId)}-${idx}`}>
-                <td className="px-6 py-3">
-                  <div className="flex items-center gap-3">
-                    <Thumbnail src={imageUrl} size="sm" />
-                    <span className="font-medium text-foreground">{productName}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-3 text-muted-foreground">
-                  {[p.size, p.color].filter(Boolean).join(' · ') || '—'}
-                </td>
-                <td className="px-6 py-3 text-right tabular-nums">{p.quantity}</td>
-                <td className="px-6 py-3 text-right tabular-nums">{formatEGP(p.price)}</td>
-                <td className="px-6 py-3 text-right tabular-nums font-medium">
-                  {formatEGP(p.price * p.quantity)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <ul className="divide-y divide-border">
+      {products.map((p, idx) => {
+        const productName =
+          p.name?.en ?? (typeof p.productId === 'object' ? toEN(p.productId.name) : '—');
+        const imageMedia =
+          p.image ?? (typeof p.productId === 'object' ? p.productId.defaultImage : undefined);
+        const imageUrl =
+          typeof imageMedia === 'string' ? imageMedia : imageMedia?.mediaUrl;
+        const sizeLabel = normalizeSize(p.size);
+        const color = normalizeColor(p.color);
+        const hasVariant = Boolean(sizeLabel || color);
+        return (
+          <li
+            key={`${idOf(p.productId)}-${idOf(p.variantId)}-${idx}`}
+            className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-muted/40 sm:gap-5 sm:px-6 sm:py-5"
+          >
+            <div className="shrink-0">
+              <span className="block sm:hidden">
+                <Thumbnail src={imageUrl} size="sm" />
+              </span>
+              <span className="hidden sm:block">
+                <Thumbnail src={imageUrl} size="md" />
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-foreground sm:text-base">
+                {productName}
+              </p>
+              {hasVariant ? (
+                <p className="mt-1 flex flex-wrap items-center gap-1.5">
+                  {sizeLabel ? (
+                    <span className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
+                      Size {sizeLabel}
+                    </span>
+                  ) : null}
+                  {color ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
+                      {color.hex ? (
+                        <span
+                          aria-hidden
+                          className="inline-block h-2.5 w-2.5 rounded-full border border-border"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                      ) : null}
+                      {color.label}
+                    </span>
+                  ) : null}
+                </p>
+              ) : null}
+              <p className="mt-2 text-xs tabular-nums text-muted-foreground">
+                {p.quantity} × {formatEGP(p.price)}
+              </p>
+            </div>
+
+            <p className="shrink-0 self-center text-base font-semibold tabular-nums text-foreground sm:text-lg">
+              {formatEGP(p.price * p.quantity)}
+            </p>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
 function CostSummary({ order }: { order: ApiOrder }) {
   return (
-    <dl className="mt-3 space-y-2 text-sm">
+    <dl className="mt-4 space-y-2.5 text-sm">
       <Row label="Subtotal" value={formatEGP(order.subtotal)} />
       <Row label="Shipping" value={formatEGP(order.shippingCost)} />
       {order.discount && order.discount > 0 ? (
         <Row label="Discount" value={`− ${formatEGP(order.discount)}`} tone="muted" />
       ) : null}
-      <div className="border-t border-border pt-2">
-        <Row label="Total" value={formatEGP(order.total)} tone="strong" />
+      <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
+        <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Total
+        </dt>
+        <dd className="text-xl font-semibold tabular-nums text-accent sm:text-2xl">
+          {formatEGP(order.total)}
+        </dd>
       </div>
     </dl>
   );
@@ -336,7 +471,7 @@ function Row({
 }: {
   label: string;
   value: string;
-  tone?: 'muted' | 'strong';
+  tone?: 'muted';
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -344,15 +479,59 @@ function Row({
       <dd
         className={cn(
           'tabular-nums',
-          tone === 'strong'
-            ? 'text-base font-semibold text-foreground'
-            : tone === 'muted'
-              ? 'text-muted-foreground'
-              : 'text-foreground'
+          tone === 'muted' ? 'text-muted-foreground' : 'text-foreground'
         )}
       >
         {value}
       </dd>
+    </div>
+  );
+}
+
+function Recipient({ order }: { order: ApiOrder }) {
+  const info = order.customerInfo;
+  const name = `${info?.firstName ?? ''} ${info?.lastName ?? ''}`.trim() || '—';
+  const phone = order.customerPhone ?? '—';
+  const email = info?.email;
+  const altPhone = info?.additionalPhone;
+  const address = info?.address;
+  const apt = info?.apartmentSuite;
+  const region = nameOf(info?.shipping);
+  const postal = info?.postalCode;
+
+  return (
+    <div className="mt-4 space-y-5 text-sm">
+      <div className="space-y-3">
+        <Field label="Name" value={name} />
+        <Field label="Phone" value={phone} />
+        {altPhone ? <Field label="Alt. phone" value={altPhone} /> : null}
+        {email ? <Field label="Email" value={email} /> : null}
+      </div>
+      <div className="border-t border-border" />
+      <div className="space-y-3">
+        <Field label="Region" value={region || '—'} />
+        <Field label="Address" value={address || '—'} />
+        {apt ? <Field label="Apartment / suite" value={apt} /> : null}
+        <Field label="Postal code" value={postal || '—'} mono />
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-light-foreground">
+        {label}
+      </p>
+      <p
+        className={cn(
+          'mt-0.5 text-sm text-foreground break-words',
+          mono && 'font-mono text-xs'
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

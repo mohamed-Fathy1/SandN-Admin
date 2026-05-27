@@ -1,3 +1,17 @@
+/**
+ * Brand accent in raw RGB triplet form so callers can compose
+ * arbitrary-alpha rgba() strings without hardcoding the hue.
+ */
+export const ACCENT_RGB = '191, 60, 104' as const;
+
+/**
+ * Build an rgba string from the brand accent at a given alpha (0–1).
+ * Use sparingly — prefer A.accent / A.accentSoft / A.accentGlow tokens
+ * or the CSS variables --color-accent-soft / --shadow-* when possible.
+ */
+export const accentAlpha = (alpha: number): string =>
+  `rgba(${ACCENT_RGB}, ${alpha})`;
+
 export const A = {
   // Surfaces
   bg: '#F8F5F3',

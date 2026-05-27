@@ -1,15 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 import {
   ArrowLeft,
   Boxes,
+  Check,
   ChevronDown,
-  GripVertical,
   ImageIcon,
-  Layers,
   Plus,
   Ruler,
-  Tag,
   Trash2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,12 +20,12 @@ import {
   Card,
   DateInput,
   FadeUp,
+  FormSkeleton,
   GenericBadge,
   Input,
   Kbd,
   NumberInput,
   NotFoundState,
-  PageSkeleton,
   QueryErrorState,
   SearchableSelect,
   StickyActionBar,
@@ -35,7 +33,8 @@ import {
   usePrefersReducedMotion,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
-import { ROUTES } from '@/config/constants';
+import { CURRENCY_SUFFIX, ROUTES } from '@/config/constants';
+import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { useCategories } from '@/features/catalog/categories/hooks/use-categories';
 import { useSubCategories } from '@/features/catalog/sub-categories/hooks/use-sub-categories';
 import { useColors } from '@/features/catalog/colors/hooks/use-colors';
@@ -56,7 +55,6 @@ import type {
 import { emptyBilingual } from '@/shared/utils/bilingual';
 import { idOf } from '@/shared/utils/relations';
 import { isNotFoundError } from '@/shared/lib/api-error';
-import { formatEGP } from '@/shared/utils/format';
 import { cn } from '@/shared/utils/cn';
 
 interface VariantRow {
@@ -106,7 +104,20 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
   const isEdit = Boolean(productId);
   const productQuery = useProduct(productId);
 
-  if (isEdit && productQuery.isPending) return <PageSkeleton />;
+  if (isEdit && productQuery.isPending) {
+    return (
+      <>
+        <PageHeader
+          title="Edit product"
+          breadcrumbLabel="Loading…"
+          subtitle="Fetching catalog details."
+        />
+        <Card>
+          <FormSkeleton fields={6} />
+        </Card>
+      </>
+    );
+  }
   if (isEdit && productQuery.isError) {
     if (isNotFoundError(productQuery.error)) {
       return (
@@ -135,7 +146,7 @@ type SectionId = 'basics' | 'pricing' | 'classification' | 'variants' | 'media';
 const SECTIONS: { id: SectionId; label: string }[] = [
   { id: 'basics', label: 'Basics' },
   { id: 'pricing', label: 'Pricing' },
-  { id: 'classification', label: 'Classification' },
+  { id: 'classification', label: 'Catalog' },
   { id: 'variants', label: 'Variants' },
   { id: 'media', label: 'Media' },
 ];
@@ -164,22 +175,34 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     () => JSON.stringify(values) !== initialJson,
     [values, initialJson]
   );
+  const justSavedRef = useRef(false);
+
+  useBlocker({
+    shouldBlockFn: () => {
+      if (justSavedRef.current) return false;
+      if (!isDirty) return false;
+      return !window.confirm(
+        'You have unsaved changes. Leave this page and discard them?'
+      );
+    },
+    enableBeforeUnload: () => isDirty && !justSavedRef.current,
+  });
   const hasErrors = useMemo(
     () =>
       Boolean(
         errors.name ||
-          errors.description ||
-          errors.price ||
-          errors.wholesalePrice ||
-          errors.salePrice ||
-          errors.saleStartDate ||
-          errors.saleEndDate ||
-          errors.category ||
-          errors.subCategory ||
-          errors.defaultImage ||
-          errors.albumImages ||
-          errors.variants ||
-          errors.variantRows
+        errors.description ||
+        errors.price ||
+        errors.wholesalePrice ||
+        errors.salePrice ||
+        errors.saleStartDate ||
+        errors.saleEndDate ||
+        errors.category ||
+        errors.subCategory ||
+        errors.defaultImage ||
+        errors.albumImages ||
+        errors.variants ||
+        errors.variantRows
       ),
     [errors]
   );
@@ -207,12 +230,6 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     return (sizesQuery.data ?? []).filter((s) => idOf(s.groupSize) === groupId);
   }, [values.category, categoriesQuery.data, sizesQuery.data]);
 
-  const colorsById = useMemo(() => {
-    const map = new Map<string, ApiColor>();
-    (colorsQuery.data ?? []).forEach((c) => map.set(c._id, c));
-    return map;
-  }, [colorsQuery.data]);
-
   const subCategoryName = useMemo(() => {
     if (!values.subCategory) return null;
     const sc = (subCategoriesQuery.data ?? []).find((s) => s._id === values.subCategory);
@@ -224,27 +241,13 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     [values.variants]
   );
 
-  const completion = useMemo(() => computeCompletion(values), [values]);
-
   const sectionState = useMemo(
     () => computeSectionState(values, errors),
     [values, errors]
   );
 
-  const priceNum = typeof values.price === 'number' ? values.price : 0;
-  const saleNum = typeof values.salePrice === 'number' ? values.salePrice : 0;
-  const discountPct =
-    priceNum > 0 && saleNum > 0 && saleNum < priceNum
-      ? Math.round(((priceNum - saleNum) / priceNum) * 100)
-      : 0;
-
-  const now = Date.now();
-  const saleIsLive =
-    hasSale &&
-    values.saleStartDate > 0 &&
-    values.saleEndDate > 0 &&
-    now >= values.saleStartDate &&
-    now <= values.saleEndDate;
+  const saleScheduled =
+    hasSale && values.saleStartDate > 0 && values.saleEndDate > 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,13 +292,56 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     }
     setErrors({});
     const payload = parsed.data;
+    const onSavedSuccess = () => {
+      justSavedRef.current = true;
+      navigate({ to: ROUTES.products, search: { page: 1, search: '' } });
+    };
+    const onSavedError = (err: unknown) => {
+      const fieldMap = mapApiErrorsToFields(err);
+      if (!fieldMap) return;
+      const next: ProductFormErrors = {};
+      for (const [path, msg] of Object.entries(fieldMap)) {
+        const parts = path.split('.');
+        const [head, idx, leaf] = parts;
+        if (head === 'name' || head === 'description') {
+          const lang = idx as 'en' | 'ar';
+          if (lang === 'en' || lang === 'ar') {
+            next[head] = { ...(next[head] ?? {}), [lang]: msg };
+          }
+        } else if (head === 'variants' && /^\d+$/.test(idx ?? '')) {
+          const rowIdx = Number(idx);
+          const field = leaf as 'size' | 'color' | 'quantity' | undefined;
+          if (!next.variantRows) next.variantRows = {};
+          if (!next.variantRows[rowIdx]) next.variantRows[rowIdx] = {};
+          if (field === 'size' || field === 'color' || field === 'quantity') {
+            next.variantRows[rowIdx][field] = msg;
+          }
+        } else if (head === 'variants') {
+          next.variants = msg;
+        } else if (head === 'albumImages') {
+          next.albumImages = msg;
+        } else if (
+          head === 'price' ||
+          head === 'wholesalePrice' ||
+          head === 'salePrice' ||
+          head === 'saleStartDate' ||
+          head === 'saleEndDate' ||
+          head === 'category' ||
+          head === 'subCategory' ||
+          head === 'defaultImage'
+        ) {
+          next[head] = msg;
+        }
+      }
+      setErrors(next);
+    };
     if (existing) {
       update.mutate(
         { id: existing._id, payload },
-        { onSuccess: () => navigate({ to: ROUTES.products, search: { page: 1, search: '' } }) }
+        { onSuccess: onSavedSuccess, onError: onSavedError }
       );
     } else {
-      create.mutate(payload, { onSuccess: () => navigate({ to: ROUTES.products, search: { page: 1, search: '' } }) });
+      create.mutate(payload, { onSuccess: onSavedSuccess, onError: onSavedError });
     }
   };
 
@@ -334,7 +380,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values, existing]);
 
-  // Track active section in the rail
+  // Track active section in the stepper
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
     SECTIONS.forEach(({ id }) => {
@@ -366,7 +412,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         subtitle={
           isEdit
             ? 'Update details, swap images, or adjust variants.'
-            : 'Set up the basics, pick classification, and add at least one variant.'
+            : undefined
         }
         action={
           <div className="flex items-center gap-2">
@@ -394,408 +440,289 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
           <ProductMetaStrip
             defaultImage={values.defaultImage}
             subCategoryName={subCategoryName}
-            variantsCount={values.variants.length}
             totalStock={totalStock}
-            saleIsLive={saleIsLive}
-            discountPct={discountPct}
           />
         </FadeUp>
       ) : null}
 
-      <CompletionMeter
-        pct={completion.pct}
-        completed={completion.done}
-        total={completion.total}
-        hideWhenFull={isEdit}
-      />
+      <ProgressStepper activeId={activeSection} state={sectionState} />
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-2 grid grid-cols-1 gap-6 lg:grid-cols-12"
-      >
-        <aside className="hidden xl:col-span-2 xl:block">
-          <SectionRail activeId={activeSection} state={sectionState} />
-        </aside>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6 sm:space-y-8">
+        <FadeUp delay={0.04}>
+          <SectionBlock
+            id="basics"
+            title="Basics"
+            subtitle="Name and description, in both languages."
+            titleId="basics-title"
+          >
+            <div className="space-y-5">
+              <BilingualInput
+                label="Name"
+                required
+                value={values.name}
+                onChange={(name) => setValues((p) => ({ ...p, name }))}
+                error={errors.name}
+                placeholder={{ en: 'Cotton pants', ar: 'بنطلون قطني' }}
+              />
+              <BilingualInput
+                label="Description"
+                required
+                multiline
+                value={values.description}
+                onChange={(description) => setValues((p) => ({ ...p, description }))}
+                error={errors.description}
+                placeholder={{
+                  en: 'Comfortable cotton pants for daily use',
+                  ar: 'بنطلون قطني مريح للاستخدام اليومي',
+                }}
+              />
+            </div>
+          </SectionBlock>
+        </FadeUp>
 
-        <div className="space-y-6 lg:col-span-8 xl:col-span-7">
-          <FadeUp delay={0.04}>
-            <section
-              id="basics"
-              aria-labelledby="basics-title"
-              className="scroll-mt-28"
-            >
-              <Card padding="lg">
-                <SectionHeader
-                  icon={Tag}
-                  title="Basics"
-                  subtitle="What customers see at a glance."
-                  titleId="basics-title"
+        <FadeUp delay={0.08}>
+          <SectionBlock
+            id="pricing"
+            title="Pricing"
+            subtitle="Set price, wholesale, and an optional sale."
+            titleId="pricing-title"
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <AdminFormField label="Price" required error={errors.price}>
+                <NumberInput
+                  value={values.price}
+                  onChange={(v) => setValues((p) => ({ ...p, price: v }))}
+                  suffix={CURRENCY_SUFFIX}
+                  clampMin={0}
+                  hasError={Boolean(errors.price)}
                 />
-                <div className="mt-5 space-y-5">
-                  <BilingualInput
-                    label="Name"
-                    required
-                    value={values.name}
-                    onChange={(name) => setValues((p) => ({ ...p, name }))}
-                    error={errors.name}
-                    placeholder={{ en: 'Cotton pants', ar: 'بنطلون قطني' }}
-                  />
-                  <BilingualInput
-                    label="Description"
-                    required
-                    multiline
-                    value={values.description}
-                    onChange={(description) => setValues((p) => ({ ...p, description }))}
-                    error={errors.description}
-                    placeholder={{
-                      en: 'Comfortable cotton pants for daily use',
-                      ar: 'بنطلون قطني مريح للاستخدام اليومي',
-                    }}
-                  />
-                </div>
-              </Card>
-            </section>
-          </FadeUp>
+              </AdminFormField>
+              <AdminFormField label="Wholesale price" required error={errors.wholesalePrice}>
+                <NumberInput
+                  value={values.wholesalePrice}
+                  onChange={(v) => setValues((p) => ({ ...p, wholesalePrice: v }))}
+                  suffix={CURRENCY_SUFFIX}
+                  clampMin={0}
+                  hasError={Boolean(errors.wholesalePrice)}
+                />
+              </AdminFormField>
+            </div>
 
-          <FadeUp delay={0.08}>
-            <section
-              id="pricing"
-              aria-labelledby="pricing-title"
-              className="scroll-mt-28"
-            >
-              <Card padding="lg">
-                <SectionHeader
-                  icon={Tag}
-                  title="Pricing"
-                  subtitle="List price, wholesale, and an optional sale window."
-                  titleId="pricing-title"
-                  trailing={
-                    <PricePreview
-                      price={priceNum}
-                      salePrice={saleNum}
-                      discountPct={discountPct}
-                    />
+            <SalePanel
+              hasSale={hasSale}
+              saleScheduled={saleScheduled}
+              values={values}
+              errors={errors}
+              isPending={isPending}
+              setValues={setValues}
+            />
+          </SectionBlock>
+        </FadeUp>
+
+        <FadeUp delay={0.12}>
+          <SectionBlock
+            id="classification"
+            title="Catalog"
+            subtitle="Where this product lives in the storefront."
+            titleId="classification-title"
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <AdminFormField label="Category" required error={errors.category}>
+                <SearchableSelect<ApiCategory>
+                  value={values.category || undefined}
+                  onChange={handleCategoryChange}
+                  items={(categoriesQuery.data ?? []).filter((c) => !c.isDeleted)}
+                  getKey={(c) => c._id}
+                  getLabel={(c) => c.name.en}
+                  placeholder="Pick a category"
+                  disabled={isPending}
+                  clearable={false}
+                />
+              </AdminFormField>
+              <AdminFormField label="Sub-category" required error={errors.subCategory}>
+                <SearchableSelect<ApiSubCategory>
+                  value={values.subCategory || undefined}
+                  onChange={(v) => setValues((p) => ({ ...p, subCategory: v ?? '' }))}
+                  items={filteredSubCategories.filter((sc) => !sc.isDeleted)}
+                  getKey={(sc) => sc._id}
+                  getLabel={(sc) => sc.name.en}
+                  placeholder={
+                    values.category ? 'Pick a sub-category' : 'Pick a category first'
                   }
+                  disabled={isPending || !values.category}
+                  clearable={false}
                 />
+              </AdminFormField>
+            </div>
+          </SectionBlock>
+        </FadeUp>
 
-                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <AdminFormField label="Price" required error={errors.price}>
-                    <NumberInput
-                      value={values.price}
-                      onChange={(v) => setValues((p) => ({ ...p, price: v }))}
-                      suffix="EGP"
-                      clampMin={0}
-                      hasError={Boolean(errors.price)}
-                    />
-                  </AdminFormField>
-                  <AdminFormField label="Wholesale price" required error={errors.wholesalePrice}>
-                    <NumberInput
-                      value={values.wholesalePrice}
-                      onChange={(v) => setValues((p) => ({ ...p, wholesalePrice: v }))}
-                      suffix="EGP"
-                      clampMin={0}
-                      hasError={Boolean(errors.wholesalePrice)}
-                    />
-                  </AdminFormField>
-                </div>
-
-                <div
-                  className={cn(
-                    'mt-4 rounded-xl border border-border bg-muted/40 p-4 transition-opacity',
-                    !hasSale && 'opacity-70'
-                  )}
+        <FadeUp delay={0.16}>
+          <SectionBlock
+            id="variants"
+            title="Variants"
+            subtitle="Every size + color combination customers can buy."
+            titleId="variants-title"
+            trailing={
+              values.variants.length > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addVariant}
+                  disabled={isPending}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                        Sale window
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {hasSale
-                          ? 'Customers see the sale price during this window.'
-                          : 'Set a sale price above to unlock the schedule.'}
-                      </p>
-                    </div>
-                    {saleIsLive ? (
-                      <GenericBadge label="Live now" tone="accent" size="sm" />
-                    ) : hasSale ? (
-                      <GenericBadge label="Scheduled" tone="muted" size="sm" />
-                    ) : null}
-                  </div>
-                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <AdminFormField
-                      label="Sale price"
-                      hint="Leave 0 to disable the sale."
-                      error={errors.salePrice}
-                    >
-                      <NumberInput
-                        value={values.salePrice}
-                        onChange={(v) => setValues((p) => ({ ...p, salePrice: v }))}
-                        suffix="EGP"
-                        clampMin={0}
-                        hasError={Boolean(errors.salePrice)}
+                  <Plus size={14} strokeWidth={1.5} aria-hidden />
+                  Add
+                </Button>
+              ) : null
+            }
+          >
+            {errors.variants ? (
+              <p className="mb-3 text-xs text-destructive">{errors.variants}</p>
+            ) : null}
+
+            {values.variants.length === 0 ? (
+              <VariantsEmptyState onAdd={addVariant} disabled={isPending} />
+            ) : (
+              <>
+                <ul className="space-y-2">
+                  <AnimatePresence initial={false}>
+                    {values.variants.map((variant, idx) => (
+                      <VariantRowItem
+                        key={idx}
+                        idx={idx}
+                        variant={variant}
+                        rowErrs={errors.variantRows?.[idx]}
+                        sizeOptions={sizeOptionsForGroup}
+                        colors={colorsQuery.data ?? []}
+                        isPending={isPending}
+                        setVariant={setVariant}
+                        onRemove={() => removeVariant(idx)}
                       />
-                    </AdminFormField>
-                    <AdminFormField label="Sale start" error={errors.saleStartDate}>
-                      <DateInput
-                        value={values.saleStartDate}
-                        onChange={(v) => setValues((p) => ({ ...p, saleStartDate: v }))}
-                        hasError={Boolean(errors.saleStartDate)}
-                        disabled={!hasSale || isPending}
-                      />
-                    </AdminFormField>
-                    <AdminFormField label="Sale end" error={errors.saleEndDate}>
-                      <DateInput
-                        value={values.saleEndDate}
-                        onChange={(v) => setValues((p) => ({ ...p, saleEndDate: v }))}
-                        hasError={Boolean(errors.saleEndDate)}
-                        disabled={!hasSale || isPending}
-                      />
-                    </AdminFormField>
-                  </div>
+                    ))}
+                  </AnimatePresence>
+                </ul>
+
+                <p className="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground tabular-nums">
+                    {values.variants.length}
+                  </span>{' '}
+                  variants ·{' '}
+                  <span className="font-semibold text-foreground tabular-nums">
+                    {totalStock.toLocaleString('en-US')}
+                  </span>{' '}
+                  in stock
+                </p>
+              </>
+            )}
+          </SectionBlock>
+        </FadeUp>
+
+        <FadeUp delay={0.2}>
+          <SectionBlock
+            id="media"
+            title="Media"
+            subtitle="Hero shot, gallery, and an optional size chart."
+            titleId="media-title"
+          >
+            <div className="space-y-6">
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <FieldLabel>Hero image</FieldLabel>
+                  <span className="text-[11px] text-muted-foreground">Shown in product cards</span>
                 </div>
-              </Card>
-            </section>
-          </FadeUp>
-
-          <FadeUp delay={0.12}>
-            <section
-              id="classification"
-              aria-labelledby="classification-title"
-              className="scroll-mt-28"
-            >
-              <Card padding="lg">
-                <SectionHeader
-                  icon={Layers}
-                  title="Classification"
-                  subtitle="Where this product lives in the catalog."
-                  titleId="classification-title"
-                />
-                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <AdminFormField label="Category" required error={errors.category}>
-                    <SearchableSelect<ApiCategory>
-                      value={values.category || undefined}
-                      onChange={handleCategoryChange}
-                      items={(categoriesQuery.data ?? []).filter((c) => !c.isDeleted)}
-                      getKey={(c) => c._id}
-                      getLabel={(c) => c.name.en}
-                      placeholder="Pick a category"
-                      disabled={isPending}
-                      clearable={false}
-                    />
-                  </AdminFormField>
-                  <AdminFormField label="Sub-category" required error={errors.subCategory}>
-                    <SearchableSelect<ApiSubCategory>
-                      value={values.subCategory || undefined}
-                      onChange={(v) => setValues((p) => ({ ...p, subCategory: v ?? '' }))}
-                      items={filteredSubCategories.filter((sc) => !sc.isDeleted)}
-                      getKey={(sc) => sc._id}
-                      getLabel={(sc) => sc.name.en}
-                      placeholder={
-                        values.category ? 'Pick a sub-category' : 'Pick a category first'
-                      }
-                      disabled={isPending || !values.category}
-                      clearable={false}
-                    />
-                  </AdminFormField>
+                <div className="max-w-sm">
+                  <AdminImageUploader
+                    folder="Product"
+                    value={values.defaultImage || undefined}
+                    onChange={(defaultImage) => setValues((p) => ({ ...p, defaultImage }))}
+                    onClear={() => setValues((p) => ({ ...p, defaultImage: '' }))}
+                    disabled={isPending}
+                    hasError={Boolean(errors.defaultImage)}
+                    aspectRatio="4 / 5"
+                  />
                 </div>
-              </Card>
-            </section>
-          </FadeUp>
-
-          <FadeUp delay={0.16}>
-            <section
-              id="variants"
-              aria-labelledby="variants-title"
-              className="scroll-mt-28"
-            >
-              <Card padding="lg">
-                <SectionHeader
-                  icon={Boxes}
-                  title="Variants"
-                  subtitle="Every size + color combination customers can buy."
-                  titleId="variants-title"
-                  trailing={
-                    <div className="flex items-center gap-3">
-                      {values.variants.length > 0 ? (
-                        <span className="hidden text-xs text-muted-foreground sm:inline">
-                          <span className="font-semibold text-foreground tabular-nums">
-                            {values.variants.length}
-                          </span>{' '}
-                          variants ·{' '}
-                          <span className="font-semibold text-foreground tabular-nums">
-                            {totalStock}
-                          </span>{' '}
-                          units
-                        </span>
-                      ) : null}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={addVariant}
-                        disabled={isPending}
-                      >
-                        <Plus size={14} strokeWidth={1.5} aria-hidden />
-                        Add variant
-                      </Button>
-                    </div>
-                  }
-                />
-
-                {errors.variants ? (
-                  <p className="mt-3 text-xs text-destructive">{errors.variants}</p>
+                {errors.defaultImage ? (
+                  <p className="mt-2 text-xs text-destructive">{errors.defaultImage}</p>
                 ) : null}
+              </div>
 
-                <div className="mt-5">
-                  {values.variants.length === 0 ? (
-                    <VariantsEmptyState onAdd={addVariant} disabled={isPending} />
-                  ) : (
-                    <ul className="space-y-2">
-                      <AnimatePresence initial={false}>
-                        {values.variants.map((variant, idx) => (
-                          <VariantRowItem
-                            key={idx}
-                            idx={idx}
-                            variant={variant}
-                            rowErrs={errors.variantRows?.[idx]}
-                            sizeOptions={sizeOptionsForGroup}
-                            colors={colorsQuery.data ?? []}
-                            colorMeta={colorsById.get(variant.color)}
-                            isPending={isPending}
-                            setVariant={setVariant}
-                            onRemove={() => removeVariant(idx)}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </ul>
-                  )}
+              <div className="border-t border-border pt-6">
+                <div className="mb-2 flex items-center justify-between">
+                  <FieldLabel>Gallery</FieldLabel>
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    {values.albumImages.length} / 10
+                  </span>
                 </div>
-              </Card>
-            </section>
-          </FadeUp>
-        </div>
-
-        <aside className="space-y-6 lg:col-span-4 xl:col-span-3">
-          <FadeUp delay={0.04}>
-            <section
-              id="media"
-              aria-labelledby="media-title"
-              className="scroll-mt-28"
-            >
-              <Card padding="lg">
-                <SectionHeader
-                  icon={ImageIcon}
-                  title="Media"
-                  subtitle="Hero shot, gallery, and an optional size chart."
-                  titleId="media-title"
+                <p className="mb-3 text-[11px] text-muted-foreground">
+                  First image leads the gallery.
+                </p>
+                <AdminImageUploaderMulti
+                  folder="Product"
+                  values={values.albumImages}
+                  onChange={(albumImages) => setValues((p) => ({ ...p, albumImages }))}
+                  max={10}
                 />
+                {errors.albumImages ? (
+                  <p className="mt-2 text-xs text-destructive">{errors.albumImages}</p>
+                ) : null}
+              </div>
 
-                <div className="mt-5 space-y-6">
-                  <div>
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
-                        Hero
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        Shown in product cards
-                      </p>
-                    </div>
-                    <AdminImageUploader
-                      folder="Product"
-                      value={values.defaultImage || undefined}
-                      onChange={(defaultImage) => setValues((p) => ({ ...p, defaultImage }))}
-                      onClear={() => setValues((p) => ({ ...p, defaultImage: '' }))}
-                      disabled={isPending}
-                      hasError={Boolean(errors.defaultImage)}
-                      aspectRatio="4 / 5"
-                    />
-                    {errors.defaultImage ? (
-                      <p className="mt-1 text-xs text-destructive">{errors.defaultImage}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="border-t border-border pt-5">
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                        Gallery
-                      </p>
-                      <p className="text-[11px] text-muted-foreground tabular-nums">
-                        {values.albumImages.length} / 10
-                      </p>
-                    </div>
-                    <p className="mb-3 text-[11px] text-muted-foreground">
-                      Drag to reorder. First image leads the gallery.
-                    </p>
-                    <AdminImageUploaderMulti
-                      folder="Product"
-                      values={values.albumImages}
-                      onChange={(albumImages) => setValues((p) => ({ ...p, albumImages }))}
-                      max={10}
-                    />
-                    {errors.albumImages ? (
-                      <p className="mt-2 text-xs text-destructive">{errors.albumImages}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="border-t border-border pt-5">
-                    <button
-                      type="button"
-                      onClick={() => setSizeChartOpen((s) => !s)}
-                      className="group flex w-full items-center justify-between gap-3 rounded-lg text-left transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      aria-expanded={sizeChartOpen}
+              <div className="border-t border-border pt-6">
+                <button
+                  type="button"
+                  onClick={() => setSizeChartOpen((s) => !s)}
+                  className="group flex w-full items-center justify-between gap-3 rounded-lg text-left transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-expanded={sizeChartOpen}
+                >
+                  <span className="flex items-center gap-2">
+                    <Ruler size={14} strokeWidth={1.75} className="text-muted-foreground group-hover:text-accent" aria-hidden />
+                    <FieldLabel>Size chart</FieldLabel>
+                    <span className="text-[11px] text-muted-foreground">(optional)</span>
+                  </span>
+                  <ChevronDown
+                    size={14}
+                    strokeWidth={1.75}
+                    aria-hidden
+                    className={cn(
+                      'text-muted-foreground transition-transform',
+                      sizeChartOpen && 'rotate-180'
+                    )}
+                  />
+                </button>
+                <AnimatePresence initial={false}>
+                  {sizeChartOpen ? (
+                    <motion.div
+                      key="size-chart"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                      className="overflow-hidden"
                     >
-                      <span className="flex items-center gap-2">
-                        <Ruler size={14} strokeWidth={1.75} className="text-muted-foreground group-hover:text-accent" aria-hidden />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground group-hover:text-accent">
-                          Size chart
-                        </span>
-                        <span className="text-[11px] text-muted-foreground">(optional)</span>
-                      </span>
-                      <ChevronDown
-                        size={14}
-                        strokeWidth={1.75}
-                        aria-hidden
-                        className={cn(
-                          'text-muted-foreground transition-transform',
-                          sizeChartOpen && 'rotate-180'
-                        )}
-                      />
-                    </button>
-                    <AnimatePresence initial={false}>
-                      {sizeChartOpen ? (
-                        <motion.div
-                          key="size-chart"
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: 'easeOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-3">
-                            <AdminImageUploader
-                              folder="Product"
-                              value={values.sizeChartImage || undefined}
-                              onChange={(sizeChartImage) =>
-                                setValues((p) => ({ ...p, sizeChartImage }))
-                              }
-                              onClear={() => setValues((p) => ({ ...p, sizeChartImage: '' }))}
-                              disabled={isPending}
-                              aspectRatio="4 / 5"
-                            />
-                          </div>
-                        </motion.div>
-                      ) : null}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </Card>
-            </section>
-          </FadeUp>
-        </aside>
+                      <div className="max-w-sm pt-3">
+                        <AdminImageUploader
+                          folder="Product"
+                          value={values.sizeChartImage || undefined}
+                          onChange={(sizeChartImage) =>
+                            setValues((p) => ({ ...p, sizeChartImage }))
+                          }
+                          onClear={() => setValues((p) => ({ ...p, sizeChartImage: '' }))}
+                          disabled={isPending}
+                          aspectRatio="4 / 5"
+                        />
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
+            </div>
+          </SectionBlock>
+        </FadeUp>
       </form>
 
-      {/* Clearance for sticky action bar (new product → always; edit → only when dirty) */}
+      {/* Clearance for sticky action bar */}
       <div aria-hidden className="h-24" />
 
       <StickyActionBar
@@ -837,102 +764,176 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   );
 }
 
-/* ─────────────── Local subcomponents ─────────────── */
+/* ─────────────── Section block ─────────────── */
 
-function SectionHeader({
-  icon: Icon,
+function SectionBlock({
+  id,
   title,
   subtitle,
-  trailing,
   titleId,
+  trailing,
+  children,
 }: {
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; 'aria-hidden'?: boolean; className?: string }>;
+  id: string;
   title: string;
   subtitle?: string;
-  trailing?: React.ReactNode;
   titleId?: string;
+  trailing?: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent-soft text-accent"
-        >
-          <Icon size={15} strokeWidth={1.75} aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 id={titleId} className="text-base font-semibold text-foreground">
-            {title}
-          </h2>
-          {subtitle ? (
-            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-          ) : null}
-        </div>
-      </div>
-      {trailing ? <div className="shrink-0">{trailing}</div> : null}
-    </div>
+    <section id={id} aria-labelledby={titleId} className="scroll-mt-28">
+      <Card padding="lg" elevation="sm">
+        <header className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4 sm:pb-5">
+          <div className="min-w-0">
+            <h2
+              id={titleId}
+              className="font-display text-xl italic leading-tight text-foreground sm:text-2xl"
+            >
+              {title}
+            </h2>
+            {subtitle ? (
+              <p className="mt-1 max-w-prose text-sm text-muted-foreground">{subtitle}</p>
+            ) : null}
+          </div>
+          {trailing ? <div className="shrink-0">{trailing}</div> : null}
+        </header>
+        <div className="pt-5 sm:pt-6">{children}</div>
+      </Card>
+    </section>
   );
 }
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+      {children}
+    </span>
+  );
+}
+
+/* ─────────────── Progress stepper ─────────────── */
+
+function ProgressStepper({
+  activeId,
+  state,
+}: {
+  activeId: SectionId;
+  state: Record<SectionId, 'idle' | 'done' | 'error'>;
+}) {
+  return (
+    <nav aria-label="Form sections" className="mx-auto mb-6 max-w-3xl sm:mb-8">
+      <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ol className="flex min-w-max items-center sm:min-w-0">
+          {SECTIONS.map((s, i) => {
+            const isActive = s.id === activeId;
+            const status = state[s.id];
+            const isDone = status === 'done';
+            const isError = status === 'error';
+            return (
+              <li key={s.id} className="flex flex-1 items-center">
+                <a
+                  href={`#${s.id}`}
+                  aria-current={isActive ? 'step' : undefined}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .getElementById(s.id)
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className={cn(
+                    'group inline-flex items-center gap-2 rounded-md px-1.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    isActive
+                      ? 'text-accent'
+                      : isError
+                        ? 'text-destructive'
+                        : isDone
+                          ? 'text-foreground hover:text-accent'
+                          : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold tabular-nums transition-colors',
+                      isDone
+                        ? 'bg-accent text-white'
+                        : isError
+                          ? 'bg-destructive text-white'
+                          : isActive
+                            ? 'border border-accent text-accent ring-4 ring-accent/10'
+                            : 'border border-border-strong text-muted-foreground'
+                    )}
+                  >
+                    {isDone ? (
+                      <Check size={10} strokeWidth={3} aria-hidden />
+                    ) : isError ? (
+                      '!'
+                    ) : (
+                      i + 1
+                    )}
+                  </span>
+                  <span className="whitespace-nowrap">{s.label}</span>
+                </a>
+                {i < SECTIONS.length - 1 ? (
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'mx-1.5 h-px flex-1 transition-colors sm:mx-2',
+                      isDone ? 'bg-accent/40' : 'bg-border'
+                    )}
+                  />
+                ) : null}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </nav>
+  );
+}
+
+/* ─────────────── Product meta strip (edit only) ─────────────── */
 
 function ProductMetaStrip({
   defaultImage,
   subCategoryName,
-  variantsCount,
   totalStock,
-  saleIsLive,
-  discountPct,
 }: {
   defaultImage: string;
   subCategoryName: string | null;
-  variantsCount: number;
   totalStock: number;
-  saleIsLive: boolean;
-  discountPct: number;
 }) {
   const stockTone: 'success' | 'warning' | 'destructive' =
     totalStock === 0 ? 'destructive' : totalStock < 10 ? 'warning' : 'success';
   return (
     <div
-      className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-accent-soft via-card to-card p-4 sm:p-5"
+      className="mx-auto mb-6 max-w-3xl overflow-hidden rounded-2xl border border-border bg-card p-3 sm:p-4"
       style={{ boxShadow: 'var(--shadow-card)' }}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl"
-      />
-      <div className="relative flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className="relative shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
           {defaultImage ? (
             <img
               src={defaultImage}
               alt=""
-              className="h-20 w-16 object-cover sm:h-24 sm:w-20"
+              className="h-16 w-14 object-cover sm:h-20 sm:w-16"
               loading="lazy"
               decoding="async"
             />
           ) : (
-            <div className="flex h-20 w-16 items-center justify-center text-muted-foreground sm:h-24 sm:w-20">
-              <ImageIcon size={20} strokeWidth={1.5} aria-hidden />
+            <div className="flex h-16 w-14 items-center justify-center text-muted-foreground sm:h-20 sm:w-16">
+              <ImageIcon size={18} strokeWidth={1.5} aria-hidden />
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            {subCategoryName ? (
-              <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {subCategoryName}
-              </span>
-            ) : null}
-            {saleIsLive ? (
-              <GenericBadge
-                label={discountPct > 0 ? `−${discountPct}% on sale` : 'On sale'}
-                tone="accent"
-                size="sm"
-              />
-            ) : null}
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          {subCategoryName ? (
+            <p className="truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {subCategoryName}
+            </p>
+          ) : null}
+          <div className="mt-1.5">
             <GenericBadge
               label={
                 totalStock === 0
@@ -942,12 +943,6 @@ function ProductMetaStrip({
               tone={stockTone}
               size="sm"
             />
-            <GenericBadge
-              label={`${variantsCount} variant${variantsCount === 1 ? '' : 's'}`}
-              tone="muted"
-              size="sm"
-              icon={Boxes}
-            />
           </div>
         </div>
       </div>
@@ -955,126 +950,86 @@ function ProductMetaStrip({
   );
 }
 
-function CompletionMeter({
-  pct,
-  completed,
-  total,
-  hideWhenFull,
-}: {
-  pct: number;
-  completed: number;
-  total: number;
-  hideWhenFull: boolean;
-}) {
-  if (hideWhenFull && pct === 100) return null;
-  return (
-    <div className="mb-6 flex items-center gap-3">
-      <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-accent transition-[width] duration-500"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <span className="shrink-0 text-[11px] font-medium tabular-nums text-muted-foreground">
-        {completed} / {total} required
-      </span>
-    </div>
-  );
-}
+/* ─────────────── Sale panel ─────────────── */
 
-function SectionRail({
-  activeId,
-  state,
+function SalePanel({
+  hasSale,
+  saleScheduled,
+  values,
+  errors,
+  isPending,
+  setValues,
 }: {
-  activeId: SectionId;
-  state: Record<SectionId, 'idle' | 'done' | 'error'>;
+  hasSale: boolean;
+  saleScheduled: boolean;
+  values: FormState;
+  errors: ProductFormErrors;
+  isPending: boolean;
+  setValues: React.Dispatch<React.SetStateAction<FormState>>;
 }) {
   return (
-    <nav
-      aria-label="Form sections"
-      className="sticky top-24 rounded-2xl border border-border bg-card p-3"
-    >
-      <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        Sections
-      </p>
-      <ul className="space-y-0.5">
-        {SECTIONS.map((s) => {
-          const isActive = activeId === s.id;
-          const status = state[s.id];
-          return (
-            <li key={s.id}>
-              <a
-                href={`#${s.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document
-                    .getElementById(s.id)
-                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className={cn(
-                  'group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-colors',
-                  isActive
-                    ? 'bg-accent-soft text-accent'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    'inline-block h-1.5 w-1.5 rounded-full ring-2 ring-offset-1 ring-offset-card transition-colors',
-                    status === 'error'
-                      ? 'bg-destructive ring-destructive/30'
-                      : status === 'done'
-                        ? 'bg-accent ring-accent/30'
-                        : 'bg-transparent ring-border-strong'
-                  )}
-                />
-                <span className="font-medium">{s.label}</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
-
-function PricePreview({
-  price,
-  salePrice,
-  discountPct,
-}: {
-  price: number;
-  salePrice: number;
-  discountPct: number;
-}) {
-  if (price <= 0) return null;
-  const onSale = salePrice > 0 && salePrice < price;
-  return (
-    <div className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        Customer pays
-      </span>
-      {onSale ? (
-        <>
-          <span className="text-xs text-muted-foreground line-through tabular-nums">
-            {formatEGP(price)}
-          </span>
-          <span className="text-sm font-semibold text-accent tabular-nums">
-            {formatEGP(salePrice)}
-          </span>
-          <span className="rounded-full bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold text-accent tabular-nums">
-            −{discountPct}%
-          </span>
-        </>
-      ) : (
-        <span className="text-sm font-semibold text-foreground tabular-nums">
-          {formatEGP(price)}
-        </span>
+    <div
+      className={cn(
+        'relative mt-6 rounded-xl border-l-2 p-4 transition-colors sm:p-5',
+        hasSale
+          ? 'border-l-accent bg-accent-soft/60'
+          : 'border-l-border-medium bg-muted/40'
       )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <FieldLabel>{hasSale ? 'Sale window' : 'Plan a sale'}</FieldLabel>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {hasSale
+              ? 'Customers see the sale price during the window below.'
+              : 'Add a sale price to schedule a window — list price stays live until then.'}
+          </p>
+        </div>
+        {hasSale ? (
+          saleScheduled ? (
+            <GenericBadge label="Scheduled" tone="accent" size="sm" />
+          ) : (
+            <GenericBadge label="Dates pending" tone="warning" size="sm" />
+          )
+        ) : null}
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <AdminFormField
+          label="Sale price"
+          hint="Leave 0 to disable."
+          error={errors.salePrice}
+        >
+          <NumberInput
+            value={values.salePrice}
+            onChange={(v) => setValues((p) => ({ ...p, salePrice: v }))}
+            suffix={CURRENCY_SUFFIX}
+            clampMin={0}
+            hasError={Boolean(errors.salePrice)}
+          />
+        </AdminFormField>
+        <AdminFormField label="Sale start" error={errors.saleStartDate}>
+          <DateInput
+            value={values.saleStartDate}
+            onChange={(v) => setValues((p) => ({ ...p, saleStartDate: v }))}
+            hasError={Boolean(errors.saleStartDate)}
+            disabled={!hasSale || isPending}
+          />
+        </AdminFormField>
+        <AdminFormField label="Sale end" error={errors.saleEndDate}>
+          <DateInput
+            value={values.saleEndDate}
+            onChange={(v) => setValues((p) => ({ ...p, saleEndDate: v }))}
+            hasError={Boolean(errors.saleEndDate)}
+            disabled={!hasSale || isPending}
+          />
+        </AdminFormField>
+      </div>
     </div>
   );
 }
+
+/* ─────────────── Variants ─────────────── */
 
 function VariantsEmptyState({
   onAdd,
@@ -1084,22 +1039,19 @@ function VariantsEmptyState({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-medium bg-muted/30 px-6 py-10 text-center">
-      <span
-        aria-hidden
-        className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-card text-muted-foreground"
-        style={{ boxShadow: 'var(--shadow-card)' }}
-      >
-        <Boxes size={20} strokeWidth={1.5} aria-hidden />
-      </span>
-      <p className="text-sm font-semibold text-foreground">No variants yet</p>
-      <p className="mt-1 max-w-xs text-xs text-muted-foreground">
-        Add at least one size + color combination so this product can be purchased.
-      </p>
-      <Button type="button" size="sm" onClick={onAdd} disabled={disabled} className="mt-4">
-        <Plus size={14} strokeWidth={1.5} aria-hidden />
-        Add first variant
-      </Button>
+    <div className="rounded-2xl border border-dashed border-border-medium bg-muted/30 p-5 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+        <div className="flex-1">
+          <p className="font-display text-lg italic text-foreground">No variants yet.</p>
+          <p className="mt-1 max-w-md text-sm text-muted-foreground">
+            Add at least one size + color combination so this product can be sold.
+          </p>
+        </div>
+        <Button type="button" size="sm" onClick={onAdd} disabled={disabled} className="shrink-0">
+          <Plus size={14} strokeWidth={1.5} aria-hidden />
+          Add first variant
+        </Button>
+      </div>
     </div>
   );
 }
@@ -1110,7 +1062,6 @@ function VariantRowItem({
   rowErrs,
   sizeOptions,
   colors,
-  colorMeta,
   isPending,
   setVariant,
   onRemove,
@@ -1120,14 +1071,12 @@ function VariantRowItem({
   rowErrs?: { size?: string; color?: string; quantity?: string };
   sizeOptions: ApiSize[];
   colors: ApiColor[];
-  colorMeta?: ApiColor;
   isPending: boolean;
   setVariant: (idx: number, patch: Partial<VariantRow>) => void;
   onRemove: () => void;
 }) {
   const reduced = usePrefersReducedMotion();
-  const hex = colorMeta?.hex || '#E5E0DD';
-  const textTone = contrastTone(hex);
+  const hasRowErr = Boolean(rowErrs?.size || rowErrs?.color || rowErrs?.quantity);
   return (
     <motion.li
       layout
@@ -1135,32 +1084,15 @@ function VariantRowItem({
       animate={{ opacity: 1, y: 0 }}
       exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
-      className="group/row flex items-start gap-3 rounded-xl border border-border bg-card p-3 transition-colors hover:border-border-medium"
+      className={cn(
+        'group/row relative flex items-start gap-3 rounded-xl border bg-card p-3 transition-all hover:border-border-medium',
+        hasRowErr
+          ? 'border-destructive/30 shadow-[inset_3px_0_0_0_var(--color-destructive)]'
+          : 'border-border'
+      )}
     >
-      <span
-        aria-hidden
-        className="hidden cursor-grab self-center text-muted-foreground/60 sm:inline-flex"
-      >
-        <GripVertical size={14} strokeWidth={1.5} />
-      </span>
-
-      <div
-        aria-hidden
-        className="relative hidden h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-border sm:inline-flex"
-        style={{ backgroundColor: hex }}
-      >
-        <span
-          className={cn(
-            'text-xs font-semibold uppercase tracking-wide tabular-nums',
-            textTone === 'dark' ? 'text-foreground/80' : 'text-white/90'
-          )}
-        >
-          {variant.size || '—'}
-        </span>
-      </div>
-
       <div className="grid min-w-0 flex-1 grid-cols-12 items-start gap-2">
-        <div className="col-span-6 md:col-span-3">
+        <div className="col-span-12 sm:col-span-3">
           {sizeOptions.length > 0 ? (
             <SearchableSelect<ApiSize>
               value={variant.size || undefined}
@@ -1187,7 +1119,7 @@ function VariantRowItem({
           ) : null}
         </div>
 
-        <div className="col-span-6 md:col-span-5">
+        <div className="col-span-12 sm:col-span-5">
           <SearchableSelect<ApiColor>
             value={variant.color || undefined}
             onChange={(v) => setVariant(idx, { color: v ?? '' })}
@@ -1214,7 +1146,7 @@ function VariantRowItem({
           ) : null}
         </div>
 
-        <div className="col-span-8 md:col-span-3">
+        <div className="col-span-12 sm:col-span-4">
           <NumberInput
             value={variant.quantity}
             onChange={(v) =>
@@ -1227,65 +1159,24 @@ function VariantRowItem({
           />
           {rowErrs?.quantity ? (
             <p className="mt-1 text-[11px] text-destructive">{rowErrs.quantity}</p>
-          ) : (
-            <div className="mt-1.5">
-              <StockPill qty={variant.quantity} />
-            </div>
-          )}
-        </div>
-
-        <div className="col-span-4 flex justify-end md:col-span-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            aria-label="Remove variant"
-            disabled={isPending}
-          >
-            <Trash2 size={14} strokeWidth={1.5} className="text-destructive" />
-          </Button>
+          ) : null}
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label="Remove variant"
+        disabled={isPending}
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+      >
+        <Trash2 size={14} strokeWidth={1.75} aria-hidden />
+      </button>
     </motion.li>
   );
 }
 
-function StockPill({ qty }: { qty: number }) {
-  if (qty <= 0) return <GenericBadge label="Out of stock" tone="destructive" size="sm" />;
-  if (qty < 5) return <GenericBadge label={`Low · ${qty}`} tone="warning" size="sm" />;
-  return <GenericBadge label={`${qty} ready`} tone="success" size="sm" />;
-}
-
 /* ─────────────── Helpers ─────────────── */
-
-function contrastTone(hex: string): 'light' | 'dark' {
-  const h = hex.replace('#', '');
-  if (h.length < 6) return 'dark';
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  if ([r, g, b].some(Number.isNaN)) return 'dark';
-  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return lum > 0.62 ? 'dark' : 'light';
-}
-
-function computeCompletion(v: FormState): { done: number; total: number; pct: number } {
-  const checks = [
-    Boolean(v.name.en && v.name.ar),
-    Boolean(v.description.en && v.description.ar),
-    typeof v.price === 'number' && v.price > 0,
-    typeof v.wholesalePrice === 'number' && v.wholesalePrice > 0,
-    Boolean(v.category),
-    Boolean(v.subCategory),
-    Boolean(v.defaultImage),
-    v.variants.length > 0 &&
-      v.variants.every((x) => x.size && x.color && x.quantity >= 0),
-  ];
-  const done = checks.filter(Boolean).length;
-  const total = checks.length;
-  return { done, total, pct: Math.round((done / total) * 100) };
-}
 
 function computeSectionState(
   v: FormState,
