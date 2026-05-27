@@ -12,7 +12,7 @@ export const s3Handlers = [
     HttpResponse.json({
       statusCode: 200,
       data: {
-        files: [{ uploadUrl: PRESIGNED_PUT, fileUrl: PUBLIC_URL }],
+        preSignedURLs: [{ preSignedURL: PRESIGNED_PUT, mediaUrl: PUBLIC_URL }],
       },
       message: 'OK',
       success: true,

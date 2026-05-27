@@ -10,7 +10,7 @@ interface PresignFile {
 }
 
 interface PresignResponse {
-  files: ApiPresignedUrlResponse[];
+  preSignedURLs: ApiPresignedUrlResponse[];
 }
 
 export async function getPresignedUrl(
@@ -23,7 +23,7 @@ export async function getPresignedUrl(
     files: [{ contentType, ...(fileName ? { fileName } : {}) }],
   };
   const { data } = await api.post<ApiResponse<PresignResponse>>('/aws/get-presigned-url', body);
-  const file = data.data.files?.[0];
+  const file = data.data.preSignedURLs?.[0];
   if (!file) {
     throw new Error('Presigned URL response was empty');
   }

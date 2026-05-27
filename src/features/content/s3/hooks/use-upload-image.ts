@@ -31,9 +31,9 @@ export function useUploadImage() {
       if (reason) throw new Error(reason);
 
       setProgress(0);
-      const { uploadUrl, fileUrl } = await getPresignedUrl(folder, file.type);
-      await uploadToS3(uploadUrl, file, setProgress);
-      return fileUrl;
+      const { preSignedURL, mediaUrl } = await getPresignedUrl(folder, file.type);
+      await uploadToS3(preSignedURL, file, setProgress);
+      return mediaUrl;
     },
     onError: (err) => {
       const msg = err instanceof ApiError ? err.message : err instanceof Error ? err.message : 'Upload failed';

@@ -12,7 +12,7 @@ export interface Media {
 
 export interface ApiGroup {
   _id: string;
-  name: GroupName;
+  name: GroupName | string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -170,8 +170,8 @@ export interface ApiOrder {
 }
 
 export interface ApiPresignedUrlResponse {
-  uploadUrl: string;
-  fileUrl: string;
+  preSignedURL: string;
+  mediaUrl: string;
 }
 
 export interface ApiWishlistItem {

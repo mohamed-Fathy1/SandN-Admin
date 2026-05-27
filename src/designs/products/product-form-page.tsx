@@ -22,7 +22,6 @@ import {
   FadeUp,
   FormSkeleton,
   GenericBadge,
-  Input,
   Kbd,
   NumberInput,
   NotFoundState,
@@ -596,6 +595,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                         rowErrs={errors.variantRows?.[idx]}
                         sizeOptions={sizeOptionsForGroup}
                         colors={colorsQuery.data ?? []}
+                        hasCategory={Boolean(values.category)}
                         isPending={isPending}
                         setVariant={setVariant}
                         onRemove={() => removeVariant(idx)}
@@ -1062,6 +1062,7 @@ function VariantRowItem({
   rowErrs,
   sizeOptions,
   colors,
+  hasCategory,
   isPending,
   setVariant,
   onRemove,
@@ -1071,6 +1072,7 @@ function VariantRowItem({
   rowErrs?: { size?: string; color?: string; quantity?: string };
   sizeOptions: ApiSize[];
   colors: ApiColor[];
+  hasCategory: boolean;
   isPending: boolean;
   setVariant: (idx: number, patch: Partial<VariantRow>) => void;
   onRemove: () => void;
@@ -1093,29 +1095,29 @@ function VariantRowItem({
     >
       <div className="grid min-w-0 flex-1 grid-cols-12 items-start gap-2">
         <div className="col-span-12 sm:col-span-3">
-          {sizeOptions.length > 0 ? (
-            <SearchableSelect<ApiSize>
-              value={variant.size || undefined}
-              onChange={(v) => setVariant(idx, { size: v ?? '' })}
-              items={sizeOptions}
-              getKey={(s) => s.size}
-              getLabel={(s) => s.size}
-              placeholder="Size"
-              disabled={isPending}
-              clearable={false}
-              hasError={Boolean(rowErrs?.size)}
-            />
-          ) : (
-            <Input
-              value={variant.size}
-              onChange={(e) => setVariant(idx, { size: e.target.value })}
-              placeholder="Size (e.g. m)"
-              hasError={Boolean(rowErrs?.size)}
-              disabled={isPending}
-            />
-          )}
+          <SearchableSelect<ApiSize>
+            value={variant.size || undefined}
+            onChange={(v) => setVariant(idx, { size: v ?? '' })}
+            items={sizeOptions}
+            getKey={(s) => s.size}
+            getLabel={(s) => s.size}
+            placeholder={
+              !hasCategory
+                ? 'Pick a category first'
+                : sizeOptions.length === 0
+                  ? 'No sizes in this group'
+                  : 'Size'
+            }
+            disabled={isPending || !hasCategory || sizeOptions.length === 0}
+            clearable={false}
+            hasError={Boolean(rowErrs?.size)}
+          />
           {rowErrs?.size ? (
             <p className="mt-1 text-[11px] text-destructive">{rowErrs.size}</p>
+          ) : hasCategory && sizeOptions.length === 0 ? (
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Add sizes to this group in the Sizes page.
+            </p>
           ) : null}
         </div>
 
