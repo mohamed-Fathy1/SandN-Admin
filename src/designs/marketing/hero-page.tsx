@@ -19,6 +19,7 @@ import {
   useUpdateHeroSection,
 } from '@/features/hero/hooks/use-hero';
 import type { HeroPayload } from '@/features/hero/hooks/use-hero';
+import { findHeroImageUrl } from '@/features/hero/api/hero';
 import type { ApiHeroSection } from '@/shared/types/api';
 
 export function HeroPage() {
@@ -66,22 +67,20 @@ export function HeroPage() {
               <div className="flex flex-col gap-2 p-3 sm:flex-row">
                 <div className="overflow-hidden rounded-lg bg-muted sm:w-1/3 sm:shrink-0">
                   <img
-                    src={hero.images.image1.mediaUrl}
+                    src={findHeroImageUrl(hero, 'small')}
                     alt="Small banner"
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover"
-                    style={{ aspectRatio: '3 / 4' }}
+                    className="aspect-[3/4] h-full w-full object-cover"
                   />
                 </div>
                 <div className="flex-1 overflow-hidden rounded-lg bg-muted">
                   <img
-                    src={hero.images.image2.mediaUrl}
+                    src={findHeroImageUrl(hero, 'large')}
                     alt="Large banner"
                     loading="lazy"
                     decoding="async"
-                    className="h-full w-full object-cover"
-                    style={{ aspectRatio: '16 / 9' }}
+                    className="aspect-video h-full w-full object-cover"
                   />
                 </div>
               </div>
@@ -142,8 +141,8 @@ function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
   const isEdit = Boolean(entity);
   const isPending = create.isPending || update.isPending;
 
-  const [smallImage, setSmallImage] = useState(entity?.images.image1.mediaUrl ?? '');
-  const [largeImage, setLargeImage] = useState(entity?.images.image2.mediaUrl ?? '');
+  const [smallImage, setSmallImage] = useState(findHeroImageUrl(entity, 'small'));
+  const [largeImage, setLargeImage] = useState(findHeroImageUrl(entity, 'large'));
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {

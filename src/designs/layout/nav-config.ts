@@ -12,6 +12,7 @@ import {
   Image,
   Sparkles,
   Truck,
+  Shapes,
 } from 'lucide-react';
 import { ROUTES } from '@/config/constants';
 
@@ -35,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Products', to: ROUTES.products, icon: Package },
       { label: 'Categories', to: ROUTES.categories, icon: Tag },
+      { label: 'Category Icons', to: ROUTES.categoryIcons, icon: Shapes },
       { label: 'Sub-Categories', to: ROUTES.subCategories, icon: Layers },
       { label: 'Colors', to: ROUTES.colors, icon: Palette },
       { label: 'Groups', to: ROUTES.groups, icon: Layers },
@@ -66,6 +68,7 @@ export const BREADCRUMB_TITLES: Record<string, string> = {
   '/products/$productId': 'Edit Product',
   '/products/$productId/variants': 'Variants',
   '/catalog/categories': 'Categories',
+  '/catalog/icons': 'Category Icons',
   '/catalog/sub-categories': 'Sub-Categories',
   '/catalog/colors': 'Colors',
   '/catalog/groups': 'Groups',

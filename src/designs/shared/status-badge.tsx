@@ -89,7 +89,7 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
         className
       )}
     >
-      <Icon size={size === 'sm' ? 11 : 13} strokeWidth={2.25} aria-hidden />
+      <Icon size={size === 'sm' ? 12 : 14} strokeWidth={2.25} aria-hidden />
       {meta.label}
     </span>
   );
@@ -119,7 +119,7 @@ export function GenericBadge({
         className
       )}
     >
-      {Icon ? <Icon size={size === 'sm' ? 11 : 13} strokeWidth={2.25} aria-hidden /> : null}
+      {Icon ? <Icon size={size === 'sm' ? 12 : 14} strokeWidth={2.25} aria-hidden /> : null}
       {label}
     </span>
   );

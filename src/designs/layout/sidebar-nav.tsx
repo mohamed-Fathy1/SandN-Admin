@@ -73,9 +73,7 @@ export function SidebarNav({
           {NAV_GROUPS.map((group, gIdx) => (
             <div key={gIdx} className={cn('mb-5', gIdx === 0 && 'mb-3')}>
               {group.label && !collapsed ? (
-                <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
-                  {group.label}
-                </p>
+                <p className="mb-2 px-2 text-eyebrow text-white/55">{group.label}</p>
               ) : null}
               {group.label && collapsed ? (
                 <div className="mx-auto mb-2 h-px w-6 bg-white/10" />

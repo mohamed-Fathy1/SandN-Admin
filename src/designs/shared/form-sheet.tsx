@@ -51,11 +51,11 @@ export function FormSheet({
               className="pointer-events-none absolute inset-x-0 top-0 h-px [background:var(--gradient-form-sheet-underline)]"
             />
             <div className="min-w-0">
-              <Dialog.Title className="m-0 font-display text-2xl italic leading-tight text-foreground">
+              <Dialog.Title className="m-0 text-lg font-semibold leading-tight text-foreground sm:text-xl">
                 {title}
               </Dialog.Title>
               {description ? (
-                <Dialog.Description className="mt-1.5 text-xs text-muted-foreground">
+                <Dialog.Description className="mt-1 text-sm text-muted-foreground">
                   {description}
                 </Dialog.Description>
               ) : null}

@@ -6,6 +6,10 @@ export { NumberInput, type NumberInputProps } from './number-input';
 export { DateInput, type DateInputProps } from './date-input';
 export { HexColorInput, type HexColorInputProps } from './hex-color-input';
 export { AdminFormField } from './admin-form-field';
+export { Eyebrow } from './eyebrow';
+export { FieldLabel } from './field-label';
+export { MetricValue, type MetricDelta } from './metric-value';
+export { NumericCell } from './numeric-cell';
 
 export { Select, type SelectOption } from './select';
 export { SearchableSelect } from './searchable-select';
@@ -20,11 +24,12 @@ export { FormSheet } from './form-sheet';
 export { StickyActionBar, type StickyActionStatus } from './sticky-action-bar';
 
 export { AdminTable, type AdminTableProps } from './admin-table';
-export { TableToolbar } from './table-toolbar';
+export { TableToolbar, FilterChip } from './table-toolbar';
 export { PaginationControls } from './pagination-controls';
 
 export { AdminImageUploader, ImageAddTile } from './admin-image-uploader';
 export { AdminImageUploaderMulti } from './admin-image-uploader-multi';
+export { IconPicker } from './icon-picker';
 
 export { StatusBadge, GenericBadge, ActiveBadge } from './status-badge';
 export { EmptyState } from './empty-state';

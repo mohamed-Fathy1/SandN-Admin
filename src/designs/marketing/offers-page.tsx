@@ -41,6 +41,10 @@ function offerTypeLabel(type: OfferType): string {
   return type === 'fixed_discount' ? 'Fixed discount' : 'Free shipping';
 }
 
+function offerTypeTone(type: OfferType): 'accent' | 'info' {
+  return type === 'fixed_discount' ? 'accent' : 'info';
+}
+
 export function OffersPage() {
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiOffer | null>(null);
@@ -66,7 +70,7 @@ export function OffersPage() {
         cell: ({ row }) => (
           <GenericBadge
             label={offerTypeLabel(row.original.type)}
-            tone={row.original.type === 'fixed_discount' ? 'accent' : 'info'}
+            tone={offerTypeTone(row.original.type)}
             size="sm"
           />
         ),
@@ -76,7 +80,10 @@ export function OffersPage() {
         header: 'Description',
         accessorFn: (o) => o.description.en,
         cell: ({ row }) => (
-          <span className="line-clamp-2 max-w-xs text-foreground">
+          <span
+            className="line-clamp-3 max-w-md text-foreground"
+            title={row.original.description.en}
+          >
             {row.original.description.en}
           </span>
         ),
@@ -85,8 +92,9 @@ export function OffersPage() {
         id: 'minOrder',
         header: 'Min order',
         accessorFn: (o) => o.minOrderAmount,
+        meta: { numeric: true },
         cell: ({ row }) => (
-          <span className="tabular-nums text-foreground">
+          <span className="font-tabular text-foreground">
             {formatEGP(row.original.minOrderAmount)}
           </span>
         ),
@@ -95,11 +103,12 @@ export function OffersPage() {
         id: 'discount',
         header: 'Discount',
         enableSorting: false,
+        meta: { numeric: true },
         cell: ({ row }) =>
           row.original.type === 'free_shipping' ? (
             <span className="text-muted-foreground">Free shipping</span>
           ) : (
-            <span className="tabular-nums font-medium text-foreground">
+            <span className="font-tabular font-medium text-foreground">
               {formatEGP(row.original.discountAmount ?? 0)}
             </span>
           ),
@@ -189,7 +198,7 @@ export function OffersPage() {
                 <div className="flex flex-wrap items-center gap-1.5">
                   <GenericBadge
                     label={offerTypeLabel(o.type)}
-                    tone={o.type === 'fixed_discount' ? 'accent' : 'info'}
+                    tone={offerTypeTone(o.type)}
                     size="sm"
                   />
                   <Switch
@@ -342,9 +351,9 @@ function OfferFormSheet({ open, onClose, entity }: OfferFormSheetProps) {
       image: parsed.data.image,
       description: parsed.data.description,
       minOrderAmount: parsed.data.minOrderAmount,
-      ...(parsed.data.type === 'fixed_discount'
-        ? { discountAmount: parsed.data.discountAmount }
-        : {}),
+      // Spec: free_shipping always sends discountAmount: 0.
+      discountAmount:
+        parsed.data.type === 'fixed_discount' ? (parsed.data.discountAmount ?? 0) : 0,
     };
     const onError = (err: unknown) => {
       const fieldMap = mapApiErrorsToFields(err);

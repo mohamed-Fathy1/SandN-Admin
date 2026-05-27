@@ -24,6 +24,11 @@ export async function fetchOffers(): Promise<ApiOffer[]> {
   return data.data.offers ?? [];
 }
 
+export async function fetchOffer(id: string): Promise<ApiOffer> {
+  const { data } = await api.get<ApiResponse<SingleResponse>>(`/offers/${id}`);
+  return data.data.offer;
+}
+
 export async function createOffer(payload: OfferPayload): Promise<ApiOffer> {
   const { data } = await api.post<ApiResponse<SingleResponse>>('/offers', payload);
   return data.data.offer;

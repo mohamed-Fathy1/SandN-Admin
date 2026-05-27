@@ -90,7 +90,7 @@ export function EmptyState({
       >
         <Icon size={20} strokeWidth={1.75} aria-hidden />
       </div>
-      <h3 className="relative m-0 font-display text-xl italic leading-tight text-foreground">
+      <h3 className="relative m-0 text-lg font-semibold leading-tight text-foreground">
         {resolvedTitle}
       </h3>
       {resolvedDescription ? (

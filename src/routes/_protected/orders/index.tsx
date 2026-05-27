@@ -11,6 +11,7 @@ const OrdersListPage = lazy(() =>
 const ordersSearchSchema = z.object({
   page: z.number().int().min(1).catch(1),
   status: z.enum(ORDER_STATUSES).optional().catch(undefined),
+  search: z.string().catch(''),
 });
 
 export const Route = createFileRoute('/_protected/orders/')({
@@ -19,16 +20,20 @@ export const Route = createFileRoute('/_protected/orders/')({
 });
 
 function OrdersRouteComponent() {
-  const { page, status } = Route.useSearch();
+  const { page, status, search } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   return (
     <Suspense fallback={<PageSkeleton />}>
       <OrdersListPage
         page={page}
         status={status}
+        search={search}
         onPageChange={(next) => navigate({ search: (s) => ({ ...s, page: next }) })}
         onStatusChange={(next) =>
           navigate({ search: (s) => ({ ...s, status: next, page: 1 }) })
+        }
+        onSearchChange={(next) =>
+          navigate({ search: (s) => ({ ...s, search: next, page: 1 }) })
         }
       />
     </Suspense>

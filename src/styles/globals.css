@@ -64,6 +64,14 @@
   --font-body-ar: 'Tajawal', 'Nunito Sans', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
+  /* Eyebrow + metric scale — single source of truth for labels and
+     KPI numbers. Replaces ad-hoc text-[10px]/text-[11px]/text-[2rem]. */
+  --text-eyebrow: 11px;
+  --tracking-eyebrow: 0.14em;
+  --text-metric-lg: 32px;
+  --text-metric-md: 24px;
+  --text-metric-sm: 18px;
+
   /* ── Radii ───────────────────────────────────────────── */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -119,6 +127,20 @@
     rgba(var(--accent-rgb), 0.04),
     transparent 70%
   );
+}
+
+/* Single canonical uppercase eyebrow label — replaces scattered
+   `text-[11px] font-semibold uppercase tracking-[0.16em]` strings. */
+.text-eyebrow {
+  font-size: var(--text-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Tabular-nums helper — apply to any column or comparison of numbers. */
+.font-tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Brand avatar gradient pill used in header/dropdown account chips. */

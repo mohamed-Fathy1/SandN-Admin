@@ -79,19 +79,19 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
             'flex h-11 w-full rounded-xl border bg-card px-4 text-sm text-foreground',
             'transition-[border-color,box-shadow,background-color] duration-150',
             'placeholder:text-light-foreground text-right tabular-nums touch-manipulation',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+            'focus-visible:outline-none',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            suffix && 'pr-14',
+            suffix && 'pr-11',
             hasError
-              ? 'border-destructive focus-visible:ring-destructive'
-              : 'border-border-medium hover:border-border-strong focus-visible:ring-ring focus-visible:border-accent'
+              ? 'border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--shadow-focus-destructive)]'
+              : 'border-border-medium hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[var(--shadow-focus-accent)]'
           )}
           {...props}
         />
         {suffix ? (
           <span
             aria-hidden
-            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium uppercase tracking-wide text-light-foreground"
           >
             {suffix}
           </span>

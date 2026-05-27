@@ -31,12 +31,13 @@ export function useOrdersByStatusCounts() {
 interface UseOrdersArgs {
   page: number;
   status?: OrderStatus;
+  search?: string;
 }
 
-export function useOrders({ page, status }: UseOrdersArgs) {
+export function useOrders({ page, status, search }: UseOrdersArgs) {
   return useQuery({
-    queryKey: adminQueryKeys.orders.list({ page, status }),
-    queryFn: () => fetchOrders({ page, status }),
+    queryKey: adminQueryKeys.orders.list({ page, status, search }),
+    queryFn: () => fetchOrders({ page, status, search }),
     staleTime: QUERY_STALE_TIME.short,
   });
 }

@@ -105,9 +105,12 @@ function normalizeOrder(raw: unknown): ApiOrder {
 export async function fetchOrders(params: {
   page: number;
   status?: OrderStatus;
+  search?: string;
 }): Promise<OrdersListResponse> {
   const query: Record<string, string | number> = { page: params.page };
   if (params.status) query.status = params.status;
+  const trimmedSearch = params.search?.trim();
+  if (trimmedSearch) query.search = trimmedSearch;
   const { data } = await api.get<ApiResponse<RawOrdersListResponse>>('/order/admin/all', {
     params: query,
   });

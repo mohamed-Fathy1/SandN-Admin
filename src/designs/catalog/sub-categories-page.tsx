@@ -263,7 +263,7 @@ export function SubCategoriesPage() {
               >
                 {c.name.ar}
               </p>
-              <p className="mt-0.5 text-[11px] text-light-foreground">
+              <p className="mt-0.5 text-xs text-light-foreground">
                 {categoryNameById.get(idOf(c.category)) ?? '—'}
               </p>
             </div>

@@ -34,11 +34,36 @@ export interface ApiColor {
   updatedAt?: string;
 }
 
+export interface ApiCategoryIcon {
+  _id: string;
+  key: string;
+  svg: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Shape of an icon returned *populated* on a Category. Per the API spec, only
+ * `key` and `svg` are guaranteed — the icon resource fields (`_id`, `isActive`)
+ * may be missing in this nested context.
+ */
+export interface PopulatedCategoryIcon {
+  _id?: string;
+  key: string;
+  svg: string;
+  isActive?: boolean;
+}
+
 export interface ApiCategory {
   _id: string;
   name: BilingualText;
   image: Media;
   groupSize: string | ApiGroup;
+  iconId?: string | null;
+  icon?: PopulatedCategoryIcon | null;
+  subCategories?: ApiSubCategory[];
+  sizeCategories?: ApiSize[];
   isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -50,6 +75,7 @@ export interface ApiSubCategory {
   image: Media;
   groupSize: string | ApiGroup;
   category: string | ApiCategory;
+  sizeCategories?: ApiSize[];
   isDeleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -82,11 +108,17 @@ export interface ApiProduct {
   salePrice: number;
   saleStartDate: number;
   saleEndDate: number;
+  finalPrice?: number;
+  isSale?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSoldOut?: boolean;
+  soldItems?: number;
   category: string | ApiCategory | null;
   subCategory: string | ApiSubCategory;
   defaultImage: Media;
   albumImages: Media[];
-  sizeChartImage?: Media;
+  sizeChartImage?: Media | null;
   variants?: ApiVariant[];
   isDeleted?: boolean;
   createdAt?: number | string;
@@ -100,8 +132,19 @@ export interface ApiProductListResponse {
   totalItems?: number;
 }
 
+export interface ApiProductFilters {
+  page?: number;
+  category?: string;
+  subCategory?: string;
+  isSale?: boolean;
+  isNewArrival?: boolean;
+  isBestSeller?: boolean;
+  isSoldOut?: boolean;
+  isDeleted?: boolean;
+}
+
 export interface ApiHeroImage extends Media {
-  mediaType: HeroImageType;
+  imageType: HeroImageType;
 }
 
 export interface ApiHeroSection {
@@ -141,7 +184,11 @@ export interface ApiOrderProduct {
   name?: BilingualText;
   image?: Media | string;
   size?: string;
-  color?: string;
+  /**
+   * Per the API spec, `color` on order products is the populated color document
+   * (name + hex) but legacy orders may still carry a plain ObjectId string.
+   */
+  color?: string | ApiColor;
 }
 
 export interface ApiOrder {
@@ -174,15 +221,72 @@ export interface ApiPresignedUrlResponse {
   mediaUrl: string;
 }
 
-export interface ApiWishlistItem {
+export interface ApiWishlistCustomer {
   _id: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface ApiWishlistEntry {
   product: ApiProduct;
-  customer: string;
-  createdAt: string;
+  customer: ApiWishlistCustomer;
+  createdAt: number | string;
+}
+
+export interface ApiWishlistPage {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  products: ApiWishlistEntry[];
+}
+
+export interface AnalysisTopSellingProduct {
+  _id: string;
+  name: BilingualText;
+  defaultImage?: Media | null;
+  finalPrice?: number;
+  soldItems: number;
+}
+
+export interface AnalysisWishlistedProduct {
+  count: number;
+  product: {
+    _id: string;
+    name: BilingualText;
+    defaultImage?: Media | null;
+    finalPrice?: number;
+  };
+}
+
+export interface AnalysisDailyOrders {
+  _id: string;
+  total: number;
+  orders: number;
 }
 
 export interface ApiProductAnalysis {
-  total: number;
-  active?: number;
-  deleted?: number;
+  products: {
+    total: number;
+    soldOut: number;
+    topSelling: AnalysisTopSellingProduct[];
+    mostWishlisted: AnalysisWishlistedProduct[];
+    totalFinalPrice: number;
+    totalWholesalePrice: number;
+  };
+  categories: {
+    total: number;
+    subCategories: number;
+  };
+  orders: {
+    total: number;
+    todaySales: number;
+    todayOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number;
+    byStatus: Partial<Record<OrderStatus, number>>;
+    last7Days: AnalysisDailyOrders[];
+  };
+  customers: {
+    total: number;
+  };
 }

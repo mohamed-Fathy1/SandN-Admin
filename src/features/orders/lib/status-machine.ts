@@ -1,12 +1,14 @@
 import type { OrderStatus } from '@/config/constants';
 
 /**
- * Allowed forward transitions for an admin. Cancelled/deleted are terminal.
+ * Forward transitions for an admin. Order of states per the API spec:
+ *   under_review (initial) → confirmed → ordered → shipped → delivered
+ * Cancelled/deleted are terminal and unreachable from the linear flow.
  */
 const FORWARD_TRANSITION: Partial<Record<OrderStatus, OrderStatus>> = {
-  ordered: 'confirmed',
-  confirmed: 'under_review',
-  under_review: 'shipped',
+  under_review: 'confirmed',
+  confirmed: 'ordered',
+  ordered: 'shipped',
   shipped: 'delivered',
 };
 
@@ -14,7 +16,8 @@ export function nextStatus(current: OrderStatus): OrderStatus | null {
   return FORWARD_TRANSITION[current] ?? null;
 }
 
-const CANCELLABLE: OrderStatus[] = ['ordered', 'confirmed', 'under_review'];
+/** An order can be cancelled at any point before it's shipped. */
+const CANCELLABLE: OrderStatus[] = ['under_review', 'confirmed', 'ordered'];
 
 export function canCancel(current: OrderStatus): boolean {
   return CANCELLABLE.includes(current);

@@ -22,9 +22,9 @@ export const TabsTrigger = ({
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) => (
   <TabsPrimitive.Trigger
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-[11px] font-semibold tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200 sm:px-3.5 sm:text-xs',
+      'inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-xs font-semibold tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200 sm:px-3.5',
       'hover:text-foreground',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       'data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-accent',
       'disabled:pointer-events-none disabled:opacity-50',
       className
@@ -39,7 +39,7 @@ export const TabsContent = ({
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) => (
   <TabsPrimitive.Content
     className={cn(
-      'mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+      'mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       className
     )}
     {...props}

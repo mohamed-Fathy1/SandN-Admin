@@ -17,20 +17,20 @@ export interface OrderStatusMeta {
 }
 
 export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
-  ordered: {
-    label: 'Ordered',
-    icon: ShoppingBag,
-    description: 'Customer placed the order.',
+  under_review: {
+    label: 'Under review',
+    icon: Eye,
+    description: 'Initial state — awaiting admin review.',
   },
   confirmed: {
     label: 'Confirmed',
     icon: Check,
-    description: 'Order confirmed by admin.',
+    description: 'Admin confirmed the order.',
   },
-  under_review: {
-    label: 'Under review',
-    icon: Eye,
-    description: 'Reviewing details before dispatch.',
+  ordered: {
+    label: 'Ordered',
+    icon: ShoppingBag,
+    description: 'Order placed / processed for fulfillment.',
   },
   shipped: {
     label: 'Shipped',
@@ -56,19 +56,20 @@ export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
 
 export const ORDER_STATUS_TABS: { value: 'all' | OrderStatus; label: string }[] = [
   { value: 'all', label: 'All' },
-  { value: 'ordered', label: 'Ordered' },
-  { value: 'confirmed', label: 'Confirmed' },
   { value: 'under_review', label: 'Under review' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'ordered', label: 'Ordered' },
   { value: 'shipped', label: 'Shipped' },
   { value: 'delivered', label: 'Delivered' },
   { value: 'cancelled', label: 'Cancelled' },
   { value: 'deleted', label: 'Deleted' },
 ];
 
+/** Linear stepper order per the API spec. */
 export const ORDER_STEPPER_STATUSES: OrderStatus[] = [
-  'ordered',
-  'confirmed',
   'under_review',
+  'confirmed',
+  'ordered',
   'shipped',
   'delivered',
 ];

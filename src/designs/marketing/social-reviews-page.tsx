@@ -61,7 +61,7 @@ export function SocialReviewsPage() {
         <QueryErrorState error={reviewsQuery.error} onRetry={() => reviewsQuery.refetch()} />
       ) : !hasReviews ? (
         <div className="mx-auto max-w-md text-center">
-          <h3 className="font-display text-2xl italic text-foreground">No reviews yet</h3>
+          <h3 className="text-lg font-semibold text-foreground">No reviews yet</h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Upload your first social proof image to start a feed.
           </p>

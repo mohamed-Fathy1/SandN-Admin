@@ -11,8 +11,23 @@ interface SizePayload {
 interface SizeListResponse {
   sizeCategories: ApiSize[];
 }
+
+/**
+ * The size resource is wrapped under different keys depending on the endpoint —
+ * `sizeCategory` per spec for create, `size` historically for some others.
+ * Accept either to stay forward-compatible.
+ */
 interface SizeSingleResponse {
-  size: ApiSize;
+  sizeCategory?: ApiSize;
+  size?: ApiSize;
+}
+
+function unwrap(res: SizeSingleResponse): ApiSize {
+  const value = res.sizeCategory ?? res.size;
+  if (!value) {
+    throw new Error('Size response payload was empty');
+  }
+  return value;
 }
 
 export async function fetchSizes(): Promise<ApiSize[]> {
@@ -29,12 +44,12 @@ export async function fetchSizesByGroup(groupId: string): Promise<ApiSize[]> {
 
 export async function fetchSize(id: string): Promise<ApiSize> {
   const { data } = await api.get<ApiResponse<SizeSingleResponse>>(`/group-size/one-size/${id}`);
-  return data.data.size;
+  return unwrap(data.data);
 }
 
 export async function createSize(payload: SizePayload): Promise<ApiSize> {
   const { data } = await api.post<ApiResponse<SizeSingleResponse>>('/group-size/size', payload);
-  return data.data.size;
+  return unwrap(data.data);
 }
 
 export async function updateSize(id: string, payload: SizePayload): Promise<ApiSize> {
@@ -42,7 +57,7 @@ export async function updateSize(id: string, payload: SizePayload): Promise<ApiS
     `/group-size/size/${id}`,
     payload
   );
-  return data.data.size;
+  return unwrap(data.data);
 }
 
 export async function deleteSize(id: string): Promise<void> {

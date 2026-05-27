@@ -45,5 +45,5 @@ export async function uploadToS3(
 }
 
 export async function deleteS3Image(fileName: string): Promise<void> {
-  await api.delete('/aws/delete-presigned-url', { params: { fileName } });
+  await api.delete('/aws/delete-presigned-url', { data: { fileName } });
 }

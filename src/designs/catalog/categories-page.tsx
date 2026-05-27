@@ -9,6 +9,7 @@ import {
   Button,
   ConfirmDialog,
   FormSheet,
+  IconPicker,
   SearchableSelect,
   TableToolbar,
   Tabs,
@@ -18,6 +19,7 @@ import {
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { useGroups } from '@/features/catalog/groups/hooks/use-groups';
+import { useIcons } from '@/features/catalog/icons/hooks/use-icons';
 import {
   useCategories,
   useCreateCategory,
@@ -31,7 +33,7 @@ import {
   categoryFormSchema,
   type CategoryFormValues,
 } from '@/features/catalog/categories/schemas/category-form';
-import type { ApiCategory, ApiGroup } from '@/shared/types/api';
+import type { ApiCategory, ApiCategoryIcon, ApiGroup } from '@/shared/types/api';
 import { emptyBilingual } from '@/shared/utils/bilingual';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
@@ -50,6 +52,7 @@ export function CategoriesPage() {
   const activeQuery = useCategories();
   const deletedQuery = useDeletedCategories();
   const groupsQuery = useGroups();
+  const iconsQuery = useIcons();
   const softDelete = useSoftDeleteCategory();
   const restore = useRestoreCategory();
   const hardDelete = useHardDeleteCategory();
@@ -78,6 +81,26 @@ export function CategoriesPage() {
         enableSorting: false,
         size: 60,
         cell: ({ row }) => <Thumbnail src={row.original.image?.mediaUrl} size="sm" />,
+      },
+      {
+        id: 'icon',
+        header: 'Icon',
+        enableSorting: false,
+        size: 60,
+        cell: ({ row }) => {
+          const svg = row.original.icon?.svg;
+          if (!svg) {
+            return <span className="text-xs text-light-foreground">—</span>;
+          }
+          return (
+            <span
+              aria-hidden
+              title={row.original.icon?.key}
+              className="inline-flex h-6 w-6 items-center justify-center text-foreground [&_svg]:h-full [&_svg]:w-full"
+              dangerouslySetInnerHTML={{ __html: svg }}
+            />
+          );
+        },
       },
       {
         id: 'name',
@@ -234,7 +257,7 @@ export function CategoriesPage() {
               >
                 {c.name.ar}
               </p>
-              <p className="mt-0.5 text-[11px] text-light-foreground">
+              <p className="mt-0.5 text-xs text-light-foreground">
                 {groupNameById.get(idOf(c.groupSize)) ?? '—'}
               </p>
             </div>
@@ -305,6 +328,9 @@ export function CategoriesPage() {
         }}
         entity={editing}
         groups={groupsQuery.data ?? []}
+        icons={iconsQuery.data ?? []}
+        iconsLoading={iconsQuery.isPending}
+        iconsError={iconsQuery.isError}
       />
 
       <ConfirmDialog
@@ -343,23 +369,44 @@ interface CategoryFormSheetProps {
   onClose: () => void;
   entity: ApiCategory | null;
   groups: ApiGroup[];
+  icons: ApiCategoryIcon[];
+  iconsLoading?: boolean;
+  iconsError?: boolean;
 }
 
-function CategoryFormSheet({ open, onClose, entity, groups }: CategoryFormSheetProps) {
+function CategoryFormSheet({
+  open,
+  onClose,
+  entity,
+  groups,
+  icons,
+  iconsLoading,
+  iconsError,
+}: CategoryFormSheetProps) {
   const create = useCreateCategory();
   const update = useUpdateCategory();
   const isEdit = Boolean(entity);
   const isPending = create.isPending || update.isPending;
 
+  // Spec: populated `icon` may not include `_id`. Prefer the document field,
+  // fall back to looking up the icon in our local list by `icon.key`.
+  const seedIconId =
+    entity?.iconId
+    ?? entity?.icon?._id
+    ?? (entity?.icon?.key
+      ? (icons.find((i) => i.key === entity.icon?.key)?._id ?? '')
+      : '');
   const initial: CategoryFormValues = {
     name: entity?.name ?? emptyBilingual(),
     groupSize: entity ? idOf(entity.groupSize) : '',
+    iconId: seedIconId,
     imageUrl: entity?.image?.mediaUrl ?? '',
   };
   const [values, setValues] = useState<CategoryFormValues>(initial);
   const [errors, setErrors] = useState<{
     name?: { en?: string; ar?: string };
     groupSize?: string;
+    iconId?: string;
     imageUrl?: string;
   }>({});
 
@@ -376,6 +423,8 @@ function CategoryFormSheet({ open, onClose, entity, groups }: CategoryFormSheetP
           if (lang && !next.name[lang]) next.name[lang] = iss.message;
         } else if (iss.path[0] === 'groupSize' && !next.groupSize) {
           next.groupSize = iss.message;
+        } else if (iss.path[0] === 'iconId' && !next.iconId) {
+          next.iconId = iss.message;
         } else if (iss.path[0] === 'imageUrl' && !next.imageUrl) {
           next.imageUrl = iss.message;
         }
@@ -393,6 +442,8 @@ function CategoryFormSheet({ open, onClose, entity, groups }: CategoryFormSheetP
           next.name = { ...(next.name ?? {}), [leaf]: msg };
         } else if (head === 'groupSize') {
           next.groupSize = msg;
+        } else if (head === 'iconId') {
+          next.iconId = msg;
         } else if (head === 'imageUrl') {
           next.imageUrl = msg;
         }
@@ -447,6 +498,23 @@ function CategoryFormSheet({ open, onClose, entity, groups }: CategoryFormSheetP
             placeholder="Pick a size group"
             disabled={isPending}
             clearable={false}
+          />
+        </AdminFormField>
+
+        <AdminFormField
+          label="Icon"
+          required
+          error={errors.iconId}
+          hint="Pick a category icon. Manage the library in Catalog → Category Icons."
+        >
+          <IconPicker
+            icons={icons}
+            value={values.iconId || undefined}
+            onChange={(iconId) => setValues((p) => ({ ...p, iconId }))}
+            isLoading={iconsLoading}
+            isError={iconsError}
+            disabled={isPending}
+            hasError={Boolean(errors.iconId)}
           />
         </AdminFormField>
 

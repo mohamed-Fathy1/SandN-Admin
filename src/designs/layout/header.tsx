@@ -95,9 +95,7 @@ export function Header() {
                     {initial}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-light-foreground">
-                      Signed in
-                    </p>
+                    <p className="text-eyebrow text-light-foreground">Signed in</p>
                     <p className="truncate text-sm text-foreground">{email}</p>
                   </div>
                 </div>

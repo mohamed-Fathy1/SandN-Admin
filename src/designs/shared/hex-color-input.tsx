@@ -34,10 +34,10 @@ export const HexColorInput = forwardRef<HTMLInputElement, HexColorInputProps>(
     const isValid = /^#[0-9A-F]{6}$/.test(value);
 
     return (
-      <div className={cn('flex items-center gap-2', className)}>
+      <div className={cn('flex items-center gap-1.5', className)}>
         <label
           htmlFor={colorId}
-          className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-border-medium bg-card"
+          className="relative inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-border-medium bg-card shadow-[inset_0_0_0_1px_rgba(255,255,255,0.6)]"
           style={{ background: isValid ? value : undefined }}
           aria-label="Color picker"
         >
@@ -62,12 +62,12 @@ export const HexColorInput = forwardRef<HTMLInputElement, HexColorInputProps>(
           className={cn(
             'flex h-11 w-full rounded-xl border bg-card px-4 text-sm uppercase text-foreground',
             'transition-[border-color,box-shadow,background-color] duration-150 touch-manipulation',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+            'focus-visible:outline-none',
             'placeholder:text-light-foreground placeholder:normal-case',
             'disabled:cursor-not-allowed disabled:opacity-50 font-mono',
             hasError
-              ? 'border-destructive focus-visible:ring-destructive'
-              : 'border-border-medium hover:border-border-strong focus-visible:ring-ring focus-visible:border-accent'
+              ? 'border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--shadow-focus-destructive)]'
+              : 'border-border-medium hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[var(--shadow-focus-accent)]'
           )}
         />
       </div>

@@ -62,6 +62,8 @@ export function TableToolbar({
         className
       )}
     >
+      {/* Row 1 — search + meta + actions. Filters get their own row below so
+          they wrap cleanly without squashing the search field. */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-2">
           {showSearch ? (
@@ -92,32 +94,34 @@ export function TableToolbar({
             </div>
           ) : null}
           {filters ? (
-            <>
-              <div className="hidden flex-wrap items-center gap-2 sm:flex">{filters}</div>
-              <button
-                type="button"
-                onClick={() => setFiltersOpen(true)}
-                className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border-medium bg-card px-3.5 text-xs font-medium text-foreground transition-colors hover:border-accent/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
-                aria-label="Open filters"
-              >
-                <SlidersHorizontal size={13} strokeWidth={1.75} aria-hidden />
-                Filters
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border-medium bg-card px-3.5 text-xs font-medium text-foreground transition-colors hover:border-accent/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
+              aria-label="Open filters"
+            >
+              <SlidersHorizontal size={13} strokeWidth={1.75} aria-hidden />
+              Filters
+            </button>
           ) : null}
         </div>
 
         {actions || meta ? (
           <div className="flex items-center justify-between gap-3 sm:justify-end">
             {meta ? (
-              <span className="text-[11px] uppercase tracking-[0.14em] text-light-foreground">
-                {meta}
-              </span>
+              <span className="text-eyebrow text-light-foreground">{meta}</span>
             ) : null}
             {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           </div>
         ) : null}
       </div>
+
+      {/* Row 2 — filters. Hidden on mobile (use the sheet instead). */}
+      {filters ? (
+        <div className="mt-3 hidden flex-wrap items-center gap-2 border-t border-border/60 pt-3 sm:flex">
+          {filters}
+        </div>
+      ) : null}
 
       <Dialog.Root open={filtersOpen} onOpenChange={setFiltersOpen}>
         <Dialog.Portal>
@@ -134,7 +138,7 @@ export function TableToolbar({
             }}
           >
             <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-border-medium" aria-hidden />
-            <Dialog.Title className="font-display text-lg italic text-foreground">
+            <Dialog.Title className="text-lg font-semibold text-foreground">
               Filters
             </Dialog.Title>
             <Dialog.Description className="mt-0.5 text-xs text-muted-foreground">
@@ -150,5 +154,53 @@ export function TableToolbar({
         </Dialog.Portal>
       </Dialog.Root>
     </div>
+  );
+}
+
+interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  active?: boolean;
+  count?: number;
+  className?: string;
+  children: React.ReactNode;
+}
+
+/**
+ * Pill-shaped filter chip with active/inactive states. Used for tab-style
+ * filters above tables (e.g. category filters on the products list).
+ */
+export function FilterChip({
+  active = false,
+  count,
+  className,
+  children,
+  type = 'button',
+  ...rest
+}: FilterChipProps) {
+  return (
+    <button
+      type={type}
+      aria-pressed={active}
+      className={cn(
+        'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+        active
+          ? 'border-accent bg-accent text-accent-foreground shadow-[var(--shadow-accent)]'
+          : 'border-border-medium bg-card text-muted-foreground hover:border-accent/40 hover:bg-muted hover:text-foreground',
+        className
+      )}
+      {...rest}
+    >
+      {children}
+      {typeof count === 'number' ? (
+        <span
+          className={cn(
+            'inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold font-tabular',
+            active ? 'bg-accent-foreground/20 text-accent-foreground' : 'bg-muted text-muted-foreground'
+          )}
+        >
+          {count}
+        </span>
+      ) : null}
+    </button>
   );
 }

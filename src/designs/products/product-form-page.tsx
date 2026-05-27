@@ -19,6 +19,7 @@ import {
   Button,
   Card,
   DateInput,
+  Eyebrow,
   FadeUp,
   FormSkeleton,
   GenericBadge,
@@ -29,6 +30,7 @@ import {
   SearchableSelect,
   StickyActionBar,
   type StickyActionStatus,
+  Switch,
   usePrefersReducedMotion,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
@@ -75,6 +77,8 @@ interface FormState {
   defaultImage: string;
   albumImages: string[];
   sizeChartImage: string;
+  isBestSeller: boolean;
+  isNewArrival: boolean;
   variants: VariantRow[];
 }
 
@@ -122,7 +126,7 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
       return (
         <NotFoundState
           error={productQuery.error}
-          onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '' } })}
+          onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}
           backLabel="Back to products"
         />
       );
@@ -290,10 +294,23 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
       return;
     }
     setErrors({});
-    const payload = parsed.data;
+    const payload = {
+      ...parsed.data,
+      sizeChartImage:
+        parsed.data.sizeChartImage && parsed.data.sizeChartImage.length > 0
+          ? parsed.data.sizeChartImage
+          : isEdit
+            ? null
+            : undefined,
+      isBestSeller: isEdit ? values.isBestSeller : undefined,
+      isNewArrival: isEdit ? values.isNewArrival : undefined,
+    };
     const onSavedSuccess = () => {
       justSavedRef.current = true;
-      navigate({ to: ROUTES.products, search: { page: 1, search: '' } });
+      navigate({
+        to: ROUTES.products,
+        search: { page: 1, search: '', tab: 'active', flags: [] },
+      });
     };
     const onSavedError = (err: unknown) => {
       const fieldMap = mapApiErrorsToFields(err);
@@ -415,7 +432,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         }
         action={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '' } })}>
+            <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}>
               <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
               Back
             </Button>
@@ -556,6 +573,34 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
           </SectionBlock>
         </FadeUp>
 
+        {isEdit ? (
+          <FadeUp delay={0.14}>
+            <SectionBlock
+              id="flags"
+              title="Storefront flags"
+              subtitle="Toggle merchandising badges shown to customers."
+              titleId="flags-title"
+            >
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FlagRow
+                  label="Best seller"
+                  description="Pin this product to the Best Sellers strip."
+                  checked={values.isBestSeller}
+                  onChange={(v) => setValues((p) => ({ ...p, isBestSeller: v }))}
+                  disabled={isPending}
+                />
+                <FlagRow
+                  label="New arrival"
+                  description="Show the 'New' badge and surface in the new arrivals strip."
+                  checked={values.isNewArrival}
+                  onChange={(v) => setValues((p) => ({ ...p, isNewArrival: v }))}
+                  disabled={isPending}
+                />
+              </div>
+            </SectionBlock>
+          </FadeUp>
+        ) : null}
+
         <FadeUp delay={0.16}>
           <SectionBlock
             id="variants"
@@ -629,8 +674,8 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
             <div className="space-y-6">
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <FieldLabel>Hero image</FieldLabel>
-                  <span className="text-[11px] text-muted-foreground">Shown in product cards</span>
+                  <Eyebrow>Hero image</Eyebrow>
+                  <span className="text-xs text-muted-foreground">Shown in product cards</span>
                 </div>
                 <div className="max-w-sm">
                   <AdminImageUploader
@@ -650,12 +695,12 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
 
               <div className="border-t border-border pt-6">
                 <div className="mb-2 flex items-center justify-between">
-                  <FieldLabel>Gallery</FieldLabel>
-                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                  <Eyebrow>Gallery</Eyebrow>
+                  <span className="text-xs text-muted-foreground tabular-nums">
                     {values.albumImages.length} / 10
                   </span>
                 </div>
-                <p className="mb-3 text-[11px] text-muted-foreground">
+                <p className="mb-3 text-xs text-muted-foreground">
                   First image leads the gallery.
                 </p>
                 <AdminImageUploaderMulti
@@ -678,8 +723,8 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                 >
                   <span className="flex items-center gap-2">
                     <Ruler size={14} strokeWidth={1.75} className="text-muted-foreground group-hover:text-accent" aria-hidden />
-                    <FieldLabel>Size chart</FieldLabel>
-                    <span className="text-[11px] text-muted-foreground">(optional)</span>
+                    <Eyebrow>Size chart</Eyebrow>
+                    <span className="text-xs text-muted-foreground">(optional)</span>
                   </span>
                   <ChevronDown
                     size={14}
@@ -788,7 +833,7 @@ function SectionBlock({
           <div className="min-w-0">
             <h2
               id={titleId}
-              className="font-display text-xl italic leading-tight text-foreground sm:text-2xl"
+              className="text-lg font-semibold leading-tight text-foreground sm:text-xl"
             >
               {title}
             </h2>
@@ -804,13 +849,6 @@ function SectionBlock({
   );
 }
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-      {children}
-    </span>
-  );
-}
 
 /* ─────────────── Progress stepper ─────────────── */
 
@@ -929,9 +967,7 @@ function ProductMetaStrip({
         </div>
         <div className="min-w-0 flex-1">
           {subCategoryName ? (
-            <p className="truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {subCategoryName}
-            </p>
+            <Eyebrow as="p" className="truncate">{subCategoryName}</Eyebrow>
           ) : null}
           <div className="mt-1.5">
             <GenericBadge
@@ -978,7 +1014,7 @@ function SalePanel({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <FieldLabel>{hasSale ? 'Sale window' : 'Plan a sale'}</FieldLabel>
+          <Eyebrow>{hasSale ? 'Sale window' : 'Plan a sale'}</Eyebrow>
           <p className="mt-1 text-xs text-muted-foreground">
             {hasSale
               ? 'Customers see the sale price during the window below.'
@@ -1042,7 +1078,7 @@ function VariantsEmptyState({
     <div className="rounded-2xl border border-dashed border-border-medium bg-muted/30 p-5 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
         <div className="flex-1">
-          <p className="font-display text-lg italic text-foreground">No variants yet.</p>
+          <p className="text-base font-semibold text-foreground">No variants yet.</p>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
             Add at least one size + color combination so this product can be sold.
           </p>
@@ -1094,7 +1130,7 @@ function VariantRowItem({
       )}
     >
       <div className="grid min-w-0 flex-1 grid-cols-12 items-start gap-2">
-        <div className="col-span-12 sm:col-span-3">
+        <div className="col-span-12 sm:col-span-4">
           <SearchableSelect<ApiSize>
             value={variant.size || undefined}
             onChange={(v) => setVariant(idx, { size: v ?? '' })}
@@ -1113,9 +1149,9 @@ function VariantRowItem({
             hasError={Boolean(rowErrs?.size)}
           />
           {rowErrs?.size ? (
-            <p className="mt-1 text-[11px] text-destructive">{rowErrs.size}</p>
+            <p className="mt-1 text-xs text-destructive">{rowErrs.size}</p>
           ) : hasCategory && sizeOptions.length === 0 ? (
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               Add sizes to this group in the Sizes page.
             </p>
           ) : null}
@@ -1144,11 +1180,11 @@ function VariantRowItem({
             hasError={Boolean(rowErrs?.color)}
           />
           {rowErrs?.color ? (
-            <p className="mt-1 text-[11px] text-destructive">{rowErrs.color}</p>
+            <p className="mt-1 text-xs text-destructive">{rowErrs.color}</p>
           ) : null}
         </div>
 
-        <div className="col-span-12 sm:col-span-4">
+        <div className="col-span-12 sm:col-span-3">
           <NumberInput
             value={variant.quantity}
             onChange={(v) =>
@@ -1160,7 +1196,7 @@ function VariantRowItem({
             disabled={isPending}
           />
           {rowErrs?.quantity ? (
-            <p className="mt-1 text-[11px] text-destructive">{rowErrs.quantity}</p>
+            <p className="mt-1 text-xs text-destructive">{rowErrs.quantity}</p>
           ) : null}
         </div>
       </div>
@@ -1175,6 +1211,44 @@ function VariantRowItem({
         <Trash2 size={14} strokeWidth={1.75} aria-hidden />
       </button>
     </motion.li>
+  );
+}
+
+function FlagRow({
+  label,
+  description,
+  checked,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label
+      className={cn(
+        'flex cursor-pointer items-start justify-between gap-3 rounded-xl border bg-card p-4 transition-colors',
+        checked
+          ? 'border-accent/50 bg-accent/5'
+          : 'border-border hover:border-border-medium'
+      )}
+    >
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {description ? (
+          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+        aria-label={label}
+      />
+    </label>
   );
 }
 
@@ -1223,6 +1297,8 @@ function fromExisting(p: ApiProduct | null): FormState {
       defaultImage: '',
       albumImages: [],
       sizeChartImage: '',
+      isBestSeller: false,
+      isNewArrival: true,
       variants: [],
     };
   }
@@ -1239,6 +1315,8 @@ function fromExisting(p: ApiProduct | null): FormState {
     defaultImage: p.defaultImage?.mediaUrl ?? '',
     albumImages: (p.albumImages ?? []).map((m) => m.mediaUrl),
     sizeChartImage: p.sizeChartImage?.mediaUrl ?? '',
+    isBestSeller: p.isBestSeller ?? false,
+    isNewArrival: p.isNewArrival ?? false,
     variants: (p.variants ?? []).map((v) => ({
       size: v.size,
       color: idOf(v.color),

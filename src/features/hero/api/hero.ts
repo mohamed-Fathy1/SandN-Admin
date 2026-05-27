@@ -26,6 +26,24 @@ function toServerBody(payload: HeroPayload) {
   };
 }
 
+/**
+ * The API spec keys hero images by `imageType` ('small' | 'large') rather than
+ * positional `image1`/`image2`. Use this helper to pull the right one regardless
+ * of which slot the server stored it in.
+ */
+export function findHeroImageUrl(
+  hero: import('@/shared/types/api').ApiHeroSection | null | undefined,
+  type: 'small' | 'large'
+): string {
+  if (!hero) return '';
+  const { image1, image2 } = hero.images ?? {};
+  if (image1?.imageType === type) return image1.mediaUrl;
+  if (image2?.imageType === type) return image2.mediaUrl;
+  // Fallback to positional convention (image1=small, image2=large) for legacy data.
+  if (type === 'small') return image1?.mediaUrl ?? '';
+  return image2?.mediaUrl ?? '';
+}
+
 export async function fetchHeroSections(): Promise<ApiHeroSection[]> {
   const { data } = await api.get<ApiResponse<HeroListResponse>>('/hero-section/all');
   return data.data.imageSlider ?? [];

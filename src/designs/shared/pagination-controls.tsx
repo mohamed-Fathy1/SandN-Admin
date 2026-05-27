@@ -24,11 +24,11 @@ export function PaginationControls({
       aria-label="Pagination"
       className={cn('flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-5', className)}
     >
-      <p className="text-[10px] text-muted-foreground sm:text-xs">
-        <span className="text-[9px] uppercase tracking-[0.14em] text-light-foreground sm:text-[10px]">Page</span>{' '}
-        <span className="font-display text-sm italic text-foreground tabular-nums sm:text-base">{page}</span>
-        <span className="mx-1 text-light-foreground sm:mx-1.5">/</span>
-        <span className="font-medium text-foreground tabular-nums">{totalPages}</span>
+      <p className="flex items-baseline gap-1.5 text-xs text-muted-foreground">
+        <span className="text-eyebrow text-light-foreground">Page</span>
+        <span className="text-sm font-semibold font-tabular text-foreground sm:text-base">{page}</span>
+        <span className="text-light-foreground">/</span>
+        <span className="font-medium font-tabular text-foreground">{totalPages}</span>
       </p>
       <div className="flex items-center gap-1">
         <PageButton onClick={() => onPageChange(1)} disabled={!canPrev} label="First page">
@@ -73,7 +73,7 @@ function PageButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-medium bg-card text-muted-foreground transition-colors hover:border-accent/40 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-medium disabled:hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border-medium bg-card text-muted-foreground transition-colors hover:border-accent/40 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border-medium disabled:hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       {children}
     </button>

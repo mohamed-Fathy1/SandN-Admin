@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/designs/shared/button';
 import { Input } from '@/designs/shared/input';
 import { Card } from '@/designs/shared/card';
@@ -27,7 +28,15 @@ export function LoginPage() {
       return;
     }
     register.mutate(parsed.data.email, {
-      onSuccess: () => {
+      onSuccess: (result) => {
+        if (!result.codeSent) {
+          // Backend created a new account or sent a non-admin welcome email.
+          // Either way there's no activation code, so do not navigate to /verify.
+          toast.info(
+            'This email is not registered as an admin. If this is unexpected, contact support.'
+          );
+          return;
+        }
         navigate({
           to: '/login/verify',
           search: { email: parsed.data.email, redirect: search.redirect },
@@ -122,8 +131,8 @@ export function LoginPage() {
               Send code
             </Button>
 
-            <p className="text-center text-[11px] text-light-foreground">
-              We'll email a 6-digit code that expires in 10 minutes.
+            <p className="text-center text-xs text-light-foreground">
+              We'll email a 6-digit code that expires in 5 minutes.
             </p>
           </form>
         </Card>

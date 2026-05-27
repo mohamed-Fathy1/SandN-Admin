@@ -1,9 +1,7 @@
 import type { OrderStatus } from '@/config/constants';
+import type { ApiProductFilters } from '@/shared/types/api';
 
-export interface ProductsListParams {
-  page?: number;
-  search?: string;
-}
+export type ProductsListParams = ApiProductFilters;
 
 export interface OrdersListParams {
   page?: number;
@@ -32,6 +30,10 @@ export const adminQueryKeys = {
     all: ['admin', 'categories'] as const,
     deleted: ['admin', 'categories', 'deleted'] as const,
     detail: (id: string) => ['admin', 'categories', 'detail', id] as const,
+  },
+  categoryIcons: {
+    all: ['admin', 'category-icons'] as const,
+    detail: (key: string) => ['admin', 'category-icons', 'detail', key] as const,
   },
   subCategories: {
     all: ['admin', 'sub-categories'] as const,

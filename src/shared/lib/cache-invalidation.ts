@@ -24,6 +24,10 @@ export const invalidators = {
     qc.invalidateQueries({ queryKey: adminQueryKeys.categories.deleted });
     qc.invalidateQueries({ queryKey: adminQueryKeys.subCategories.all });
   },
+  afterCategoryIconWrite: (qc: QueryClient) => {
+    qc.invalidateQueries({ queryKey: adminQueryKeys.categoryIcons.all });
+    qc.invalidateQueries({ queryKey: adminQueryKeys.categories.all });
+  },
   afterSubCategoryWrite: (qc: QueryClient) => {
     qc.invalidateQueries({ queryKey: adminQueryKeys.subCategories.all });
     qc.invalidateQueries({ queryKey: adminQueryKeys.subCategories.deleted });

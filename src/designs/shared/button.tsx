@@ -30,7 +30,7 @@ const buttonVariants = cva(
           'bg-transparent text-accent hover:text-accent-hover underline-offset-4 hover:underline rounded-none disabled:text-muted-foreground disabled:hover:no-underline',
       },
       size: {
-        sm: 'h-9 px-4 text-sm',
+        sm: 'h-10 px-4 text-sm',
         md: 'h-11 px-6 text-sm',
         lg: 'h-12 px-8 text-base',
         icon: 'h-10 w-10',

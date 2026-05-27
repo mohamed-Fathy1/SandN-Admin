@@ -2,14 +2,14 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Mail, Phone } from 'lucide-react';
 import { AdminTable, Button, TableToolbar, Thumbnail } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
 import { useWishlist } from '@/features/wishlist/hooks/use-wishlist';
 import { prefetchProduct } from '@/features/products/hooks/use-products';
-import type { ApiWishlistItem } from '@/shared/types/api';
-import { formatDateTime } from '@/shared/utils/format';
+import type { ApiWishlistEntry } from '@/shared/types/api';
+import { formatDateTime, formatEGP } from '@/shared/utils/format';
 import { toEN } from '@/shared/utils/bilingual';
 
 interface WishlistPageProps {
@@ -21,27 +21,31 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const wishlistQuery = useWishlist(page);
-  const items = useMemo(
-    () => wishlistQuery.data?.wishlistItems ?? [],
-    [wishlistQuery.data?.wishlistItems]
-  );
+  const items = useMemo(() => wishlistQuery.data?.items ?? [], [wishlistQuery.data?.items]);
   const [search, setSearch] = useState('');
   const normalizedSearch = search.trim().toLowerCase();
   const filteredItems = useMemo(() => {
     if (!normalizedSearch) return items;
     return items.filter((i) =>
-      `${toEN(i.product?.name) ?? ''} ${i.customer ?? ''}`.toLowerCase().includes(normalizedSearch)
+      [
+        toEN(i.product?.name) ?? '',
+        i.customer?.phone ?? '',
+        i.customer?.email ?? '',
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch)
     );
   }, [items, normalizedSearch]);
   const isFiltered = normalizedSearch.length > 0;
 
-  const prefetchRow = (row: ApiWishlistItem) => {
+  const prefetchRow = (row: ApiWishlistEntry) => {
     const id = row.product?._id;
     if (!id) return;
     prefetchProduct(qc, id);
   };
 
-  const columns = useMemo<ColumnDef<ApiWishlistItem>[]>(
+  const columns = useMemo<ColumnDef<ApiWishlistEntry>[]>(
     () => [
       {
         id: 'image',
@@ -57,19 +61,40 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         header: 'Product',
         accessorFn: (i) => toEN(i.product?.name),
         cell: ({ row }) => (
-          <span className="font-medium text-foreground">
-            {toEN(row.original.product?.name) || '—'}
-          </span>
+          <div className="min-w-0">
+            <p className="truncate font-medium text-foreground">
+              {toEN(row.original.product?.name) || '—'}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+              {formatEGP(row.original.product?.finalPrice ?? row.original.product?.price ?? 0)}
+            </p>
+          </div>
         ),
       },
       {
         id: 'customer',
-        header: 'Customer ID',
+        header: 'Customer',
         enableSorting: false,
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-muted-foreground">
-            {row.original.customer ?? '—'}
-          </span>
+          <div className="min-w-0 space-y-0.5 text-xs">
+            {row.original.customer?.phone ? (
+              <p className="flex items-center gap-1.5 text-foreground">
+                <Phone size={14} strokeWidth={1.75} aria-hidden className="shrink-0 text-muted-foreground" />
+                <span className="truncate font-tabular">{row.original.customer.phone}</span>
+              </p>
+            ) : null}
+            {row.original.customer?.email ? (
+              <p className="flex items-center gap-1.5 text-muted-foreground">
+                <Mail size={14} strokeWidth={1.75} aria-hidden className="shrink-0" />
+                <span className="truncate">{row.original.customer.email}</span>
+              </p>
+            ) : null}
+            {!row.original.customer?.phone && !row.original.customer?.email ? (
+              <p className="font-mono text-xs text-light-foreground">
+                {row.original.customer?._id ?? '—'}
+              </p>
+            ) : null}
+          </div>
         ),
       },
       {
@@ -108,6 +133,8 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
     [navigate]
   );
 
+  const totalItems = wishlistQuery.data?.totalItems ?? items.length;
+
   return (
     <>
       <PageHeader
@@ -119,12 +146,8 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         <TableToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search by product name or customer id…"
-          meta={
-            wishlistQuery.data
-              ? `${filteredItems.length} of ${items.length}`
-              : undefined
-          }
+          searchPlaceholder="Search by product or customer…"
+          meta={wishlistQuery.data ? `${filteredItems.length} of ${totalItems}` : undefined}
         />
       </div>
 
@@ -135,7 +158,9 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
         isError={wishlistQuery.isError}
         error={wishlistQuery.error}
         onRetry={() => wishlistQuery.refetch()}
-        getRowId={(i) => i._id}
+        getRowId={(i) =>
+          `${i.product?._id ?? 'no-product'}-${i.customer?._id ?? 'no-customer'}-${String(i.createdAt)}`
+        }
         onRowHover={prefetchRow}
         isFiltered={isFiltered}
         onClearFilters={() => setSearch('')}
@@ -153,10 +178,15 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
                 <p className="truncate font-medium text-foreground">
                   {toEN(i.product?.name) || '—'}
                 </p>
-                <p className="truncate font-mono text-[11px] text-muted-foreground">
-                  {i.customer ?? '—'}
-                </p>
-                <p className="text-[11px] text-light-foreground">
+                {i.customer?.phone ? (
+                  <p className="truncate text-xs text-muted-foreground tabular-nums">
+                    {i.customer.phone}
+                  </p>
+                ) : null}
+                {i.customer?.email ? (
+                  <p className="truncate text-xs text-light-foreground">{i.customer.email}</p>
+                ) : null}
+                <p className="text-xs text-light-foreground">
                   {formatDateTime(i.createdAt)}
                 </p>
               </div>

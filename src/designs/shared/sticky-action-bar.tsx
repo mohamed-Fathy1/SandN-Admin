@@ -77,9 +77,7 @@ export function StickyActionBar({
             <div className="flex min-w-0 items-center gap-3">
               <StatusDot status={status} />
               <div className="flex flex-col leading-tight">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-light-foreground">
-                  Status
-                </span>
+                <span className="text-eyebrow text-light-foreground">Status</span>
                 <span
                   className="text-sm font-medium text-foreground"
                   aria-live="polite"

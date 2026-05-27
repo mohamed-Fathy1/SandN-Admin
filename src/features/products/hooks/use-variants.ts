@@ -13,7 +13,6 @@ import {
   updateVariant,
   type BulkUpdateVariant,
   type CreateVariantPayload,
-  type UpdateVariantPayload,
 } from '../api/variants';
 
 export function useVariantsByProduct(productId: string | undefined) {
@@ -47,8 +46,8 @@ export function useCreateVariant(productId: string) {
 export function useUpdateVariant(productId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateVariantPayload }) =>
-      updateVariant(id, payload),
+    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
+      updateVariant(id, { productId, quantity }),
     onSuccess: () => {
       invalidators.afterVariantWrite(qc, productId);
       toast.success('Variant updated');
@@ -60,7 +59,7 @@ export function useUpdateVariant(productId: string) {
 export function useDeleteVariant(productId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: deleteVariant,
+    mutationFn: (id: string) => deleteVariant(id, productId),
     onSuccess: () => {
       invalidators.afterVariantWrite(qc, productId);
       toast.success('Variant removed');

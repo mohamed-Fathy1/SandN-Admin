@@ -40,7 +40,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="mb-2 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">
+            <p className="mb-2 inline-flex items-center gap-2.5 text-eyebrow text-accent">
               <span
                 aria-hidden
                 className="inline-block h-px w-8 bg-gradient-to-r from-transparent via-accent/70 to-accent"

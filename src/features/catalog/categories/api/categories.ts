@@ -5,6 +5,7 @@ import type { ApiCategory } from '@/shared/types/api';
 export interface CategoryPayload {
   name: BilingualText;
   groupSize: string;
+  iconId: string;
   imageUrl: string;
 }
 

@@ -32,9 +32,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+interface ValidationIssue {
+  message: string;
+  path: string[];
+  type: string;
+}
+
 interface ApiErrorPayload {
   message?: string;
-  errors?: Array<{ message: string; path: string[]; type: string }>;
+  errors?: ValidationIssue[];
+  error?: ValidationIssue[] | string | null;
 }
 
 api.interceptors.response.use(
@@ -43,7 +50,10 @@ api.interceptors.response.use(
     const statusCode = error.response?.status ?? 500;
     const message =
       error.response?.data?.message ?? error.message ?? 'An unexpected error occurred';
-    const errors = error.response?.data?.errors ?? [];
+    const payload = error.response?.data;
+    const errors: ValidationIssue[] = payload?.errors
+      ?? (Array.isArray(payload?.error) ? payload?.error : [])
+      ?? [];
 
     if (statusCode === 401) {
       useAuthStore.getState().logout();

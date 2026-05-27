@@ -51,7 +51,12 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       return (
         <NotFoundState
           error={orderQuery.error}
-          onBack={() => navigate({ to: ROUTES.orders, search: { page: 1, status: undefined } })}
+          onBack={() =>
+            navigate({
+              to: ROUTES.orders,
+              search: { page: 1, status: undefined, search: '' },
+            })
+          }
           backLabel="Back to orders"
         />
       );
@@ -77,7 +82,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         subtitle={`Placed ${formatDateTime(order.createdAt)}`}
         action={
           <Button asChild variant="ghost" size="sm">
-            <Link to={ROUTES.orders} search={{ page: 1 }}>
+            <Link to={ROUTES.orders} search={{ page: 1, search: '' }}>
               <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
               All orders
             </Link>
@@ -94,7 +99,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         <div className="relative px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-eyebrow text-muted-foreground">
                 Order
               </p>
               <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-foreground tabular-nums sm:text-3xl">
@@ -115,7 +120,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 
           <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-eyebrow text-muted-foreground">
                 Total
               </p>
               <p className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-accent tabular-nums sm:text-3xl">
@@ -171,7 +176,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Card>
-            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="m-0 text-eyebrow text-muted-foreground">
               Progress
             </h2>
             <StatusTimeline currentStatus={order.status} />
@@ -179,7 +184,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 
           <Card padding="none">
             <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-              <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <h2 className="m-0 text-eyebrow text-muted-foreground">
                 Products
               </h2>
               <span className="text-xs text-muted-foreground tabular-nums">
@@ -192,14 +197,14 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
           <Card>
-            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="m-0 text-eyebrow text-muted-foreground">
               Summary
             </h2>
             <CostSummary order={order} />
           </Card>
 
           <Card>
-            <h2 className="m-0 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <h2 className="m-0 text-eyebrow text-muted-foreground">
               Recipient
             </h2>
             <Recipient order={order} />
@@ -224,9 +229,11 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       />
 
       <style>{`
-        @keyframes fadeUp {
-          0% { opacity: 0; transform: translateY(8px); }
-          100% { opacity: 1; transform: translateY(0); }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
         }
       `}</style>
     </>
@@ -288,8 +295,8 @@ function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }
                   current
                     ? 'font-semibold text-foreground text-[12px]'
                     : reached
-                      ? 'text-[11px] text-foreground'
-                      : 'text-[11px] text-light-foreground'
+                      ? 'text-xs text-foreground'
+                      : 'text-xs text-light-foreground'
                 )}
               >
                 {meta.label}
@@ -411,12 +418,12 @@ function ProductsList({ products }: { products: ApiOrderProduct[] }) {
               {hasVariant ? (
                 <p className="mt-1 flex flex-wrap items-center gap-1.5">
                   {sizeLabel ? (
-                    <span className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground">
                       Size {sizeLabel}
                     </span>
                   ) : null}
                   {color ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground">
                       {color.hex ? (
                         <span
                           aria-hidden
@@ -453,7 +460,7 @@ function CostSummary({ order }: { order: ApiOrder }) {
         <Row label="Discount" value={`− ${formatEGP(order.discount)}`} tone="muted" />
       ) : null}
       <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
-        <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <dt className="text-eyebrow text-muted-foreground">
           Total
         </dt>
         <dd className="text-xl font-semibold tabular-nums text-accent sm:text-2xl">
@@ -521,7 +528,7 @@ function Recipient({ order }: { order: ApiOrder }) {
 function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-light-foreground">
+      <p className="text-eyebrow text-light-foreground">
         {label}
       </p>
       <p

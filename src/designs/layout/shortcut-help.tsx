@@ -21,10 +21,10 @@ export function ShortcutHelp() {
           className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-overlay focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         >
           <div className="border-b border-border bg-muted/30 px-5 py-4">
-            <Dialog.Title className="font-display text-xl italic text-foreground">
+            <Dialog.Title className="text-lg font-semibold text-foreground">
               Keyboard shortcuts
             </Dialog.Title>
-            <Dialog.Description className="mt-0.5 text-xs text-muted-foreground">
+            <Dialog.Description className="mt-0.5 text-sm text-muted-foreground">
               Move faster with these.
             </Dialog.Description>
           </div>
@@ -37,7 +37,7 @@ export function ShortcutHelp() {
                 <div className="min-w-0">
                   <p className="text-foreground">{s.label}</p>
                   {s.hint ? (
-                    <p className="text-[11px] text-light-foreground">{s.hint}</p>
+                    <p className="text-xs text-light-foreground">{s.hint}</p>
                   ) : null}
                 </div>
                 <div className="flex shrink-0 items-center gap-1">

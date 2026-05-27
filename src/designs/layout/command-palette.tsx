@@ -138,7 +138,7 @@ function PaletteContent({
             {results.length === 0 ? (
               <li className="px-5 py-12 text-center text-sm text-muted-foreground">
                 No matches for{' '}
-                <span className="font-display italic text-foreground">“{query}”</span>
+                <span className="font-medium text-foreground">“{query}”</span>
               </li>
             ) : (
               results.map((item, idx) => {
@@ -177,7 +177,7 @@ function PaletteContent({
                       <span className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate text-sm font-medium">{item.label}</span>
                         {item.group ? (
-                          <span className="truncate text-[11px] uppercase tracking-[0.12em] text-light-foreground">
+                          <span className="truncate text-eyebrow text-light-foreground">
                             {item.group}
                           </span>
                         ) : null}
@@ -204,7 +204,7 @@ function PaletteContent({
             )}
           </ul>
 
-          <div className="hidden items-center justify-between gap-4 border-t border-border bg-muted/40 px-5 py-2.5 text-[10px] uppercase tracking-[0.14em] text-light-foreground sm:flex">
+          <div className="hidden items-center justify-between gap-4 border-t border-border bg-muted/40 px-5 py-2.5 text-eyebrow text-light-foreground sm:flex">
             <span className="flex items-center gap-2">
               <Kbd>↑</Kbd>
               <Kbd>↓</Kbd>

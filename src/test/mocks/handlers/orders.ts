@@ -46,8 +46,12 @@ export const ordersHandlers = [
   http.get(`${API}/order/admin/all`, ({ request }) => {
     const url = new URL(request.url);
     const status = url.searchParams.get('status') as OrderStatus | null;
+    const search = (url.searchParams.get('search') ?? '').trim().toLowerCase();
     const all = Array.from(store.values());
-    const filtered = status ? all.filter((o) => o.status === status) : all;
+    let filtered = status ? all.filter((o) => o.status === status) : all;
+    if (search) {
+      filtered = filtered.filter((o) => o.orderNumber.toLowerCase().includes(search));
+    }
     return HttpResponse.json({
       statusCode: 200,
       data: {
@@ -55,6 +59,7 @@ export const ordersHandlers = [
         currentPage: 1,
         totalPages: 1,
         totalItems: filtered.length,
+        filters: { status: status ?? null, searchTerm: search || null },
       },
       message: 'OK',
       success: true,

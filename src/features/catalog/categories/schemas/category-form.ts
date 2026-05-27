@@ -6,6 +6,7 @@ export const categoryFormSchema = z.object({
     ar: z.string().trim().min(2, 'Arabic name is required'),
   }),
   groupSize: z.string().min(1, 'Pick a size group'),
+  iconId: z.string().min(1, 'Pick an icon'),
   imageUrl: z.string().url('Upload an image first'),
 });
 

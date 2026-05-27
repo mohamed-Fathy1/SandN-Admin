@@ -9,11 +9,13 @@ import { heroHandlers } from './handlers/hero';
 import { socialReviewHandlers } from './handlers/social-reviews';
 import { wishlistHandlers } from './handlers/wishlist';
 import { catalogSupportHandlers } from './handlers/catalog-support';
+import { iconsHandlers } from './handlers/icons';
 import { productsHandlers } from './handlers/products';
 
 export const server = setupServer(
   ...authHandlers,
   ...categoryHandlers,
+  ...iconsHandlers,
   ...catalogSupportHandlers,
   ...productsHandlers,
   ...s3Handlers,

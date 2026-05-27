@@ -1,7 +1,13 @@
 import { z } from 'zod';
 
+export const DEFAULT_VARIANT_SIZE = 'one size';
+
 export const variantFormSchema = z.object({
-  size: z.string().trim().min(1, 'Size is required'),
+  size: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : DEFAULT_VARIANT_SIZE)),
   color: z.string().min(1, 'Pick a color'),
   quantity: z.number().int().min(0, 'Quantity cannot be negative'),
 });
@@ -26,6 +32,8 @@ export const productFormSchema = z
     defaultImage: z.string().url('Upload a default image'),
     albumImages: z.array(z.string().url()).min(1, 'Add at least one album image'),
     sizeChartImage: z.string().url().optional().or(z.literal('')),
+    isBestSeller: z.boolean().optional(),
+    isNewArrival: z.boolean().optional(),
     variants: z.array(variantFormSchema).min(1, 'Add at least one variant'),
   })
   .refine((d) => d.salePrice === 0 || d.salePrice <= d.price, {

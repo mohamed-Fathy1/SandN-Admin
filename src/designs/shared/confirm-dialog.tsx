@@ -75,10 +75,10 @@ export function ConfirmDialog({
               <AlertTriangle size={20} strokeWidth={1.75} aria-hidden />
             </span>
             <div className="min-w-0 flex-1 pt-0.5">
-              <AlertDialog.Title className="m-0 font-display text-xl italic leading-tight text-foreground">
+              <AlertDialog.Title className="m-0 text-lg font-semibold leading-tight text-foreground">
                 {title}
               </AlertDialog.Title>
-              <AlertDialog.Description className="mt-1.5 text-sm text-muted-foreground">
+              <AlertDialog.Description className="mt-1 text-sm text-muted-foreground">
                 {description}
               </AlertDialog.Description>
             </div>

@@ -31,14 +31,14 @@ export function Breadcrumb() {
             {isLast ? (
               <span
                 aria-current="page"
-                className="truncate font-display text-sm italic text-foreground sm:text-base"
+                className="truncate text-sm font-semibold text-foreground sm:text-base"
               >
                 {crumb.label}
               </span>
             ) : (
               <Link
                 to={crumb.to as never}
-                className="hidden truncate text-[10px] uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-accent sm:inline sm:text-xs"
+                className="hidden truncate text-xs font-medium text-muted-foreground transition-colors hover:text-accent sm:inline sm:text-sm"
               >
                 {crumb.label}
               </Link>

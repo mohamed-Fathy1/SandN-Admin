@@ -10,12 +10,12 @@ const sample: ApiHeroSection[] = [
       image1: {
         mediaUrl: 'https://cdn.test/h1-small.jpg',
         mediaId: 'ImageSlider/h1-small',
-        mediaType: 'small',
+        imageType: 'small',
       },
       image2: {
         mediaUrl: 'https://cdn.test/h1-large.jpg',
         mediaId: 'ImageSlider/h1-large',
-        mediaType: 'large',
+        imageType: 'large',
       },
     },
   },

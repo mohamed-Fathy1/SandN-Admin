@@ -53,7 +53,21 @@ export interface AdminTableProps<T> {
    * still go through the standard AdminTable layout.
    */
   mobileRender?: (row: T) => React.ReactNode;
+  /** Row density. `regular` (default) uses py-4; `compact` uses py-2.5. */
+  density?: 'regular' | 'compact';
   className?: string;
+}
+
+/**
+ * Column meta extensions consumed by AdminTable. Set `numeric: true` on a
+ * column def to right-align the header + cell and apply tabular-nums so
+ * money/counts line up vertically across rows.
+ */
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData, TValue> {
+    numeric?: boolean;
+  }
 }
 
 export function AdminTable<T>({
@@ -76,6 +90,7 @@ export function AdminTable<T>({
   bulkActions,
   stickyFirstCol,
   mobileRender,
+  density = 'regular',
   className,
 }: AdminTableProps<T>) {
   const [selection, setSelection] = useState<RowSelectionState>({});
@@ -191,7 +206,7 @@ export function AdminTable<T>({
             <button
               type="button"
               onClick={clearSelection}
-              className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              className="text-eyebrow text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
               Clear
             </button>
@@ -227,12 +242,15 @@ export function AdminTable<T>({
                   const canSort = header.column.getCanSort();
                   const sortDir = header.column.getIsSorted();
                   const sticky = isStickyCol(header.column.id);
+                  const numeric = header.column.columnDef.meta?.numeric;
                   return (
                     <th
                       key={header.id}
                       scope="col"
                       className={cn(
-                        'sticky top-0 z-[1] px-6 py-3.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground',
+                        'sticky top-0 z-[1] px-6 text-eyebrow text-muted-foreground',
+                        density === 'compact' ? 'py-2.5' : 'py-3.5',
+                        numeric ? 'text-right' : 'text-left',
                         sticky &&
                           'md:sticky md:left-0 md:z-[2] md:bg-[color-mix(in_srgb,var(--card)_92%,transparent)] md:shadow-[1px_0_0_0_var(--border)]'
                       )}
@@ -243,7 +261,8 @@ export function AdminTable<T>({
                           type="button"
                           onClick={header.column.getToggleSortingHandler()}
                           className={cn(
-                            'inline-flex items-center gap-1.5 rounded text-left transition-colors',
+                            'inline-flex items-center gap-1.5 rounded transition-colors',
+                            numeric ? 'text-right' : 'text-left',
                             'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                             sortDir && 'text-accent'
                           )}
@@ -308,11 +327,14 @@ export function AdminTable<T>({
                   {row.getVisibleCells().map((cell) => {
                     const sticky = isStickyCol(cell.column.id);
                     const isSelected = row.getIsSelected();
+                    const numeric = cell.column.columnDef.meta?.numeric;
                     return (
                       <td
                         key={cell.id}
                         className={cn(
-                          'px-6 py-4 align-middle text-foreground',
+                          'px-6 align-middle text-foreground',
+                          density === 'compact' ? 'py-2.5' : 'py-4',
+                          numeric && 'text-right font-tabular',
                           stickyFirstCol && 'border-b border-border/60',
                           sticky &&
                             'md:sticky md:left-0 md:z-[1] md:shadow-[1px_0_0_0_var(--border)]',

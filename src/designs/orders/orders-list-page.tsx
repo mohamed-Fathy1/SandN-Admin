@@ -27,8 +27,10 @@ import { cn } from '@/shared/utils/cn';
 interface OrdersListPageProps {
   page: number;
   status?: OrderStatus;
+  search: string;
   onPageChange: (page: number) => void;
   onStatusChange: (status: OrderStatus | undefined) => void;
+  onSearchChange: (next: string) => void;
 }
 
 const PENDING_STATUSES: OrderStatus[] = ['ordered', 'confirmed', 'under_review'];
@@ -61,43 +63,48 @@ function isToday(iso?: string): boolean {
 export function OrdersListPage({
   page,
   status,
+  search,
   onPageChange,
   onStatusChange,
+  onSearchChange,
 }: OrdersListPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const listQuery = useOrders({ page, status });
-  const allOrders = useMemo(() => listQuery.data?.orders ?? [], [listQuery.data]);
-  const [orderNumberFilter, setOrderNumberFilter] = useState('');
+  const listQuery = useOrders({ page, status, search });
+  const orders = useMemo(() => listQuery.data?.orders ?? [], [listQuery.data]);
 
-  const orders = useMemo(() => {
-    const term = orderNumberFilter.trim().toLowerCase();
-    if (!term) return allOrders;
-    return allOrders.filter((o) => o.orderNumber.toLowerCase().includes(term));
-  }, [allOrders, orderNumberFilter]);
+  // Local input state so typing feels instant, then debounce-commit to URL.
+  // React 19 derived-state pattern: update local state during render when the
+  // tracked prop changes — avoids the cascading-render lint warning.
+  const [searchInput, setSearchInput] = useState(search);
+  const [lastSyncedSearch, setLastSyncedSearch] = useState(search);
+  if (lastSyncedSearch !== search) {
+    setLastSyncedSearch(search);
+    setSearchInput(search);
+  }
 
   const kpis = useMemo(() => {
-    const pageCount = allOrders.length;
-    const pending = allOrders.filter((o) => PENDING_STATUSES.includes(o.status)).length;
-    const shippedToday = allOrders.filter(
+    const pageCount = orders.length;
+    const pending = orders.filter((o) => PENDING_STATUSES.includes(o.status)).length;
+    const shippedToday = orders.filter(
       (o) => o.status === 'shipped' && isToday(o.createdAt)
     ).length;
-    const revenue = allOrders.reduce((sum, o) => {
+    const revenue = orders.reduce((sum, o) => {
       if (o.status === 'cancelled' || o.status === 'deleted') return sum;
       return sum + (o.total ?? 0);
     }, 0);
     return { pageCount, pending, shippedToday, revenue };
-  }, [allOrders]);
+  }, [orders]);
 
   const tabCounts = useMemo(() => {
     if (status !== undefined) return null;
-    const counts: Record<string, number> = { all: allOrders.length };
-    for (const o of allOrders) {
+    const counts: Record<string, number> = { all: orders.length };
+    for (const o of orders) {
       counts[o.status] = (counts[o.status] ?? 0) + 1;
     }
     return counts;
-  }, [allOrders, status]);
+  }, [orders, status]);
 
   const columns = useMemo<ColumnDef<ApiOrder>[]>(
     () => [
@@ -143,11 +150,15 @@ export function OrdersListPage({
         id: 'items',
         header: 'Items',
         enableSorting: false,
-        cell: ({ row }) => (
-          <span className="tabular-nums text-muted-foreground">
-            <span className="text-light-foreground">×</span> {row.original.products?.length ?? 0}
-          </span>
-        ),
+        meta: { numeric: true },
+        cell: ({ row }) => {
+          const n = row.original.products?.length ?? 0;
+          return (
+            <span className="font-tabular text-muted-foreground">
+              {n} <span className="text-light-foreground">{n === 1 ? 'item' : 'items'}</span>
+            </span>
+          );
+        },
       },
       {
         id: 'shipping',
@@ -163,8 +174,9 @@ export function OrdersListPage({
         id: 'total',
         header: 'Total',
         accessorFn: (o) => o.total,
+        meta: { numeric: true },
         cell: ({ row }) => (
-          <span className="text-sm font-semibold tabular-nums text-foreground">
+          <span className="text-sm font-semibold font-tabular text-foreground">
             {formatEGP(row.original.total)}
           </span>
         ),
@@ -254,14 +266,18 @@ export function OrdersListPage({
 
       <div className="mb-4">
         <TableToolbar
-          search={orderNumberFilter}
-          onSearchChange={setOrderNumberFilter}
-          searchPlaceholder="Filter by order number…"
+          search={searchInput}
+          onSearchChange={setSearchInput}
+          searchDebounceMs={300}
+          onSearchCommit={(next) => {
+            if (next !== search) onSearchChange(next);
+          }}
+          searchPlaceholder="Search by order number…"
           meta={
-            orderNumberFilter
-              ? `${orders.length} of ${allOrders.length} on this page`
-              : allOrders.length
-                ? `${allOrders.length} on this page`
+            search
+              ? `${orders.length} match${orders.length === 1 ? '' : 'es'}`
+              : orders.length
+                ? `${orders.length} on this page`
                 : undefined
           }
         />
@@ -278,8 +294,11 @@ export function OrdersListPage({
         onRowHover={prefetchDetail}
         onRowClick={(o) => navigate({ to: ROUTES.orderDetail(o._id) })}
         stickyFirstCol
-        isFiltered={Boolean(orderNumberFilter)}
-        onClearFilters={() => setOrderNumberFilter('')}
+        isFiltered={Boolean(search)}
+        onClearFilters={() => {
+          setSearchInput('');
+          onSearchChange('');
+        }}
         mobileRender={(order) => {
           const info = order.customerInfo;
           const name = `${info?.firstName ?? ''} ${info?.lastName ?? ''}`.trim() || '—';
@@ -325,8 +344,8 @@ export function OrdersListPage({
           onPageChange,
         }}
         emptyState={{
-          title: orderNumberFilter ? undefined : 'No orders',
-          description: orderNumberFilter
+          title: search ? undefined : 'No orders',
+          description: search
             ? undefined
             : status
               ? `No ${activeTabLabel.toLowerCase()} orders yet.`
@@ -357,16 +376,40 @@ function KpiStrip({
     { label: 'Revenue (page)', value: loading ? '—' : formatEGP(revenue) },
   ];
   return (
-    <div className="mb-5 hidden border-y border-border md:block">
-      <dl className="grid grid-cols-4 divide-x divide-border">
+    <>
+      {/* Desktop strip */}
+      <div className="mb-5 hidden border-y border-border md:block">
+        <dl className="grid grid-cols-4 divide-x divide-border">
+          {cells.map((c) => (
+            <div key={c.label} className="px-5 py-4">
+              <dt className="text-eyebrow text-muted-foreground">{c.label}</dt>
+              <dd
+                className={cn(
+                  'mt-1 text-xl font-semibold leading-none font-tabular lg:text-2xl',
+                  c.tone === 'accent' && pending > 0 ? 'text-accent' : 'text-foreground'
+                )}
+              >
+                {c.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      {/* Mobile: horizontally scrollable compact chip row */}
+      <div
+        className="mb-4 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        role="list"
+      >
         {cells.map((c) => (
-          <div key={c.label} className="px-5 py-4">
-            <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              {c.label}
-            </dt>
+          <div
+            key={c.label}
+            role="listitem"
+            className="min-w-[140px] flex-shrink-0 rounded-xl border border-border bg-card px-3 py-2.5"
+          >
+            <dt className="text-eyebrow text-muted-foreground">{c.label}</dt>
             <dd
               className={cn(
-                'mt-1 text-xl font-semibold leading-none tabular-nums lg:text-2xl',
+                'mt-1 text-lg font-semibold leading-none font-tabular',
                 c.tone === 'accent' && pending > 0 ? 'text-accent' : 'text-foreground'
               )}
             >
@@ -374,7 +417,7 @@ function KpiStrip({
             </dd>
           </div>
         ))}
-      </dl>
-    </div>
+      </div>
+    </>
   );
 }

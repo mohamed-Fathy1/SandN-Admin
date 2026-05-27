@@ -3,10 +3,10 @@ import { canCancel, isTerminal, nextStatus } from './status-machine';
 import { ORDER_STATUSES } from '@/config/constants';
 
 describe('status-machine', () => {
-  it('walks ordered → confirmed → under_review → shipped → delivered', () => {
-    expect(nextStatus('ordered')).toBe('confirmed');
-    expect(nextStatus('confirmed')).toBe('under_review');
-    expect(nextStatus('under_review')).toBe('shipped');
+  it('walks under_review → confirmed → ordered → shipped → delivered (spec order)', () => {
+    expect(nextStatus('under_review')).toBe('confirmed');
+    expect(nextStatus('confirmed')).toBe('ordered');
+    expect(nextStatus('ordered')).toBe('shipped');
     expect(nextStatus('shipped')).toBe('delivered');
   });
 
@@ -16,10 +16,10 @@ describe('status-machine', () => {
     expect(nextStatus('deleted')).toBeNull();
   });
 
-  it('allows cancel for ordered, confirmed, under_review', () => {
-    expect(canCancel('ordered')).toBe(true);
-    expect(canCancel('confirmed')).toBe(true);
+  it('allows cancel for under_review, confirmed, ordered', () => {
     expect(canCancel('under_review')).toBe(true);
+    expect(canCancel('confirmed')).toBe(true);
+    expect(canCancel('ordered')).toBe(true);
   });
 
   it('disallows cancel once shipped or after a terminal state', () => {

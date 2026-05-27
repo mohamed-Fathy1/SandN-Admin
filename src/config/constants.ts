@@ -26,10 +26,13 @@ export const S3_FOLDERS = [
 
 export type S3Folder = (typeof S3_FOLDERS)[number];
 
+// Listed in linear progression per the API spec:
+//   under_review (initial) → confirmed → ordered → shipped → delivered
+// followed by the terminal off-path states cancelled / deleted.
 export const ORDER_STATUSES = [
-  'ordered',
-  'confirmed',
   'under_review',
+  'confirmed',
+  'ordered',
   'shipped',
   'delivered',
   'cancelled',
@@ -65,6 +68,7 @@ export const ROUTES = {
   productVariants: (id: string) => `/products/${id}/variants`,
   categories: '/catalog/categories',
   subCategories: '/catalog/sub-categories',
+  categoryIcons: '/catalog/icons',
   colors: '/catalog/colors',
   groups: '/catalog/groups',
   sizes: '/catalog/sizes',

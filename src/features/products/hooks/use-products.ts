@@ -4,6 +4,7 @@ import { adminQueryKeys } from '@/shared/lib/query-keys';
 import { invalidators } from '@/shared/lib/cache-invalidation';
 import { ApiError } from '@/shared/lib/axios';
 import { QUERY_STALE_TIME } from '@/config/constants';
+import type { ApiProductFilters } from '@/shared/types/api';
 import {
   createProduct,
   fetchProduct,
@@ -23,10 +24,10 @@ export function prefetchProduct(qc: QueryClient, id: string) {
   });
 }
 
-export function useProducts(page: number) {
+export function useProducts(filters: ApiProductFilters = {}) {
   return useQuery({
-    queryKey: adminQueryKeys.products.list({ page }),
-    queryFn: () => fetchProducts(page),
+    queryKey: adminQueryKeys.products.list(filters),
+    queryFn: () => fetchProducts(filters),
     staleTime: QUERY_STALE_TIME.default,
   });
 }

@@ -53,7 +53,7 @@ export function VariantsPage({ productId }: VariantsPageProps) {
       return (
         <NotFoundState
           error={loadError}
-          onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '' } })}
+          onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}
           backLabel="Back to products"
         />
       );
@@ -174,10 +174,16 @@ function VariantsInner({
   };
 
   const handleAdd = () => {
-    if (!newRow.size.trim() || !newRow.color) return;
+    if (!newRow.color) return;
     const qty = typeof newRow.quantity === 'number' ? newRow.quantity : 0;
+    const trimmedSize = newRow.size.trim();
     createOne.mutate(
-      { productId, size: newRow.size.trim(), color: newRow.color, quantity: qty },
+      {
+        productId,
+        size: trimmedSize.length > 0 ? trimmedSize : 'one size',
+        color: newRow.color,
+        quantity: qty,
+      },
       {
         onSuccess: (variant) => {
           setDrafts((p) => [...p, toDraft(variant)]);
@@ -229,7 +235,7 @@ function VariantsInner({
         subtitle="Inline-edit stock, sizes, and colors. Save dirty rows in one shot."
         action={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '' } })}>
+            <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}>
               <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
               Back
             </Button>
@@ -273,7 +279,7 @@ function VariantsInner({
                     <div className="flex items-center gap-2">
                       {isDirty ? (
                         <span
-                          className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-accent"
+                          className="inline-flex items-center gap-1 text-eyebrow text-accent"
                           aria-label="Unsaved"
                         >
                           <span className="inline-flex h-2 w-2 rounded-full bg-accent" />
@@ -297,14 +303,14 @@ function VariantsInner({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <label className="flex flex-col gap-1">
-                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Size</span>
+                      <span className="text-eyebrow text-muted-foreground">Size</span>
                       <Input
                         value={d.size}
                         onChange={(e) => setRow(d._id, { size: e.target.value })}
                       />
                     </label>
                     <label className="flex flex-col gap-1">
-                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Qty</span>
+                      <span className="text-eyebrow text-muted-foreground">Qty</span>
                       <NumberInput
                         value={d.quantity}
                         onChange={(v) => setRow(d._id, { quantity: typeof v === 'number' ? v : 0 })}
@@ -312,7 +318,7 @@ function VariantsInner({
                       />
                     </label>
                     <label className="col-span-2 flex flex-col gap-1">
-                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Color</span>
+                      <span className="text-eyebrow text-muted-foreground">Color</span>
                       <SearchableSelect<ApiColor>
                         value={d.color || undefined}
                         onChange={(v) => setRow(d._id, { color: v ?? '' })}
@@ -340,7 +346,7 @@ function VariantsInner({
           )}
 
           <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3">
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="mb-2 text-eyebrow text-muted-foreground">
               Add variant
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -392,16 +398,16 @@ function VariantsInner({
                     aria-label="Select all variants"
                   />
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
                   Size
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
                   Color
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
                   Quantity
                 </th>
-                <th scope="col" className="w-12 px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <th scope="col" className="w-12 px-4 py-3 text-right text-eyebrow text-muted-foreground">
                   Status
                 </th>
                 <th scope="col" className="w-12 px-4 py-3 text-right" />
@@ -470,7 +476,11 @@ function VariantsInner({
                       </td>
                       <td className="px-4 py-3 text-right">
                         {isDirty ? (
-                          <span className="inline-flex h-2 w-2 rounded-full bg-accent" aria-label="Unsaved" />
+                          <span
+                            className="ml-auto inline-flex h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-accent/20"
+                            role="status"
+                            aria-label="Unsaved changes"
+                          />
                         ) : bulkUpdate.isPending && bulkUpdate.variables?.some((v) => v._id === d._id) ? (
                           <Loader2 size={14} className="ml-auto animate-spin text-muted-foreground" aria-hidden />
                         ) : (
@@ -499,7 +509,7 @@ function VariantsInner({
                   <Input
                     value={newRow.size}
                     onChange={(e) => setNewRow((p) => ({ ...p, size: e.target.value }))}
-                    placeholder="Size (e.g. m)"
+                    placeholder="Size (optional — defaults to 'one size')"
                     aria-label="New variant size"
                   />
                 </td>
@@ -527,7 +537,7 @@ function VariantsInner({
                     size="sm"
                     onClick={handleAdd}
                     isLoading={createOne.isPending}
-                    disabled={!newRow.size.trim() || !newRow.color}
+                    disabled={!newRow.color}
                   >
                     <Plus size={14} strokeWidth={1.5} aria-hidden />
                     Add

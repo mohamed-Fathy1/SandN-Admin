@@ -1,9 +1,14 @@
 import { api } from '@/shared/lib/axios';
 import type { ApiResponse, BilingualText } from '@/shared/types';
-import type { ApiProduct, ApiProductAnalysis, ApiProductListResponse } from '@/shared/types/api';
+import type {
+  ApiProduct,
+  ApiProductAnalysis,
+  ApiProductFilters,
+  ApiProductListResponse,
+} from '@/shared/types/api';
 
 export interface VariantPayload {
-  size: string;
+  size?: string;
   color: string;
   quantity: number;
 }
@@ -20,19 +25,46 @@ export interface ProductPayload {
   subCategory: string;
   defaultImage: string;
   albumImages: string[];
-  sizeChartImage?: string;
+  sizeChartImage?: string | null;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
   variants: VariantPayload[];
 }
+
+export type ProductUpdatePayload = Partial<ProductPayload>;
 
 interface ProductSingleResponse {
   product: ApiProduct;
 }
 
-export async function fetchProducts(page: number): Promise<ApiProductListResponse> {
+function buildFilterQuery(filters: ApiProductFilters): string {
+  const params = new URLSearchParams();
+  if (filters.page != null) params.set('page', String(filters.page));
+  if (filters.category) params.set('category', filters.category);
+  if (filters.subCategory) params.set('subCategory', filters.subCategory);
+  if (filters.isSale != null) params.set('isSale', String(filters.isSale));
+  if (filters.isNewArrival != null) params.set('isNewArrival', String(filters.isNewArrival));
+  if (filters.isBestSeller != null) params.set('isBestSeller', String(filters.isBestSeller));
+  if (filters.isSoldOut != null) params.set('isSoldOut', String(filters.isSoldOut));
+  if (filters.isDeleted != null) params.set('isDeleted', String(filters.isDeleted));
+  return params.toString();
+}
+
+export async function fetchProducts(
+  filters: ApiProductFilters = {}
+): Promise<ApiProductListResponse> {
+  const qs = buildFilterQuery({ page: 1, ...filters });
   const { data } = await api.get<ApiResponse<ApiProductListResponse>>(
-    `/product/get-all-products?page=${page}`
+    `/product/get-all-products?${qs}`
   );
-  return data.data ?? { products: [], currentPage: page, totalPages: 0, total: 0 };
+  return (
+    data.data ?? {
+      products: [],
+      currentPage: filters.page ?? 1,
+      totalPages: 0,
+      totalItems: 0,
+    }
+  );
 }
 
 export async function searchProducts(query: string): Promise<ApiProduct[]> {
@@ -50,8 +82,10 @@ export async function fetchProduct(id: string): Promise<ApiProduct> {
 }
 
 export async function fetchProductAnalysis(): Promise<ApiProductAnalysis> {
-  const { data } = await api.get<ApiResponse<ApiProductAnalysis>>('/product/get-analysis');
-  return data.data;
+  const { data } = await api.get<ApiResponse<{ analysis: ApiProductAnalysis }>>(
+    '/product/get-analysis'
+  );
+  return data.data.analysis;
 }
 
 export async function createProduct(payload: ProductPayload): Promise<ApiProduct> {
@@ -61,7 +95,7 @@ export async function createProduct(payload: ProductPayload): Promise<ApiProduct
 
 export async function updateProduct(
   id: string,
-  payload: Partial<ProductPayload>
+  payload: ProductUpdatePayload
 ): Promise<ApiProduct> {
   const { data } = await api.patch<ApiResponse<ProductSingleResponse>>(
     `/product/update/${id}`,

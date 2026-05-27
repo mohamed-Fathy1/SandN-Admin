@@ -113,6 +113,25 @@ export const A = {
     tooltip: 90,
   },
 
+  // Typography scale — canonical sizes for labels/metrics so pages stop
+  // hardcoding text-[10px]/text-[11px]/text-[2rem] etc.
+  type: {
+    eyebrow: {
+      size: '11px',
+      tracking: '0.14em',
+      weight: 600,
+    },
+    metricLg: { size: '32px', lineHeight: '1', weight: 600 },
+    metricMd: { size: '24px', lineHeight: '1.1', weight: 600 },
+    metricSm: { size: '18px', lineHeight: '1.2', weight: 500 },
+  },
+
+  // Density presets — wired into AdminTable rows + Card padding.
+  density: {
+    compact: { rowH: 40, padX: 12 },
+    regular: { rowH: 52, padX: 16 },
+  },
+
   // Animation
   easeOut: [0.22, 1, 0.36, 1] as const,
   spring: { type: 'spring' as const, stiffness: 380, damping: 28 },

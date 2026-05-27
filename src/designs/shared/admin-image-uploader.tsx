@@ -129,7 +129,7 @@ export function AdminImageUploader({
               <ImagePlus size={18} strokeWidth={1.5} aria-hidden />
             </span>
             <p className="text-xs font-medium text-foreground">Drop an image or click to browse</p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               JPEG, PNG, WebP · max {MAX_MB} MB
             </p>
           </div>
