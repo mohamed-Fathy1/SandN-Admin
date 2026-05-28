@@ -31,7 +31,7 @@ function makeProduct(id: string, payload: ProductPayload): ApiProduct {
     isSoldOut: false,
     soldItems: 0,
     category: payload.category,
-    subCategory: payload.subCategory,
+    subCategory: payload.subCategory ?? '',
     defaultImage: urlToMedia(payload.defaultImage),
     albumImages: payload.albumImages.map(urlToMedia),
     sizeChartImage: payload.sizeChartImage ? urlToMedia(payload.sizeChartImage) : undefined,
