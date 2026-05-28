@@ -1,7 +1,6 @@
 import { api } from '@/shared/lib/axios';
 import type { ApiResponse } from '@/shared/types';
 import type { ApiGroup } from '@/shared/types/api';
-import type { GroupName } from '@/config/constants';
 
 interface GroupListResponse {
   groupSizes: ApiGroup[];
@@ -20,7 +19,7 @@ export async function fetchGroup(id: string): Promise<ApiGroup> {
   return data.data.groupSize;
 }
 
-export async function createGroup(payload: { name: GroupName }): Promise<ApiGroup> {
+export async function createGroup(payload: { name: string }): Promise<ApiGroup> {
   const { data } = await api.post<ApiResponse<GroupSingleResponse>>(
     '/group-size/group',
     payload
@@ -30,7 +29,7 @@ export async function createGroup(payload: { name: GroupName }): Promise<ApiGrou
 
 export async function updateGroup(
   id: string,
-  payload: { name: GroupName }
+  payload: { name: string }
 ): Promise<ApiGroup> {
   const { data } = await api.patch<ApiResponse<GroupSingleResponse>>(
     `/group-size/update-group/${id}`,

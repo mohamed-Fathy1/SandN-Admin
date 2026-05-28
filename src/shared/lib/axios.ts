@@ -44,6 +44,22 @@ interface ApiErrorPayload {
   error?: ValidationIssue[] | string | null;
 }
 
+export type AuthExpiredReason = 'missing' | 'expired' | 'invalid' | 'payload' | 'revoked';
+
+export interface AuthExpiredDetail {
+  reason: AuthExpiredReason;
+  message: string;
+}
+
+function classify401(message: string): AuthExpiredReason {
+  const m = message.toLowerCase();
+  if (m.includes('missing')) return 'missing';
+  if (m.includes('expired')) return 'expired';
+  if (m.includes('payload')) return 'payload';
+  if (m.includes('user token is invalid')) return 'revoked';
+  return 'invalid';
+}
+
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorPayload>) => {
@@ -55,10 +71,15 @@ api.interceptors.response.use(
       ?? (Array.isArray(payload?.error) ? payload?.error : [])
       ?? [];
 
-    if (statusCode === 401) {
-      useAuthStore.getState().logout();
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('auth:expired'));
+    if (typeof window !== 'undefined') {
+      if (statusCode === 401) {
+        useAuthStore.getState().logout();
+        const detail: AuthExpiredDetail = { reason: classify401(message), message };
+        window.dispatchEvent(new CustomEvent<AuthExpiredDetail>('auth:expired', { detail }));
+      } else if (statusCode === 403) {
+        window.dispatchEvent(new CustomEvent<string>('auth:forbidden', { detail: message }));
+      } else if (statusCode >= 500 && message === 'Token signature is not configured') {
+        window.dispatchEvent(new CustomEvent<string>('server:misconfigured', { detail: message }));
       }
     }
 

@@ -44,10 +44,11 @@ describe('format', () => {
   });
 
   describe('formatGroupName', () => {
-    it('humanizes letters / numeric and passes through anything else', () => {
+    it('title-cases free-form group names', () => {
       expect(formatGroupName('letters')).toBe('Letters');
       expect(formatGroupName('numeric')).toBe('Numeric');
-      expect(formatGroupName('custom' as never)).toBe('custom');
+      expect(formatGroupName('one size')).toBe('One Size');
+      expect(formatGroupName('custom')).toBe('Custom');
     });
   });
 });

@@ -36,8 +36,8 @@ import {
 import { PageHeader } from '@/designs/layout/page-header';
 import { CURRENCY_SUFFIX, ROUTES } from '@/config/constants';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
-import { useCategories } from '@/features/catalog/categories/hooks/use-categories';
-import { useSubCategories } from '@/features/catalog/sub-categories/hooks/use-sub-categories';
+import { useCategories, useCategory } from '@/features/catalog/categories/hooks/use-categories';
+import { useSubCategories, useSubCategory } from '@/features/catalog/sub-categories/hooks/use-sub-categories';
 import { useColors } from '@/features/catalog/colors/hooks/use-colors';
 import { useSizes } from '@/features/catalog/sizes/hooks/use-sizes';
 import {
@@ -170,6 +170,8 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   const initial = useMemo(() => fromExisting(existing), [existing]);
   const initialJson = useMemo(() => JSON.stringify(initial), [initial]);
   const [values, setValues] = useState<FormState>(initial);
+  const categoryDetailQuery = useCategory(values.category || undefined);
+  const subCategoryDetailQuery = useSubCategory(values.subCategory || undefined);
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [sizeChartOpen, setSizeChartOpen] = useState<boolean>(Boolean(initial.sizeChartImage));
   const [activeSection, setActiveSection] = useState<SectionId>('basics');
@@ -225,13 +227,31 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     );
   }, [values.category, subCategoriesQuery.data]);
 
-  const sizeOptionsForGroup = useMemo(() => {
+  const sizeOptionsForGroup = useMemo<ApiSize[]>(() => {
     if (!values.category) return sizesQuery.data ?? [];
-    const cat = categoriesQuery.data?.find((c) => c._id === values.category);
-    if (!cat) return sizesQuery.data ?? [];
-    const groupId = idOf(cat.groupSize);
-    return (sizesQuery.data ?? []).filter((s) => idOf(s.groupSize) === groupId);
-  }, [values.category, categoriesQuery.data, sizesQuery.data]);
+    if (values.subCategory) {
+      const fromSub = subCategoryDetailQuery.data?.sizeCategories;
+      if (fromSub && fromSub.length > 0) return fromSub;
+      const subGroupId = idOf(subCategoryDetailQuery.data?.groupSize);
+      if (subGroupId) {
+        return (sizesQuery.data ?? []).filter((s) => idOf(s.groupSize) === subGroupId);
+      }
+    }
+    const fromCat = categoryDetailQuery.data?.sizeCategories;
+    if (fromCat && fromCat.length > 0) return fromCat;
+    const catGroupId =
+      idOf(categoryDetailQuery.data?.groupSize) ||
+      idOf(categoriesQuery.data?.find((c) => c._id === values.category)?.groupSize);
+    if (!catGroupId) return sizesQuery.data ?? [];
+    return (sizesQuery.data ?? []).filter((s) => idOf(s.groupSize) === catGroupId);
+  }, [
+    values.category,
+    values.subCategory,
+    categoriesQuery.data,
+    categoryDetailQuery.data,
+    subCategoryDetailQuery.data,
+    sizesQuery.data,
+  ]);
 
   const subCategoryName = useMemo(() => {
     if (!values.subCategory) return null;
@@ -296,6 +316,9 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     setErrors({});
     const payload = {
       ...parsed.data,
+      subCategory: parsed.data.subCategory && parsed.data.subCategory.length > 0
+        ? parsed.data.subCategory
+        : undefined,
       sizeChartImage:
         parsed.data.sizeChartImage && parsed.data.sizeChartImage.length > 0
           ? parsed.data.sizeChartImage
@@ -555,7 +578,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                   clearable={false}
                 />
               </AdminFormField>
-              <AdminFormField label="Sub-category" required error={errors.subCategory}>
+              <AdminFormField label="Sub-category" hint="Optional" error={errors.subCategory}>
                 <SearchableSelect<ApiSubCategory>
                   value={values.subCategory || undefined}
                   onChange={(v) => setValues((p) => ({ ...p, subCategory: v ?? '' }))}
@@ -566,7 +589,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                     values.category ? 'Pick a sub-category' : 'Pick a category first'
                   }
                   disabled={isPending || !values.category}
-                  clearable={false}
+                  clearable
                 />
               </AdminFormField>
             </div>
@@ -1266,7 +1289,7 @@ function computeSectionState(
   const pricingErr = Boolean(
     errs.price || errs.wholesalePrice || errs.salePrice || errs.saleStartDate || errs.saleEndDate
   );
-  const classDone = Boolean(v.category && v.subCategory);
+  const classDone = Boolean(v.category);
   const classErr = Boolean(errs.category || errs.subCategory);
   const variantsDone =
     v.variants.length > 0 && v.variants.every((x) => x.size && x.color);

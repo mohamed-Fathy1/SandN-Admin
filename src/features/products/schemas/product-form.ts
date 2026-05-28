@@ -28,7 +28,7 @@ export const productFormSchema = z
     saleStartDate: z.number().int().min(0),
     saleEndDate: z.number().int().min(0),
     category: z.string().min(1, 'Pick a category'),
-    subCategory: z.string().min(1, 'Pick a sub-category'),
+    subCategory: z.string().optional().default(''),
     defaultImage: z.string().url('Upload a default image'),
     albumImages: z.array(z.string().url()).min(1, 'Add at least one album image'),
     sizeChartImage: z.string().url().optional().or(z.literal('')),

@@ -1,8 +1,11 @@
 import { z } from 'zod';
-import { GROUP_NAMES } from '@/config/constants';
 
 export const groupFormSchema = z.object({
-  name: z.enum(GROUP_NAMES),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Name is required')
+    .max(50, 'Name is too long'),
 });
 
 export type GroupFormValues = z.infer<typeof groupFormSchema>;

@@ -6,20 +6,13 @@ import {
   AdminTable,
   Button,
   FormSheet,
-  Select,
-  type SelectOption,
+  Input,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { useGroups, useCreateGroup, useUpdateGroup } from '@/features/catalog/groups/hooks/use-groups';
 import { groupFormSchema, type GroupFormValues } from '@/features/catalog/groups/schemas/group-form';
-import { GROUP_NAMES, type GroupName } from '@/config/constants';
 import type { ApiGroup } from '@/shared/types/api';
-import { formatDate } from '@/shared/utils/format';
-
-const GROUP_OPTIONS: ReadonlyArray<SelectOption<GroupName>> = GROUP_NAMES.map((name) => ({
-  value: name,
-  label: name === 'letters' ? 'Letters (S, M, L…)' : 'Numeric (36, 38, 40…)',
-}));
+import { formatDate, formatGroupName } from '@/shared/utils/format';
 
 export function GroupsPage() {
   const [creating, setCreating] = useState(false);
@@ -34,7 +27,7 @@ export function GroupsPage() {
         accessorKey: 'name',
         header: 'Name',
         cell: ({ row }) => (
-          <span className="font-medium capitalize text-foreground">{row.original.name}</span>
+          <span className="font-medium text-foreground">{formatGroupName(row.original.name)}</span>
         ),
       },
       {
@@ -69,20 +62,13 @@ export function GroupsPage() {
     []
   );
 
-  const usedNames = new Set<GroupName>(
-    (groupsQuery.data ?? [])
-      .map((g) => g.name)
-      .filter((n): n is GroupName => (GROUP_NAMES as readonly string[]).includes(n))
-  );
-  const allUsed = GROUP_NAMES.every((n) => usedNames.has(n));
-
   return (
     <>
       <PageHeader
         title="Groups"
         subtitle="Size groups define whether a category uses letter-style or numeric sizing."
         action={
-          <Button onClick={() => setCreating(true)} disabled={allUsed}>
+          <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
             Add group
           </Button>
@@ -111,7 +97,6 @@ export function GroupsPage() {
           setEditing(null);
         }}
         entity={editing}
-        excludeNames={editing ? usedNames : usedNames}
       />
     </>
   );
@@ -121,25 +106,16 @@ interface GroupFormSheetProps {
   open: boolean;
   onClose: () => void;
   entity: ApiGroup | null;
-  excludeNames: Set<GroupName>;
 }
 
-function GroupFormSheet({ open, onClose, entity, excludeNames }: GroupFormSheetProps) {
+function GroupFormSheet({ open, onClose, entity }: GroupFormSheetProps) {
   const create = useCreateGroup();
   const update = useUpdateGroup();
   const isEdit = Boolean(entity);
   const isPending = create.isPending || update.isPending;
 
-  const initial: GroupFormValues = {
-    name: (entity?.name as GroupName | undefined) ?? GROUP_NAMES[0],
-  };
-  const [values, setValues] = useState<GroupFormValues>(initial);
+  const [values, setValues] = useState<GroupFormValues>({ name: entity?.name ?? '' });
   const [error, setError] = useState<string | undefined>();
-
-  const availableOptions = GROUP_OPTIONS.filter((opt) => {
-    if (entity?.name === opt.value) return true;
-    return !excludeNames.has(opt.value);
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,7 +142,7 @@ function GroupFormSheet({ open, onClose, entity, excludeNames }: GroupFormSheetP
         if (!next) onClose();
       }}
       title={isEdit ? 'Edit group' : 'New group'}
-      description={isEdit ? entity?.name : 'Pick a sizing style for this group.'}
+      description={isEdit ? entity?.name : 'Give this sizing group a name.'}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
@@ -179,13 +155,13 @@ function GroupFormSheet({ open, onClose, entity, excludeNames }: GroupFormSheetP
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <AdminFormField label="Sizing style" required error={error}>
-          <Select<GroupName>
+        <AdminFormField label="Name" required error={error}>
+          <Input
             value={values.name}
-            onValueChange={(v) => setValues({ name: v })}
-            options={availableOptions}
-            placeholder="Select sizing style"
+            onChange={(e) => setValues({ name: e.target.value })}
+            placeholder="e.g. letters, numeric, one size"
             disabled={isPending}
+            autoFocus
           />
         </AdminFormField>
       </form>

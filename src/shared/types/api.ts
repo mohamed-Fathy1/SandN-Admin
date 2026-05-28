@@ -1,5 +1,5 @@
 import type { BilingualText } from './index';
-import type { OrderStatus, OfferType, GroupName, HeroImageType } from '@/config/constants';
+import type { OrderStatus, OfferType, HeroImageType } from '@/config/constants';
 
 /**
  * Denormalized media document the backend returns on GETs.
@@ -12,7 +12,7 @@ export interface Media {
 
 export interface ApiGroup {
   _id: string;
-  name: GroupName | string;
+  name: string;
   createdAt?: string;
   updatedAt?: string;
 }

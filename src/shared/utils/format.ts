@@ -1,10 +1,7 @@
 import { format } from 'date-fns';
-import type { GroupName } from '@/config/constants';
 
-export function formatGroupName(name: GroupName | string): string {
-  if (name === 'letters') return 'Letters';
-  if (name === 'numeric') return 'Numeric';
-  return name;
+export function formatGroupName(name: string): string {
+  return name.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 const egpFormatter = new Intl.NumberFormat('en-EG', {

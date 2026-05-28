@@ -22,7 +22,7 @@ export interface ProductPayload {
   saleStartDate: number;
   saleEndDate: number;
   category: string;
-  subCategory: string;
+  subCategory?: string;
   defaultImage: string;
   albumImages: string[];
   sizeChartImage?: string | null;

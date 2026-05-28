@@ -44,9 +44,6 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export const OFFER_TYPES = ['fixed_discount', 'free_shipping'] as const;
 export type OfferType = (typeof OFFER_TYPES)[number];
 
-export const GROUP_NAMES = ['letters', 'numeric'] as const;
-export type GroupName = (typeof GROUP_NAMES)[number];
-
 export const HERO_IMAGE_TYPES = ['small', 'large'] as const;
 export type HeroImageType = (typeof HERO_IMAGE_TYPES)[number];
 
