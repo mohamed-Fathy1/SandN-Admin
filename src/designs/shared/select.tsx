@@ -53,10 +53,6 @@ function SelectComponent<T extends string>(
       value={value ?? undefined}
       onValueChange={(v) => onValueChange(v as T)}
       disabled={disabled}
-      // modal={false} disables Radix's body-scroll lock. The lock applies
-      // `position: fixed` to <body>, which on iOS Safari causes the page
-      // to jump to the top when the dropdown opens.
-      modal={false}
     >
       <SelectPrimitive.Trigger
         ref={ref}
