@@ -1,6 +1,6 @@
 import { api } from '@/shared/lib/axios';
 import type { ApiResponse, BilingualText } from '@/shared/types';
-import type { ApiCategory } from '@/shared/types/api';
+import type { ApiCategory, PopulatedCategoryIcon } from '@/shared/types/api';
 
 export interface CategoryPayload {
   name: BilingualText;
@@ -9,35 +9,47 @@ export interface CategoryPayload {
   imageUrl: string;
 }
 
+// API populates the icon on Category under `image_svg` (legacy field name).
+// Normalize to `icon` so all consumers see a single shape.
+type RawCategory = Omit<ApiCategory, 'icon'> & {
+  icon?: PopulatedCategoryIcon | null;
+  image_svg?: PopulatedCategoryIcon | null;
+};
+
+function normalizeCategory(raw: RawCategory): ApiCategory {
+  const { image_svg, icon, ...rest } = raw;
+  return { ...rest, icon: icon ?? image_svg ?? null };
+}
+
 interface CategoryListResponse {
-  categories: ApiCategory[];
+  categories: RawCategory[];
 }
 interface CategorySingleResponse {
-  category: ApiCategory;
+  category: RawCategory;
 }
 interface CategoryUpdateResponse {
-  updates: ApiCategory;
+  updates: RawCategory;
 }
 
 export async function fetchCategories(): Promise<ApiCategory[]> {
   const { data } = await api.get<ApiResponse<CategoryListResponse>>(
     '/category/get-all-categories'
   );
-  return data.data?.categories ?? [];
+  return (data.data?.categories ?? []).map(normalizeCategory);
 }
 
 export async function fetchDeletedCategories(): Promise<ApiCategory[]> {
   const { data } = await api.get<ApiResponse<CategoryListResponse>>(
     '/category/all-categories-deleted'
   );
-  return data.data?.categories ?? [];
+  return (data.data?.categories ?? []).map(normalizeCategory);
 }
 
 export async function fetchCategory(id: string): Promise<ApiCategory> {
   const { data } = await api.get<ApiResponse<CategorySingleResponse>>(
     `/category/get-one-category/${id}`
   );
-  return data.data.category;
+  return normalizeCategory(data.data.category);
 }
 
 export async function createCategory(payload: CategoryPayload): Promise<ApiCategory> {
@@ -45,7 +57,7 @@ export async function createCategory(payload: CategoryPayload): Promise<ApiCateg
     '/category/create',
     payload
   );
-  return data.data.category;
+  return normalizeCategory(data.data.category);
 }
 
 export async function updateCategory(
@@ -56,7 +68,7 @@ export async function updateCategory(
     `/category/update/${id}`,
     payload
   );
-  return data.data.updates;
+  return normalizeCategory(data.data.updates);
 }
 
 // Backend uses PATCH for soft-delete (flips an `isDeleted` flag). The DELETE verb is reserved for

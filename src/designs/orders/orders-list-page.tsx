@@ -248,7 +248,7 @@ export function OrdersListPage({
                     {showCount ? (
                       <span
                         className={cn(
-                          'ms-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] tabular-nums',
+                          'ms-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-none tabular-nums',
                           'bg-muted text-muted-foreground',
                           'group-data-[state=active]:bg-white/25 group-data-[state=active]:text-accent-foreground'
                         )}

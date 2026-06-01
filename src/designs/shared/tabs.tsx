@@ -22,7 +22,7 @@ export const TabsTrigger = ({
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) => (
   <TabsPrimitive.Trigger
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-xs font-semibold tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200 sm:px-3.5',
+      'inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-xs font-semibold leading-none tracking-wide text-muted-foreground transition-[color,background-color,box-shadow] duration-200 sm:px-3.5',
       'hover:text-foreground',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       'data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-accent',

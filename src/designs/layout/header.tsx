@@ -75,7 +75,7 @@ export function Header() {
               aria-label={t('header.account')}
             >
               <span
-                className="avatar-accent inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                className="avatar-accent inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold leading-none text-white"
                 aria-hidden
               >
                 {initial}
@@ -94,7 +94,7 @@ export function Header() {
               {email && (
                 <div className="flex items-center gap-3 px-3 py-2.5">
                   <span
-                    className="avatar-accent inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                    className="avatar-accent inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold leading-none text-white"
                     aria-hidden
                   >
                     {initial}

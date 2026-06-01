@@ -77,8 +77,8 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full font-medium ring-1 ring-inset',
-        size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs',
+        'inline-flex items-center gap-1.5 rounded-full font-medium leading-none ring-1 ring-inset',
+        size === 'sm' ? 'px-2 py-1 text-[11px]' : 'px-2.5 py-1.5 text-xs',
         meta.classes,
         meta.ring,
         className
@@ -108,8 +108,8 @@ export function GenericBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full font-medium ring-1 ring-inset',
-        size === 'sm' ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs',
+        'inline-flex items-center gap-1.5 rounded-full font-medium leading-none ring-1 ring-inset',
+        size === 'sm' ? 'px-2 py-1 text-[11px]' : 'px-2.5 py-1.5 text-xs',
         TONE_CLASSES[tone],
         className
       )}

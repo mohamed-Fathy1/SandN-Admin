@@ -11,6 +11,7 @@ import {
   FormSheet,
   ImageAddTile,
   QueryErrorState,
+  SafeImage,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import {
@@ -80,7 +81,7 @@ export function SocialReviewsPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {reviews.map((review) => (
             <Card key={review._id} padding="none" className="group relative overflow-hidden">
-              <img
+              <SafeImage
                 src={review.image?.mediaUrl}
                 alt={t('socialReviews.alt')}
                 loading="lazy"

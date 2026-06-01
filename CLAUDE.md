@@ -57,6 +57,13 @@ React 19 + TS + Vite + TanStack Router + TanStack Query + Zustand + Tailwind v4 
 - Manual `useState` + Zod `safeParse` on submit. No `react-hook-form`.
 - Map Zod errors AND `ApiError.errors[]` into `<AdminFormField error={...}>`.
 
+## Mobile / iOS Safari
+- Form-control `font-size` must stay ≥ 16px on touch devices — set globally in `styles/globals.css` via a `(hover: none) and (pointer: coarse)` query. Smaller font on `input` / `select` / `textarea` triggers iOS Safari's focus-zoom.
+- Use `<DateInput>` for dates — never `<input type="date">` directly. iOS renders the native control as a blank "button" with no placeholder when empty, and `-webkit-appearance: none` can suppress the picker entirely. The shared component layers a transparent native input above a placeholder + calendar icon (`z-10`) so taps still reach the native picker.
+- Disabled form controls need a reason. Native `disabled` swallows taps silently — fatal on mobile where there's no hover-tooltip to explain why. `<DateInput>` and `<SearchableSelect>` accept `disabledReason?: string`; when set, the component keeps the trigger natively *enabled*, applies `aria-disabled` + disabled styling, and toasts the localized reason on tap.
+- `<Select>` (Radix) passes `modal={false}` to skip the body scroll-lock — Radix's default lock applies `position: fixed` to `<body>`, which snaps iOS Safari to the top of the page when the dropdown opens.
+- For Radix `Popover.Content` with an auto-focused input, override `onOpenAutoFocus` and call `ref.current?.focus({ preventScroll: true })`. Plain `autoFocus` causes iOS to scroll the page to bring the focused input into the visual viewport — usually hiding the popover above the fold.
+
 ## Tables
 - All list views use `<AdminTable>` (TanStack Table). Never roll a bespoke `<table>`.
 
@@ -96,6 +103,7 @@ React 19 + TS + Vite + TanStack Router + TanStack Query + Zustand + Tailwind v4 
 - Mock Axios in tests — use MSW.
 - Fire a mutation twice without an `isPending` guard.
 - Catch `ApiError` silently — surface to user via toast or inline.
+- Disable a `<DateInput>` / `<SearchableSelect>` on a "do X first" precondition without passing `disabledReason`. Skip the reason only for pure loading-state (`isPending`) disables.
 
 ## Known Gaps
 - **Products: no Deleted tab.** `/product/get-all-products` excludes soft-deleted rows server-side, so there's no list to render in a Deleted view. Soft-delete / restore / hard-delete endpoints still exist; if a "deleted products" list endpoint is added, re-introduce the tab. The list endpoint excludes soft-deleted rows in all states.

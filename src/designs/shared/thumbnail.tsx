@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { cn } from '@/shared/utils/cn';
 
 interface ThumbnailProps {
@@ -33,6 +34,14 @@ export function Thumbnail({
   rounded = 'lg',
   className,
 }: ThumbnailProps) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  const showImage = Boolean(src) && !failed;
+
   return (
     <div
       className={cn(
@@ -41,16 +50,17 @@ export function Thumbnail({
         RADIUS[rounded],
         className
       )}
-      aria-hidden={!src}
+      aria-hidden={!showImage}
     >
-      {src ? (
+      {showImage ? (
         <img
-          src={src}
+          src={src as string}
           alt={alt}
           width={SIZE_PX[size]}
           height={SIZE_PX[size]}
           loading="lazy"
           decoding="async"
+          onError={() => setFailed(true)}
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (

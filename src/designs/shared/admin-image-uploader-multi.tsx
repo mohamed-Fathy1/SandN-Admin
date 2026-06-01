@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ImageAddTile } from './admin-image-uploader';
+import { SafeImage } from './safe-image';
 import { type S3Folder } from '@/config/constants';
 import { cn } from '@/shared/utils/cn';
 
@@ -57,7 +58,7 @@ export function AdminImageUploaderMulti({
             key={`${url}-${idx}`}
             className="group relative aspect-square overflow-hidden rounded-xl border border-border-medium bg-card"
           >
-            <img
+            <SafeImage
               src={url}
               alt={`Image ${idx + 1}`}
               width={320}

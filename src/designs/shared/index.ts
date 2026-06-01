@@ -44,6 +44,7 @@ export {
 } from './skeletons';
 export { Kbd } from './kbd';
 export { Thumbnail } from './thumbnail';
+export { SafeImage } from './safe-image';
 
 export {
   FadeUp,

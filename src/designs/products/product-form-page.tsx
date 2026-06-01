@@ -28,6 +28,7 @@ import {
   NumberInput,
   NotFoundState,
   QueryErrorState,
+  SafeImage,
   SearchableSelect,
   StickyActionBar,
   type StickyActionStatus,
@@ -980,19 +981,18 @@ function ProductMetaStrip({
     >
       <div className="flex items-center gap-3">
         <div className="relative shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
-          {defaultImage ? (
-            <img
-              src={defaultImage}
-              alt=""
-              className="h-16 w-14 object-cover sm:h-20 sm:w-16"
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <div className="flex h-16 w-14 items-center justify-center text-muted-foreground sm:h-20 sm:w-16">
-              <ImageIcon size={18} strokeWidth={1.5} aria-hidden />
-            </div>
-          )}
+          <SafeImage
+            src={defaultImage}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-16 w-14 object-cover sm:h-20 sm:w-16"
+            fallback={
+              <span className="flex h-16 w-14 items-center justify-center text-muted-foreground sm:h-20 sm:w-16">
+                <ImageIcon size={18} strokeWidth={1.5} aria-hidden />
+              </span>
+            }
+          />
         </div>
         <div className="min-w-0 flex-1">
           {subCategoryName ? (

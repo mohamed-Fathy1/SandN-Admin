@@ -81,7 +81,7 @@ export const OtpInput = forwardRef<OtpInputHandle, OtpInputProps>(function OtpIn
   };
 
   return (
-    <div className="flex justify-center gap-2" role="group" aria-label="One-time code">
+    <div dir="ltr" className="flex justify-center gap-2" role="group" aria-label="One-time code">
       {Array.from({ length }).map((_, idx) => (
         <input
           key={idx}

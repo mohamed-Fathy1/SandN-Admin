@@ -3,6 +3,7 @@ import { ImagePlus, Loader2, Upload, X } from 'lucide-react';
 import { useUploadImage } from '@/features/content/s3/hooks/use-upload-image';
 import { UPLOAD_LIMITS, type S3Folder } from '@/config/constants';
 import { cn } from '@/shared/utils/cn';
+import { SafeImage } from './safe-image';
 
 interface AdminImageUploaderProps {
   folder: S3Folder;
@@ -100,7 +101,7 @@ export function AdminImageUploader({
 
         {value && !upload.isPending ? (
           <>
-            <img
+            <SafeImage
               src={value}
               alt="Uploaded preview"
               loading="lazy"

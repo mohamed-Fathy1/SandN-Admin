@@ -26,7 +26,7 @@ export function Breadcrumb() {
         return (
           <div key={crumb.to} className="flex min-w-0 items-center gap-1 sm:gap-2">
             {idx > 0 && (
-              <span aria-hidden className="select-none text-light-foreground">
+              <span aria-hidden className="hidden select-none text-light-foreground sm:inline">
                 /
               </span>
             )}

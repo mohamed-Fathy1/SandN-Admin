@@ -11,6 +11,7 @@ import {
   FormSheet,
   QueryErrorState,
   CardGridSkeleton,
+  SafeImage,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import {
@@ -69,7 +70,7 @@ export function HeroPage() {
             <Card key={hero._id} padding="none" className="group overflow-hidden">
               <div className="flex flex-col gap-2 p-3 sm:flex-row">
                 <div className="overflow-hidden rounded-lg bg-muted sm:w-1/3 sm:shrink-0">
-                  <img
+                  <SafeImage
                     src={findHeroImageUrl(hero, 'small')}
                     alt={t('hero.alt.small')}
                     loading="lazy"
@@ -78,7 +79,7 @@ export function HeroPage() {
                   />
                 </div>
                 <div className="flex-1 overflow-hidden rounded-lg bg-muted">
-                  <img
+                  <SafeImage
                     src={findHeroImageUrl(hero, 'large')}
                     alt={t('hero.alt.large')}
                     loading="lazy"
