@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useTranslation } from 'react-i18next';
 import { Input } from './input';
 import { Button } from './button';
 import { useDebouncedValue } from '@/shared/hooks/use-debounced-value';
@@ -26,7 +27,7 @@ interface TableToolbarProps {
 export function TableToolbar({
   search,
   onSearchChange,
-  searchPlaceholder = 'Search…',
+  searchPlaceholder,
   searchDebounceMs,
   onSearchCommit,
   filters,
@@ -34,6 +35,8 @@ export function TableToolbar({
   meta,
   className,
 }: TableToolbarProps) {
+  const { t } = useTranslation('common');
+  const placeholder = searchPlaceholder ?? t('search.placeholder');
   const controlled = search !== undefined;
   const [uncontrolled, setUncontrolled] = useState('');
   const value = controlled ? (search as string) : uncontrolled;
@@ -72,8 +75,8 @@ export function TableToolbar({
                 type="search"
                 inputMode="search"
                 spellCheck={false}
-                aria-label={searchPlaceholder.replace(/…$/, '')}
-                placeholder={searchPlaceholder}
+                aria-label={placeholder.replace(/…$/, '')}
+                placeholder={placeholder}
                 value={value}
                 onChange={(e) => writeValue(e.target.value)}
                 className="h-10"
@@ -83,7 +86,7 @@ export function TableToolbar({
                     <button
                       type="button"
                       onClick={() => writeValue('')}
-                      aria-label="Clear search"
+                      aria-label={t('actions.clear')}
                       className="inline-flex h-7 w-7 items-center justify-center rounded-full text-light-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <X size={13} strokeWidth={1.75} aria-hidden />
@@ -98,10 +101,10 @@ export function TableToolbar({
               type="button"
               onClick={() => setFiltersOpen(true)}
               className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border-medium bg-card px-3.5 text-xs font-medium text-foreground transition-colors hover:border-accent/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
-              aria-label="Open filters"
+              aria-label={t('actions.filter')}
             >
               <SlidersHorizontal size={13} strokeWidth={1.75} aria-hidden />
-              Filters
+              {t('actions.filter')}
             </button>
           ) : null}
         </div>
@@ -139,15 +142,15 @@ export function TableToolbar({
           >
             <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-border-medium" aria-hidden />
             <Dialog.Title className="text-lg font-semibold text-foreground">
-              Filters
+              {t('actions.filter')}
             </Dialog.Title>
             <Dialog.Description className="mt-0.5 text-xs text-muted-foreground">
-              Refine the list below.
+              {t('toolbar.refine')}
             </Dialog.Description>
             <div className="mt-5 grid gap-3">{filters}</div>
             <div className="mt-5 flex justify-end">
               <Button onClick={() => setFiltersOpen(false)} size="sm">
-                Done
+                {t('actions.close')}
               </Button>
             </div>
           </Dialog.Content>

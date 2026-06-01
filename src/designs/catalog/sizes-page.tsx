@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminTable,
@@ -29,6 +30,8 @@ import { formatGroupName } from '@/shared/utils/format';
 import { idOf } from '@/shared/utils/relations';
 
 export function SizesPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiSize | null>(null);
   const [deleting, setDeleting] = useState<ApiSize | null>(null);
@@ -57,7 +60,7 @@ export function SizesPage() {
     () => [
       {
         accessorKey: 'size',
-        header: 'Size',
+        header: t('sizes.columns.size'),
         cell: ({ row }) => (
           <span className="font-mono font-medium uppercase text-foreground">
             {row.original.size}
@@ -66,7 +69,7 @@ export function SizesPage() {
       },
       {
         id: 'group',
-        header: 'Group',
+        header: t('sizes.columns.group'),
         accessorFn: (s) => idOf(s.groupSize),
         cell: ({ row }) => {
           const gid = idOf(row.original.groupSize);
@@ -77,7 +80,7 @@ export function SizesPage() {
       },
       {
         accessorKey: 'order',
-        header: 'Order',
+        header: t('sizes.columns.order'),
         cell: ({ row }) => (
           <span className="tabular-nums text-muted-foreground">{row.original.order}</span>
         ),
@@ -97,7 +100,7 @@ export function SizesPage() {
               }}
             >
               <Pencil size={14} strokeWidth={1.5} aria-hidden />
-              Edit
+              {tCommon('actions.edit')}
             </Button>
             <Button
               variant="ghost"
@@ -106,7 +109,7 @@ export function SizesPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
-              aria-label={`Delete size ${row.original.size}`}
+              aria-label={t('sizes.ariaDelete', { name: row.original.size })}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>
@@ -114,7 +117,7 @@ export function SizesPage() {
         ),
       },
     ],
-    [groupNameById]
+    [groupNameById, t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -122,19 +125,19 @@ export function SizesPage() {
   return (
     <>
       <PageHeader
-        title="Sizes"
-        subtitle="Sizes belong to a group and control sort order on the storefront."
+        title={t('sizes.title')}
+        subtitle={t('sizes.subtitle')}
         action={
           <Button onClick={() => setCreating(true)} disabled={!groupsQuery.data?.length}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add size
+            {t('sizes.addSize')}
           </Button>
         }
         tabs={
           groupsQuery.data && groupsQuery.data.length > 0 ? (
             <Tabs value={groupFilter} onValueChange={setGroupFilter}>
               <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="all">{t('sizes.tabAll')}</TabsTrigger>
                 {groupsQuery.data.map((g) => (
                   <TabsTrigger key={g._id} value={g._id}>
                     {formatGroupName(g.name)}
@@ -155,8 +158,8 @@ export function SizesPage() {
         onRetry={() => sizesQuery.refetch()}
         getRowId={(s) => s._id}
         emptyState={{
-          title: 'No sizes yet',
-          description: 'Add sizes to a group so categories can use them on the storefront.',
+          title: t('sizes.empty.title'),
+          description: t('sizes.empty.description'),
         }}
       />
 
@@ -174,9 +177,9 @@ export function SizesPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title={`Delete size "${deleting?.size}"?`}
-        description="Any product variant using this size may stop rendering correctly. This action cannot be undone."
-        confirmLabel="Delete size"
+        title={t('sizes.confirm.delete.title', { name: deleting?.size ?? '' })}
+        description={t('sizes.confirm.delete.description')}
+        confirmLabel={t('sizes.confirm.delete.confirmLabel')}
         isPending={deleteSize.isPending}
         onConfirm={() => {
           if (!deleting) return;
@@ -197,6 +200,8 @@ interface SizeFormSheetProps {
 }
 
 function SizeFormSheet({ open, onClose, entity, groups }: SizeFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateSize();
   const update = useUpdateSize();
   const isEdit = Boolean(entity);
@@ -239,41 +244,41 @@ function SizeFormSheet({ open, onClose, entity, groups }: SizeFormSheetProps) {
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? `Edit size` : 'New size'}
-      description={isEdit ? entity?.size : 'Each size belongs to one group.'}
+      title={isEdit ? t('sizes.edit') : t('sizes.new')}
+      description={isEdit ? entity?.size : t('sizes.form.newDescription')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save changes' : 'Create size'}
+            {isEdit ? tCommon('actions.saveChanges') : t('sizes.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <AdminFormField label="Group" required error={errors.groupSize}>
+        <AdminFormField label={t('sizes.form.group')} required error={errors.groupSize}>
           <Select
             value={values.groupSize || undefined}
             onValueChange={(v) => setValues((p) => ({ ...p, groupSize: v }))}
             options={groupOptions}
-            placeholder="Pick a group"
+            placeholder={t('sizes.form.pickGroup')}
             disabled={isPending}
           />
         </AdminFormField>
 
-        <AdminFormField label="Size" required error={errors.size} hint="e.g. XS, S, M, L or 36, 38, 40.">
+        <AdminFormField label={t('sizes.form.size')} required error={errors.size} hint={t('sizes.form.sizeHint')}>
           <Input
             value={values.size}
             onChange={(e) => setValues((p) => ({ ...p, size: e.target.value }))}
-            placeholder="M"
+            placeholder={t('sizes.form.sizePlaceholder')}
             disabled={isPending}
             maxLength={12}
           />
         </AdminFormField>
 
-        <AdminFormField label="Display order" required error={errors.order} hint="Lower numbers appear first.">
+        <AdminFormField label={t('sizes.form.order')} required error={errors.order} hint={t('sizes.form.orderHint')}>
           <NumberInput
             value={values.order}
             onChange={(v) => setValues((p) => ({ ...p, order: typeof v === 'number' ? v : 0 }))}

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/utils/cn';
 
 interface PaginationControlsProps {
@@ -14,6 +15,7 @@ export function PaginationControls({
   onPageChange,
   className,
 }: PaginationControlsProps) {
+  const { t } = useTranslation('common');
   if (totalPages <= 1) return null;
 
   const canPrev = page > 1;
@@ -21,33 +23,33 @@ export function PaginationControls({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t('pagination.label')}
       className={cn('flex flex-wrap items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-5', className)}
     >
       <p className="flex items-baseline gap-1.5 text-xs text-muted-foreground">
-        <span className="text-eyebrow text-light-foreground">Page</span>
+        <span className="text-eyebrow text-light-foreground">{t('table.page')}</span>
         <span className="text-sm font-semibold font-tabular text-foreground sm:text-base">{page}</span>
         <span className="text-light-foreground">/</span>
         <span className="font-medium font-tabular text-foreground">{totalPages}</span>
       </p>
       <div className="flex items-center gap-1">
-        <PageButton onClick={() => onPageChange(1)} disabled={!canPrev} label="First page">
+        <PageButton onClick={() => onPageChange(1)} disabled={!canPrev} label={t('pagination.first')}>
           <ChevronsLeft size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
         <PageButton
           onClick={() => onPageChange(page - 1)}
           disabled={!canPrev}
-          label="Previous page"
+          label={t('pagination.previous')}
         >
           <ChevronLeft size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
-        <PageButton onClick={() => onPageChange(page + 1)} disabled={!canNext} label="Next page">
+        <PageButton onClick={() => onPageChange(page + 1)} disabled={!canNext} label={t('pagination.next')}>
           <ChevronRight size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>
         <PageButton
           onClick={() => onPageChange(totalPages)}
           disabled={!canNext}
-          label="Last page"
+          label={t('pagination.last')}
         >
           <ChevronsRight size={15} strokeWidth={1.5} aria-hidden />
         </PageButton>

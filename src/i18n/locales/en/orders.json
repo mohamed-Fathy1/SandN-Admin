@@ -1,0 +1,130 @@
+{
+  "title": "Orders",
+  "subtitle": "Filter by status, drill in to confirm, ship, or cancel an order.",
+  "kpis": {
+    "onPage": "On this page",
+    "pendingAction": "Pending action",
+    "shippedToday": "Shipped today",
+    "revenuePage": "Revenue (page)"
+  },
+  "list": {
+    "searchPlaceholder": "Search by order number…",
+    "matches_one": "{{count}} match",
+    "matches_other": "{{count}} matches",
+    "onPage": "{{count}} on this page",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "columns": {
+      "orderNumber": "Order #",
+      "customer": "Customer",
+      "items": "Items",
+      "region": "Region",
+      "total": "Total",
+      "status": "Status"
+    },
+    "viewOrder": "View order {{number}}",
+    "view": "View",
+    "empty": {
+      "title": "No orders",
+      "noneYet": "No orders have been placed yet.",
+      "noneStatus": "No {{status}} orders yet."
+    }
+  },
+  "tabs": {
+    "all": "All",
+    "under_review": "Under review",
+    "confirmed": "Confirmed",
+    "ordered": "Ordered",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "deleted": "Deleted"
+  },
+  "status": {
+    "under_review": "Under review",
+    "confirmed": "Confirmed",
+    "ordered": "Ordered",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "deleted": "Deleted"
+  },
+  "statusDescription": {
+    "under_review": "Initial state — awaiting admin review.",
+    "confirmed": "Admin confirmed the order.",
+    "ordered": "Order placed / processed for fulfillment.",
+    "shipped": "Out for delivery.",
+    "delivered": "Customer received the order.",
+    "cancelled": "Order was cancelled.",
+    "deleted": "Order is hidden."
+  },
+  "search": {
+    "placeholder": "Search by order #, name or phone"
+  },
+  "table": {
+    "orderNumber": "Order #",
+    "customer": "Customer",
+    "phone": "Phone",
+    "total": "Total",
+    "status": "Status",
+    "placed": "Placed",
+    "actions": "Actions",
+    "empty": "No orders here"
+  },
+  "detail": {
+    "title": "Order #{{number}}",
+    "crumb": "Order {{number}}",
+    "placed": "Placed {{when}}",
+    "allOrders": "All orders",
+    "backToOrders": "Back to orders",
+    "header": {
+      "order": "Order",
+      "total": "Total"
+    },
+    "units_one": "{{count}} unit",
+    "units_other": "{{count}} units",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "noFurther": "No further actions.",
+    "applyFreeShipping": "Apply free shipping",
+    "cancelOrder": "Cancel order",
+    "markAs": "Mark as {{status}}",
+    "progress": "Progress",
+    "products": "Products",
+    "summary": "Summary",
+    "recipient": "Recipient",
+    "noProducts": "No products on this order.",
+    "size": "Size {{value}}",
+    "fields": {
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "discount": "Discount",
+      "total": "Total",
+      "name": "Name",
+      "phone": "Phone",
+      "altPhone": "Alt. phone",
+      "email": "Email",
+      "region": "Region",
+      "address": "Address",
+      "apartment": "Apartment / suite",
+      "postal": "Postal code"
+    },
+    "confirm": {
+      "cancel": {
+        "title": "Cancel order {{number}}?",
+        "description": "The customer will not receive this order. This cannot be undone.",
+        "confirmLabel": "Cancel order"
+      }
+    }
+  },
+  "confirm": {
+    "cancel": {
+      "title": "Cancel order?",
+      "description": "The customer will be notified."
+    }
+  },
+  "toast": {
+    "updateStatus": { "success": "Order status updated", "error": "Could not update status" },
+    "cancel": { "success": "Order cancelled", "error": "Could not cancel order" }
+  }
+}

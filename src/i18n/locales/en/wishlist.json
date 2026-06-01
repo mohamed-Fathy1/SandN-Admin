@@ -1,0 +1,16 @@
+{
+  "title": "Wishlist",
+  "subtitle": "What customers are saving for later. Read-only.",
+  "searchPlaceholder": "Search by product or customer…",
+  "meta": "{{count}} of {{total}}",
+  "columns": {
+    "product": "Product",
+    "customer": "Customer",
+    "addedAt": "Added"
+  },
+  "open": "Open",
+  "empty": {
+    "title": "No saved items",
+    "description": "No customers have added products to their wishlist yet."
+  }
+}

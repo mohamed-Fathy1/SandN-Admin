@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { AlertTriangle, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import { Input } from './input';
 import { cn } from '@/shared/utils/cn';
@@ -25,12 +26,13 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = 'Cancel',
+  cancelLabel,
   variant = 'destructive',
   isPending,
   requireTypedConfirmation,
   onConfirm,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation('common');
   const [typed, setTyped] = useState('');
 
   const handleOpenChange = (next: boolean) => {
@@ -87,18 +89,17 @@ export function ConfirmDialog({
           {requireTypedConfirmation ? (
             <div className="mb-5 space-y-1.5">
               <p className="text-xs text-muted-foreground">
-                Type{' '}
+                {t('confirmDialog.typeToConfirm')}{' '}
                 <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
                   {requireTypedConfirmation}
-                </code>{' '}
-                to confirm.
+                </code>
               </p>
               <Input
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder={requireTypedConfirmation}
                 disabled={isPending}
-                aria-label="Confirmation phrase"
+                aria-label={t('confirmDialog.typeToConfirm')}
                 autoFocus
                 trailing={
                   typedOk ? (
@@ -117,7 +118,7 @@ export function ConfirmDialog({
           <div className="flex justify-end gap-2">
             <AlertDialog.Cancel asChild>
               <Button variant="ghost" disabled={isPending}>
-                {cancelLabel}
+                {cancelLabel ?? t('actions.cancel')}
               </Button>
             </AlertDialog.Cancel>
             <Button
@@ -128,7 +129,7 @@ export function ConfirmDialog({
                 void onConfirm();
               }}
             >
-              {confirmLabel ?? (variant === 'destructive' ? 'Delete' : 'Confirm')}
+              {confirmLabel ?? (variant === 'destructive' ? t('actions.delete') : t('actions.confirm'))}
             </Button>
           </div>
         </AlertDialog.Content>

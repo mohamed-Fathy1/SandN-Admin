@@ -5,6 +5,7 @@
  */
 
 import type { BilingualText } from '@/shared/types';
+import { toLocalized } from './bilingual';
 
 export interface IdRef {
   _id: string;
@@ -19,5 +20,5 @@ export function idOf<T extends IdRef>(ref: Ref<T>): string {
 
 export function nameOf<T extends IdRef & { name?: BilingualText }>(ref: Ref<T>): string {
   if (!ref || typeof ref === 'string') return '—';
-  return ref.name?.en ?? '—';
+  return toLocalized(ref.name) || '—';
 }

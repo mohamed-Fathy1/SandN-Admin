@@ -1,4 +1,5 @@
 import { Inbox, SearchX, type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/utils/cn';
 import { accentAlpha } from '@/designs/layout/tokens';
 import { FloatingOrb } from './motion';
@@ -20,17 +21,9 @@ interface EmptyStateProps {
   onClearFilters?: () => void;
 }
 
-const DEFAULTS = {
-  'no-data': {
-    title: 'Nothing here yet',
-    description: 'New entries will appear here.',
-    icon: Inbox,
-  },
-  'no-results': {
-    title: 'No matches',
-    description: 'Try a different search or clear active filters.',
-    icon: SearchX,
-  },
+const DEFAULT_ICONS = {
+  'no-data': Inbox,
+  'no-results': SearchX,
 } as const;
 
 export function EmptyState({
@@ -43,15 +36,15 @@ export function EmptyState({
   variant = 'no-data',
   onClearFilters,
 }: EmptyStateProps) {
-  const defaults = DEFAULTS[variant];
-  const resolvedTitle = title ?? defaults.title;
-  const resolvedDescription = description ?? defaults.description;
-  const Icon = icon ?? defaults.icon;
+  const { t } = useTranslation('common');
+  const Icon = icon ?? DEFAULT_ICONS[variant];
+  const resolvedTitle = title ?? t(`emptyState.${variant}.title`);
+  const resolvedDescription = description ?? t(`emptyState.${variant}.description`);
   const resolvedAction =
     action ??
     (variant === 'no-results' && onClearFilters ? (
       <Button variant="outline" size="sm" onClick={onClearFilters}>
-        Clear filters
+        {t('emptyState.clearFilters')}
       </Button>
     ) : null);
   return (

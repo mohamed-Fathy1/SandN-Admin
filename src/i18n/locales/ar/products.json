@@ -1,0 +1,273 @@
+{
+  "title": "المنتجات",
+  "subtitle": "الكتالوج الكامل. عدّل التفاصيل، أدر الأنواع، أو أخفِ منتجاً من المتجر.",
+  "new": "منتج جديد",
+  "edit": "تعديل المنتج",
+  "addProduct": "إضافة منتج",
+  "tabs": {
+    "all": "الكل",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "deleted": "محذوف"
+  },
+  "list": {
+    "searchPlaceholder": "ابحث عن المنتجات بالاسم…",
+    "searching": "جارٍ البحث…",
+    "results_one": "نتيجة واحدة",
+    "results_other": "{{count}} نتيجة",
+    "totalProducts": "{{count}} منتج",
+    "allCategories": "كل التصنيفات",
+    "allSubCategories": "كل التصنيفات الفرعية",
+    "pickCategoryFirst": "اختر تصنيفاً أولاً",
+    "removeFromStore": "إزالة من المتجر",
+    "permanentDelete": "حذف نهائي",
+    "flags": {
+      "onSale": "في تخفيض",
+      "new": "جديد",
+      "best": "الأكثر مبيعاً",
+      "soldOut": "نفد"
+    },
+    "columns": {
+      "name": "الاسم",
+      "category": "التصنيف",
+      "subCategory": "التصنيف الفرعي",
+      "price": "السعر",
+      "sold": "بيع",
+      "variants": "الأنواع",
+      "created": "تاريخ الإنشاء"
+    },
+    "badges": {
+      "sale": "تخفيض",
+      "new": "جديد",
+      "best": "الأكثر مبيعاً",
+      "soldOut": "نفد"
+    },
+    "empty": {
+      "noProducts": "لا توجد منتجات بعد",
+      "createFirst": "أنشئ منتجك الأول لتعبئة المتجر.",
+      "emptyTrash": "لا شيء في المحذوفات",
+      "trashDescription": "ستظهر هنا المنتجات المحذوفة مؤقتاً."
+    },
+    "confirm": {
+      "soft": {
+        "title": "إزالة \"{{name}}\"؟",
+        "description": "سيتم إخفاء المنتج من المتجر. يمكنك استعادته من تبويب المحذوف.",
+        "confirmLabel": "إزالة"
+      },
+      "hard": {
+        "title": "حذف \"{{name}}\" نهائياً؟",
+        "description": "يحذف هذا المنتج وأنواعه وصور S3. لا يمكن التراجع.",
+        "confirmLabel": "حذف نهائياً"
+      }
+    }
+  },
+  "search": {
+    "placeholder": "ابحث بالاسم أو SKU"
+  },
+  "filters": {
+    "category": "التصنيف",
+    "subCategory": "التصنيف الفرعي",
+    "group": "المجموعة",
+    "color": "اللون",
+    "size": "المقاس",
+    "status": "الحالة",
+    "any": "الكل"
+  },
+  "table": {
+    "image": "الصورة",
+    "name": "الاسم",
+    "category": "التصنيف",
+    "subCategory": "التصنيف الفرعي",
+    "price": "السعر",
+    "stock": "المخزون",
+    "status": "الحالة",
+    "updated": "آخر تحديث",
+    "actions": "الإجراءات",
+    "empty": "لا توجد منتجات بعد",
+    "emptyFiltered": "لا توجد منتجات تطابق التصفية"
+  },
+  "form": {
+    "header": {
+      "newTitle": "منتج جديد",
+      "editTitle": "تعديل المنتج",
+      "loadingCrumb": "جارٍ التحميل…",
+      "loadingSubtitle": "جلب تفاصيل الكتالوج.",
+      "editCrumb": "تعديل: {{name}}",
+      "editSubtitle": "حدّث التفاصيل أو الصور أو الأنواع.",
+      "back": "رجوع",
+      "backToProducts": "العودة للمنتجات",
+      "manageVariants": "إدارة الأنواع"
+    },
+    "stepper": {
+      "label": "أقسام النموذج",
+      "basics": "الأساسيات",
+      "pricing": "التسعير",
+      "classification": "الكتالوج",
+      "variants": "الأنواع",
+      "media": "الوسائط"
+    },
+    "meta": {
+      "outOfStock": "نفد من المخزون",
+      "inStock": "{{count}} متاح"
+    },
+    "leaveConfirm": "لديك تغييرات غير محفوظة. هل تترك هذه الصفحة وتتجاهلها؟",
+    "sections": {
+      "basics": {
+        "title": "الأساسيات",
+        "subtitle": "الاسم والوصف باللغتين."
+      },
+      "pricing": {
+        "title": "التسعير",
+        "subtitle": "السعر، الجملة، وعرض اختياري."
+      },
+      "classification": {
+        "title": "الكتالوج",
+        "subtitle": "موقع المنتج في المتجر."
+      },
+      "flags": {
+        "title": "علامات المتجر",
+        "subtitle": "تبديل شارات العرض الظاهرة للعملاء.",
+        "bestSellerLabel": "الأكثر مبيعاً",
+        "bestSellerDescription": "تثبيت هذا المنتج في شريط الأكثر مبيعاً.",
+        "newArrivalLabel": "وصل حديثاً",
+        "newArrivalDescription": "إظهار شارة \"جديد\" وعرض المنتج ضمن الوصلات الجديدة."
+      },
+      "variants": {
+        "title": "الأنواع",
+        "subtitle": "كل تركيبة مقاس + لون يمكن للعميل شراؤها.",
+        "add": "إضافة",
+        "addFirst": "إضافة أول نوع",
+        "emptyTitle": "لا توجد أنواع بعد.",
+        "emptyHint": "أضف تركيبة واحدة على الأقل من المقاس واللون ليمكن بيع هذا المنتج.",
+        "removeAria": "إزالة النوع",
+        "variantsCount_one": "نوع",
+        "variantsCount_other": "نوع",
+        "inStock": "متاح"
+      },
+      "media": {
+        "title": "الوسائط",
+        "subtitle": "الصورة الرئيسية، المعرض، ومخطط مقاسات اختياري.",
+        "hero": "الصورة الرئيسية",
+        "heroHint": "تظهر في بطاقات المنتجات",
+        "gallery": "المعرض",
+        "galleryFirst": "أول صورة تتصدر المعرض.",
+        "sizeChart": "مخطط المقاسات",
+        "optional": "(اختياري)"
+      }
+    },
+    "fields": {
+      "name": "الاسم",
+      "namePlaceholderEn": "Cotton pants",
+      "namePlaceholderAr": "بنطلون قطني",
+      "description": "الوصف",
+      "descriptionPlaceholderEn": "Comfortable cotton pants for daily use",
+      "descriptionPlaceholderAr": "بنطلون قطني مريح للاستخدام اليومي",
+      "price": "السعر",
+      "wholesalePrice": "سعر الجملة",
+      "category": "التصنيف",
+      "pickCategory": "اختر تصنيفاً",
+      "subCategory": "التصنيف الفرعي",
+      "subCategoryHint": "اختياري",
+      "pickSubCategory": "اختر تصنيفاً فرعياً",
+      "pickCategoryFirst": "اختر تصنيفاً أولاً",
+      "size": "المقاس",
+      "noSizesInGroup": "لا توجد مقاسات في هذه المجموعة",
+      "addSizesHint": "أضف مقاسات إلى هذه المجموعة من صفحة المقاسات.",
+      "color": "اللون",
+      "qtySuffix": "كمية"
+    },
+    "sale": {
+      "windowTitle": "نافذة العرض",
+      "planTitle": "خطّط لعرض",
+      "windowHint": "يرى العميل سعر العرض خلال الفترة أدناه.",
+      "planHint": "أضف سعر عرض لجدولة نافذة — يبقى السعر الأساسي حتى ذلك.",
+      "scheduled": "مُجدول",
+      "datesPending": "بانتظار التواريخ",
+      "price": "سعر العرض",
+      "priceHint": "اتركه صفراً للإلغاء.",
+      "start": "بدء العرض",
+      "end": "نهاية العرض"
+    },
+    "actionBar": {
+      "fixHighlighted": "صحّح الحقول المظللة",
+      "savingEdit": "جارٍ حفظ التغييرات…",
+      "savingNew": "جارٍ إنشاء المنتج…",
+      "fillForm": "منتج جديد — املأ النموذج للإنشاء",
+      "discard": "تجاهل",
+      "create": "إنشاء المنتج"
+    }
+  },
+  "variants": {
+    "pageTitle": "{{name}} — الأنواع",
+    "crumb": "أنواع {{name}}",
+    "subtitle": "حرّر المخزون والمقاسات والألوان مباشرة. احفظ الصفوف المتغيرة دفعةً واحدة.",
+    "back": "رجوع",
+    "editProduct": "تعديل المنتج",
+    "emptyNote": "لا توجد أنواع بعد. أضف الأول أدناه.",
+    "addPanelTitle": "إضافة نوع",
+    "newSizePlaceholderMobile": "المقاس (مثل m)",
+    "newSizePlaceholderDesktop": "المقاس (اختياري — الافتراضي 'one size')",
+    "newSizeAria": "مقاس النوع الجديد",
+    "selectVariant": "تحديد النوع",
+    "selectAll": "تحديد كل الأنواع",
+    "deleteVariant": "حذف النوع",
+    "unsavedAria": "غير محفوظ",
+    "unsaved": "غير محفوظ",
+    "unsavedChanges": "تغييرات غير محفوظة",
+    "columns": {
+      "size": "المقاس",
+      "color": "اللون",
+      "qty": "الكمية",
+      "qtyShort": "الكمية",
+      "status": "الحالة"
+    },
+    "colorPlaceholder": "اللون",
+    "addVariantBtn": "إضافة نوع",
+    "addBtn": "إضافة",
+    "leaveConfirm_one": "لديك تغيير واحد غير محفوظ في الأنواع. هل تخرج وتتجاهل؟",
+    "leaveConfirm_other": "لديك {{count}} تغييراً غير محفوظ في الأنواع. هل تخرج وتتجاهل؟",
+    "saving_one": "جارٍ حفظ صف واحد…",
+    "saving_other": "جارٍ حفظ {{count}} صفاً…",
+    "unsavedRows_one": "صف واحد غير محفوظ",
+    "unsavedRows_other": "{{count}} صف غير محفوظ",
+    "selectedCount": "تم تحديد {{count}}",
+    "deletingCount": "جارٍ حذف {{count}}…",
+    "deleteSelected": "حذف المحددات ({{count}})",
+    "discard": "تجاهل",
+    "savingCount": "جارٍ حفظ {{count}}…",
+    "saveChanges_one": "حفظ تغيير واحد",
+    "saveChanges_other": "حفظ {{count}} تغييراً",
+    "confirm": {
+      "bulkDelete": {
+        "title_one": "حذف {{count}} نوع؟",
+        "title_other": "حذف {{count}} نوع؟",
+        "description": "ستُزال الأنواع المحددة. الطلبات المرتبطة تحتفظ بالأسعار السابقة لكن لن يُعاد طلبها.",
+        "confirmLabel": "حذف"
+      }
+    }
+  },
+  "actions": {
+    "viewVariants": "الأنواع",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "softDelete": "نقل إلى المحذوفات",
+    "restore": "استعادة",
+    "duplicate": "نسخ"
+  },
+  "confirm": {
+    "delete": {
+      "title": "حذف المنتج؟",
+      "description": "سيُنقل المنتج إلى المحذوفات. يمكنك استعادته لاحقاً."
+    },
+    "hardDelete": {
+      "title": "حذف نهائي؟",
+      "description": "لا يمكن التراجع عن هذا الإجراء."
+    }
+  },
+  "toast": {
+    "create": { "success": "تم إنشاء المنتج", "error": "تعذر إنشاء المنتج" },
+    "update": { "success": "تم تحديث المنتج", "error": "تعذر تحديث المنتج" },
+    "delete": { "success": "تم حذف المنتج", "error": "تعذر حذف المنتج" },
+    "restore": { "success": "تم استعادة المنتج", "error": "تعذر استعادة المنتج" }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "appName": "لوحة تحكم S&N",
+  "currencySuffix": "ج.م",
+  "actions": {
+    "save": "حفظ",
+    "saveChanges": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "new": "جديد",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "search": "بحث",
+    "filter": "تصفية",
+    "clear": "مسح",
+    "reset": "إعادة ضبط",
+    "retry": "إعادة المحاولة",
+    "view": "عرض",
+    "open": "فتح",
+    "upload": "رفع",
+    "replace": "استبدال",
+    "remove": "إزالة",
+    "restore": "استعادة",
+    "duplicate": "نسخ",
+    "copy": "نسخ",
+    "loadMore": "تحميل المزيد",
+    "selectAll": "تحديد الكل",
+    "deselectAll": "إلغاء التحديد",
+    "yes": "نعم",
+    "no": "لا"
+  },
+  "states": {
+    "loading": "جارٍ التحميل…",
+    "saving": "جارٍ الحفظ…",
+    "submitting": "جارٍ الإرسال…",
+    "noResults": "لا توجد نتائج",
+    "noData": "لا توجد بيانات بعد",
+    "empty": "لا يوجد شيء هنا بعد",
+    "error": "حدث خطأ ما",
+    "tryAgain": "إعادة المحاولة",
+    "comingSoon": "قريباً"
+  },
+  "table": {
+    "empty": "لا توجد سجلات",
+    "emptyFiltered": "لا توجد سجلات تطابق التصفية",
+    "rowsSelected_one": "تم تحديد سجل واحد",
+    "rowsSelected_other": "تم تحديد {{count}} سجل",
+    "page": "صفحة",
+    "of": "من",
+    "previous": "السابق",
+    "next": "التالي",
+    "perPage": "لكل صفحة"
+  },
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "deleted": "محذوف",
+    "all": "الكل",
+    "pending": "قيد الانتظار",
+    "draft": "مسودة",
+    "published": "منشور"
+  },
+  "form": {
+    "required": "مطلوب",
+    "optional": "اختياري",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "image": {
+    "upload": "رفع صورة",
+    "replace": "استبدال الصورة",
+    "remove": "إزالة الصورة",
+    "drag": "اسحب صورة هنا أو انقر للرفع",
+    "hint": "PNG أو JPG أو WEBP — بحد أقصى 5 ميجابايت",
+    "uploading": "جارٍ الرفع…"
+  },
+  "confirmDialog": {
+    "title": "هل أنت متأكد؟",
+    "description": "لا يمكن التراجع عن هذا الإجراء.",
+    "confirm": "تأكيد",
+    "cancel": "إلغاء",
+    "typeToConfirm": "اكتب"
+  },
+  "errors": {
+    "generic": "حدث خطأ ما. حاول مرة أخرى.",
+    "loadFailed": "فشل التحميل",
+    "saveFailed": "فشل الحفظ",
+    "deleteFailed": "فشل الحذف",
+    "sessionExpired": "انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى."
+  },
+  "search": {
+    "placeholder": "بحث…",
+    "noResults": "لا توجد نتائج مطابقة",
+    "shortcut": "اضغط {{key}} للفتح"
+  },
+  "header": {
+    "account": "قائمة الحساب",
+    "signedIn": "تم تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "notifications": "الإشعارات",
+    "openMenu": "فتح قائمة التنقل",
+    "language": "اللغة"
+  },
+  "locale": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "session": {
+    "signInRequired": "يرجى تسجيل الدخول للمتابعة.",
+    "expired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
+    "invalid": "الجلسة غير صالحة. يرجى تسجيل الدخول مرة أخرى.",
+    "revoked": "تم إلغاء الجلسة. يرجى تسجيل الدخول مرة أخرى.",
+    "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+    "serverError": "خطأ في الخادم. حاول لاحقاً أو تواصل مع الدعم."
+  },
+  "skipToContent": "تخطي إلى المحتوى",
+  "toolbar": {
+    "refine": "صفّ القائمة أدناه."
+  },
+  "pagination": {
+    "label": "ترقيم الصفحات",
+    "first": "الصفحة الأولى",
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "last": "الصفحة الأخيرة"
+  },
+  "notFound": {
+    "title": "غير موجود",
+    "description": "ربما تمت إزالة هذا العنصر أو أن الرابط لم يعد صالحاً."
+  },
+  "palette": {
+    "title": "لوحة الأوامر",
+    "description": "ابحث وانتقل إلى أي صفحة.",
+    "placeholder": "اكتب اسم صفحة…",
+    "noMatchesFor": "لا توجد نتائج لـ",
+    "navigate": "تنقل"
+  },
+  "emptyState": {
+    "no-data": {
+      "title": "لا يوجد شيء هنا بعد",
+      "description": "ستظهر الإدخالات الجديدة هنا."
+    },
+    "no-results": {
+      "title": "لا توجد نتائج مطابقة",
+      "description": "جرّب بحثاً مختلفاً أو امسح التصفية النشطة."
+    },
+    "clearFilters": "مسح التصفية"
+  },
+  "stickyBar": {
+    "pendingChanges": "تغييرات معلقة",
+    "status": "الحالة",
+    "idle": "تم حفظ كل التغييرات",
+    "dirty": "تغييرات غير محفوظة",
+    "saving": "جارٍ الحفظ…",
+    "saved": "تم الحفظ",
+    "error": "تعذر الحفظ"
+  },
+  "shortcuts": {
+    "title": "اختصارات لوحة المفاتيح",
+    "subtitle": "تنقّل أسرع باستخدامها.",
+    "palette": "فتح لوحة الأوامر",
+    "paletteHint": "الانتقال إلى أي صفحة",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "showHelp": "عرض هذه المساعدة"
+  },
+  "errorBoundary": {
+    "title": "حدث خطأ ما",
+    "subtitle": "واجهت لوحة التحكم خطأً غير متوقع."
+  },
+  "adminTable": {
+    "selectAllRows": "تحديد كل الصفوف",
+    "selectRow": "تحديد الصف",
+    "bulkActions": "إجراءات جماعية",
+    "openRow": "فتح الصف",
+    "selectedCount_one": "تم تحديد واحد",
+    "selectedCount_other": "تم تحديد {{count}}",
+    "clear": "مسح"
+  }
+}

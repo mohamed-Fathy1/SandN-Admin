@@ -17,67 +17,67 @@ import {
 import { ROUTES } from '@/config/constants';
 
 export interface NavItem {
-  label: string;
+  labelKey: string;
   to: string;
   icon: LucideIcon;
 }
 
 export interface NavGroup {
-  label?: string;
+  labelKey?: string;
   items: NavItem[];
 }
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    items: [{ label: 'Dashboard', to: ROUTES.dashboard, icon: LayoutDashboard }],
+    items: [{ labelKey: 'items.dashboard', to: ROUTES.dashboard, icon: LayoutDashboard }],
   },
   {
-    label: 'Catalog',
+    labelKey: 'groups.catalog',
     items: [
-      { label: 'Products', to: ROUTES.products, icon: Package },
-      { label: 'Categories', to: ROUTES.categories, icon: Tag },
-      { label: 'Category Icons', to: ROUTES.categoryIcons, icon: Shapes },
-      { label: 'Sub-Categories', to: ROUTES.subCategories, icon: Layers },
-      { label: 'Colors', to: ROUTES.colors, icon: Palette },
-      { label: 'Groups', to: ROUTES.groups, icon: Layers },
-      { label: 'Sizes', to: ROUTES.sizes, icon: Ruler },
+      { labelKey: 'items.products', to: ROUTES.products, icon: Package },
+      { labelKey: 'items.categories', to: ROUTES.categories, icon: Tag },
+      { labelKey: 'items.categoryIcons', to: ROUTES.categoryIcons, icon: Shapes },
+      { labelKey: 'items.subCategories', to: ROUTES.subCategories, icon: Layers },
+      { labelKey: 'items.colors', to: ROUTES.colors, icon: Palette },
+      { labelKey: 'items.groups', to: ROUTES.groups, icon: Layers },
+      { labelKey: 'items.sizes', to: ROUTES.sizes, icon: Ruler },
     ],
   },
   {
-    label: 'Operations',
+    labelKey: 'groups.operations',
     items: [
-      { label: 'Orders', to: ROUTES.orders, icon: ShoppingBag },
-      { label: 'Wishlist', to: ROUTES.wishlist, icon: Heart },
+      { labelKey: 'items.orders', to: ROUTES.orders, icon: ShoppingBag },
+      { labelKey: 'items.wishlist', to: ROUTES.wishlist, icon: Heart },
     ],
   },
   {
-    label: 'Marketing',
+    labelKey: 'groups.marketing',
     items: [
-      { label: 'Offers', to: ROUTES.offers, icon: Megaphone },
-      { label: 'Hero Slider', to: ROUTES.hero, icon: Image },
-      { label: 'Social Reviews', to: ROUTES.socialReviews, icon: Sparkles },
-      { label: 'Shipping', to: ROUTES.shipping, icon: Truck },
+      { labelKey: 'items.offers', to: ROUTES.offers, icon: Megaphone },
+      { labelKey: 'items.heroSlider', to: ROUTES.hero, icon: Image },
+      { labelKey: 'items.socialReviews', to: ROUTES.socialReviews, icon: Sparkles },
+      { labelKey: 'items.shipping', to: ROUTES.shipping, icon: Truck },
     ],
   },
 ];
 
-export const BREADCRUMB_TITLES: Record<string, string> = {
-  '/': 'Dashboard',
-  '/products': 'Products',
-  '/products/new': 'New Product',
-  '/products/$productId': 'Edit Product',
-  '/products/$productId/variants': 'Variants',
-  '/catalog/categories': 'Categories',
-  '/catalog/icons': 'Category Icons',
-  '/catalog/sub-categories': 'Sub-Categories',
-  '/catalog/colors': 'Colors',
-  '/catalog/groups': 'Groups',
-  '/catalog/sizes': 'Sizes',
-  '/orders': 'Orders',
-  '/orders/$orderId': 'Order Detail',
-  '/wishlist': 'Wishlist',
-  '/offers': 'Offers',
-  '/content/hero': 'Hero Slider',
-  '/content/social-reviews': 'Social Reviews',
-  '/shipping': 'Shipping',
+export const BREADCRUMB_TITLE_KEYS: Record<string, string> = {
+  '/': 'breadcrumb.dashboard',
+  '/products': 'breadcrumb.products',
+  '/products/new': 'breadcrumb.productNew',
+  '/products/$productId': 'breadcrumb.productEdit',
+  '/products/$productId/variants': 'breadcrumb.productVariants',
+  '/catalog/categories': 'breadcrumb.categories',
+  '/catalog/icons': 'breadcrumb.categoryIcons',
+  '/catalog/sub-categories': 'breadcrumb.subCategories',
+  '/catalog/colors': 'breadcrumb.colors',
+  '/catalog/groups': 'breadcrumb.groups',
+  '/catalog/sizes': 'breadcrumb.sizes',
+  '/orders': 'breadcrumb.orders',
+  '/orders/$orderId': 'breadcrumb.orderDetail',
+  '/wishlist': 'breadcrumb.wishlist',
+  '/offers': 'breadcrumb.offers',
+  '/content/hero': 'breadcrumb.heroSlider',
+  '/content/social-reviews': 'breadcrumb.socialReviews',
+  '/shipping': 'breadcrumb.shipping',
 };

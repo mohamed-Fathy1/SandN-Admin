@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowRight, CornerDownLeft, Search, type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useUiStore } from './ui-store';
 import { NAV_GROUPS } from './nav-config';
 import { Kbd } from '@/designs/shared/kbd';
@@ -14,16 +15,6 @@ interface PaletteItem {
   group?: string;
   haystack: string;
 }
-
-const ALL_ITEMS: PaletteItem[] = NAV_GROUPS.flatMap((group) =>
-  group.items.map((item) => ({
-    label: item.label,
-    to: item.to,
-    icon: item.icon,
-    group: group.label,
-    haystack: `${item.label} ${group.label ?? ''} ${item.to}`.toLowerCase(),
-  }))
-);
 
 export function CommandPalette() {
   const open = useUiStore((s) => s.paletteOpen);
@@ -40,16 +31,36 @@ function PaletteContent({
   navigate: ReturnType<typeof useNavigate>;
   setOpen: (open: boolean) => void;
 }) {
+  const { t } = useTranslation('nav');
+  const { t: tCommon } = useTranslation('common');
   const [query, setQuery] = useState('');
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [keyIndex, setKeyIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
 
+  const allItems = useMemo<PaletteItem[]>(
+    () =>
+      NAV_GROUPS.flatMap((group) =>
+        group.items.map((item) => {
+          const label = t(item.labelKey);
+          const groupLabel = group.labelKey ? t(group.labelKey) : undefined;
+          return {
+            label,
+            to: item.to,
+            icon: item.icon,
+            group: groupLabel,
+            haystack: `${label} ${groupLabel ?? ''} ${item.to}`.toLowerCase(),
+          };
+        })
+      ),
+    [t]
+  );
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return ALL_ITEMS;
-    return ALL_ITEMS.filter((i) => i.haystack.includes(q));
-  }, [query]);
+    if (!q) return allItems;
+    return allItems.filter((i) => i.haystack.includes(q));
+  }, [query, allItems]);
 
   // Active index = keyboard cursor, clamped to current result range.
   const activeIndex = Math.min(
@@ -98,12 +109,12 @@ function PaletteContent({
           style={{ WebkitBackdropFilter: 'blur(4px)' }}
         />
         <Dialog.Content
-          aria-label="Command palette"
+          aria-label={tCommon('palette.title')}
           className="fixed left-1/2 top-[18%] z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-overlay focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         >
-          <Dialog.Title className="sr-only">Command palette</Dialog.Title>
+          <Dialog.Title className="sr-only">{tCommon('palette.title')}</Dialog.Title>
           <Dialog.Description className="sr-only">
-            Search and jump to any page.
+            {tCommon('palette.description')}
           </Dialog.Description>
           <div className="flex items-center gap-3 border-b border-border px-5 py-3.5">
             <Search size={15} strokeWidth={1.75} aria-hidden className="text-light-foreground" />
@@ -117,15 +128,15 @@ function PaletteContent({
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Type a page name…"
+              placeholder={tCommon('palette.placeholder')}
               className="w-full bg-transparent text-base text-foreground placeholder:text-light-foreground focus-visible:outline-none"
-              aria-label="Search pages"
+              aria-label={tCommon('palette.placeholder')}
               aria-controls="palette-list"
               aria-activedescendant={
                 results[activeIndex] ? `palette-item-${activeIndex}` : undefined
               }
             />
-            <Kbd className="ml-auto hidden sm:inline-flex">esc</Kbd>
+            <Kbd className="ms-auto hidden sm:inline-flex">esc</Kbd>
           </div>
 
           <ul
@@ -137,7 +148,7 @@ function PaletteContent({
           >
             {results.length === 0 ? (
               <li className="px-5 py-12 text-center text-sm text-muted-foreground">
-                No matches for{' '}
+                {tCommon('palette.noMatchesFor')}{' '}
                 <span className="font-medium text-foreground">“{query}”</span>
               </li>
             ) : (
@@ -208,13 +219,13 @@ function PaletteContent({
             <span className="flex items-center gap-2">
               <Kbd>↑</Kbd>
               <Kbd>↓</Kbd>
-              navigate
+              {tCommon('palette.navigate')}
             </span>
             <span className="flex items-center gap-2">
-              <Kbd>↵</Kbd> open
+              <Kbd>↵</Kbd> {tCommon('actions.open')}
             </span>
             <span className="flex items-center gap-2">
-              <Kbd>esc</Kbd> close
+              <Kbd>esc</Kbd> {tCommon('actions.close')}
             </span>
           </div>
         </Dialog.Content>

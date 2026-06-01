@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useBlocker, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Loader2, Plus, Save, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { toLocalized } from '@/shared/utils/bilingual';
 import {
   Button,
   Card,
@@ -43,6 +45,7 @@ interface DraftRow {
 
 export function VariantsPage({ productId }: VariantsPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation('products');
   const productQuery = useProduct(productId);
   const variantsQuery = useVariantsByProduct(productId);
   const loadError = productQuery.error ?? variantsQuery.error;
@@ -54,7 +57,7 @@ export function VariantsPage({ productId }: VariantsPageProps) {
         <NotFoundState
           error={loadError}
           onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}
-          backLabel="Back to products"
+          backLabel={t('form.header.backToProducts')}
         />
       );
     }
@@ -72,7 +75,7 @@ export function VariantsPage({ productId }: VariantsPageProps) {
   return (
     <VariantsInner
       productId={productId}
-      productName={productQuery.data?.name.en ?? 'Product'}
+      productName={productQuery.data ? toLocalized(productQuery.data.name) : t('form.header.editTitle')}
       variants={variantsQuery.data ?? []}
     />
   );
@@ -88,6 +91,7 @@ function VariantsInner({
   variants: ApiVariant[];
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation('products');
   const colorsQuery = useColors();
 
   const [drafts, setDrafts] = useState<DraftRow[]>(() => variants.map(toDraft));
@@ -118,11 +122,7 @@ function VariantsInner({
   useBlocker({
     shouldBlockFn: () => {
       if (dirtyRows.length === 0) return false;
-      return !window.confirm(
-        `You have ${dirtyRows.length} unsaved variant ${
-          dirtyRows.length === 1 ? 'change' : 'changes'
-        }. Leave and discard?`
-      );
+      return !window.confirm(t('variants.leaveConfirm', { count: dirtyRows.length }));
     },
     enableBeforeUnload: () => dirtyRows.length > 0,
   });
@@ -222,28 +222,28 @@ function VariantsInner({
       : 'idle';
   const stickyLabel =
     bulkUpdate.isPending
-      ? `Saving ${dirtyRows.length} row${dirtyRows.length === 1 ? '' : 's'}…`
+      ? t('variants.saving', { count: dirtyRows.length })
       : dirtyRows.length > 0
-        ? `${dirtyRows.length} unsaved row${dirtyRows.length === 1 ? '' : 's'}`
-        : `${selected.size} selected`;
+        ? t('variants.unsavedRows', { count: dirtyRows.length })
+        : t('variants.selectedCount', { count: selected.size });
 
   return (
     <>
       <PageHeader
-        title={`${productName} — Variants`}
-        breadcrumbLabel={`${productName} variants`}
-        subtitle="Inline-edit stock, sizes, and colors. Save dirty rows in one shot."
+        title={t('variants.pageTitle', { name: productName })}
+        breadcrumbLabel={t('variants.crumb', { name: productName })}
+        subtitle={t('variants.subtitle')}
         action={
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}>
               <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
-              Back
+              {t('variants.back')}
             </Button>
             <Button
               variant="outline"
               onClick={() => navigate({ to: ROUTES.productDetail(productId) })}
             >
-              Edit product
+              {t('variants.editProduct')}
             </Button>
           </div>
         }
@@ -253,7 +253,7 @@ function VariantsInner({
         <div className="space-y-3 md:hidden">
           {drafts.length === 0 ? (
             <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-              No variants yet. Add the first one below.
+              {t('variants.emptyNote')}
             </p>
           ) : (
             drafts.map((d) => {
@@ -274,16 +274,16 @@ function VariantsInner({
                     <Checkbox
                       checked={selected.has(d._id)}
                       onCheckedChange={(c) => toggleSelected(d._id, Boolean(c))}
-                      aria-label="Select variant"
+                      aria-label={t('variants.selectVariant')}
                     />
                     <div className="flex items-center gap-2">
                       {isDirty ? (
                         <span
                           className="inline-flex items-center gap-1 text-eyebrow text-accent"
-                          aria-label="Unsaved"
+                          aria-label={t('variants.unsavedAria')}
                         >
                           <span className="inline-flex h-2 w-2 rounded-full bg-accent" />
-                          Unsaved
+                          {t('variants.unsaved')}
                         </span>
                       ) : bulkUpdate.isPending && bulkUpdate.variables?.some((v) => v._id === d._id) ? (
                         <Loader2 size={14} className="animate-spin text-muted-foreground" aria-hidden />
@@ -294,7 +294,7 @@ function VariantsInner({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteOne(d._id)}
-                        aria-label="Delete variant"
+                        aria-label={t('variants.deleteVariant')}
                         disabled={deleteOne.isPending && deleteOne.variables === d._id}
                       >
                         <Trash2 size={14} strokeWidth={1.5} className="text-destructive" />
@@ -303,14 +303,14 @@ function VariantsInner({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <label className="flex flex-col gap-1">
-                      <span className="text-eyebrow text-muted-foreground">Size</span>
+                      <span className="text-eyebrow text-muted-foreground">{t('variants.columns.size')}</span>
                       <Input
                         value={d.size}
                         onChange={(e) => setRow(d._id, { size: e.target.value })}
                       />
                     </label>
                     <label className="flex flex-col gap-1">
-                      <span className="text-eyebrow text-muted-foreground">Qty</span>
+                      <span className="text-eyebrow text-muted-foreground">{t('variants.columns.qtyShort')}</span>
                       <NumberInput
                         value={d.quantity}
                         onChange={(v) => setRow(d._id, { quantity: typeof v === 'number' ? v : 0 })}
@@ -318,13 +318,13 @@ function VariantsInner({
                       />
                     </label>
                     <label className="col-span-2 flex flex-col gap-1">
-                      <span className="text-eyebrow text-muted-foreground">Color</span>
+                      <span className="text-eyebrow text-muted-foreground">{t('variants.columns.color')}</span>
                       <SearchableSelect<ApiColor>
                         value={d.color || undefined}
                         onChange={(v) => setRow(d._id, { color: v ?? '' })}
                         items={colorsQuery.data ?? []}
                         getKey={(c) => c._id}
-                        getLabel={(c) => c.name.en}
+                        getLabel={(c) => toLocalized(c.name)}
                         renderItem={(c) => (
                           <span className="flex items-center gap-2">
                             <span
@@ -332,10 +332,10 @@ function VariantsInner({
                               style={{ backgroundColor: c.hex }}
                               aria-hidden
                             />
-                            {c.name.en}
+                            {toLocalized(c.name)}
                           </span>
                         )}
-                        placeholder="Color"
+                        placeholder={t('variants.colorPlaceholder')}
                         clearable={false}
                       />
                     </label>
@@ -347,14 +347,14 @@ function VariantsInner({
 
           <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3">
             <p className="mb-2 text-eyebrow text-muted-foreground">
-              Add variant
+              {t('variants.addPanelTitle')}
             </p>
             <div className="grid grid-cols-2 gap-2">
               <Input
                 value={newRow.size}
                 onChange={(e) => setNewRow((p) => ({ ...p, size: e.target.value }))}
-                placeholder="Size (e.g. m)"
-                aria-label="New variant size"
+                placeholder={t('variants.newSizePlaceholderMobile')}
+                aria-label={t('variants.newSizeAria')}
               />
               <NumberInput
                 value={newRow.quantity}
@@ -367,8 +367,8 @@ function VariantsInner({
                   onChange={(v) => setNewRow((p) => ({ ...p, color: v ?? '' }))}
                   items={colorsQuery.data ?? []}
                   getKey={(c) => c._id}
-                  getLabel={(c) => c.name.en}
-                  placeholder="Color"
+                  getLabel={(c) => toLocalized(c.name)}
+                  placeholder={t('variants.colorPlaceholder')}
                   clearable={false}
                 />
               </div>
@@ -380,7 +380,7 @@ function VariantsInner({
                 className="col-span-2"
               >
                 <Plus size={14} strokeWidth={1.5} aria-hidden />
-                Add variant
+                {t('variants.addVariantBtn')}
               </Button>
             </div>
           </div>
@@ -390,34 +390,34 @@ function VariantsInner({
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-muted/50">
               <tr>
-                <th scope="col" className="w-10 px-4 py-3 text-left">
+                <th scope="col" className="w-10 px-4 py-3 text-start">
                   <Checkbox
                     checked={allChecked}
                     indeterminate={someChecked}
                     onCheckedChange={(c) => toggleAll(Boolean(c))}
-                    aria-label="Select all variants"
+                    aria-label={t('variants.selectAll')}
                   />
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
-                  Size
+                <th scope="col" className="px-4 py-3 text-start text-eyebrow text-muted-foreground">
+                  {t('variants.columns.size')}
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
-                  Color
+                <th scope="col" className="px-4 py-3 text-start text-eyebrow text-muted-foreground">
+                  {t('variants.columns.color')}
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-eyebrow text-muted-foreground">
-                  Quantity
+                <th scope="col" className="px-4 py-3 text-start text-eyebrow text-muted-foreground">
+                  {t('variants.columns.qty')}
                 </th>
-                <th scope="col" className="w-12 px-4 py-3 text-right text-eyebrow text-muted-foreground">
-                  Status
+                <th scope="col" className="w-12 px-4 py-3 text-end text-eyebrow text-muted-foreground">
+                  {t('variants.columns.status')}
                 </th>
-                <th scope="col" className="w-12 px-4 py-3 text-right" />
+                <th scope="col" className="w-12 px-4 py-3 text-end" />
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {drafts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    No variants yet. Add the first one below.
+                    {t('variants.emptyNote')}
                   </td>
                 </tr>
               ) : (
@@ -435,7 +435,7 @@ function VariantsInner({
                         <Checkbox
                           checked={selected.has(d._id)}
                           onCheckedChange={(c) => toggleSelected(d._id, Boolean(c))}
-                          aria-label="Select variant"
+                          aria-label={t('variants.selectVariant')}
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -450,7 +450,7 @@ function VariantsInner({
                           onChange={(v) => setRow(d._id, { color: v ?? '' })}
                           items={colorsQuery.data ?? []}
                           getKey={(c) => c._id}
-                          getLabel={(c) => c.name.en}
+                          getLabel={(c) => toLocalized(c.name)}
                           renderItem={(c) => (
                             <span className="flex items-center gap-2">
                               <span
@@ -458,10 +458,10 @@ function VariantsInner({
                                 style={{ backgroundColor: c.hex }}
                                 aria-hidden
                               />
-                              {c.name.en}
+                              {toLocalized(c.name)}
                             </span>
                           )}
-                          placeholder="Color"
+                          placeholder={t('variants.colorPlaceholder')}
                           clearable={false}
                         />
                       </td>
@@ -474,25 +474,25 @@ function VariantsInner({
                           clampMin={0}
                         />
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-end">
                         {isDirty ? (
                           <span
-                            className="ml-auto inline-flex h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-accent/20"
+                            className="ms-auto inline-flex h-2.5 w-2.5 rounded-full bg-accent ring-2 ring-accent/20"
                             role="status"
-                            aria-label="Unsaved changes"
+                            aria-label={t('variants.unsavedChanges')}
                           />
                         ) : bulkUpdate.isPending && bulkUpdate.variables?.some((v) => v._id === d._id) ? (
-                          <Loader2 size={14} className="ml-auto animate-spin text-muted-foreground" aria-hidden />
+                          <Loader2 size={14} className="ms-auto animate-spin text-muted-foreground" aria-hidden />
                         ) : (
-                          <Check size={14} className="ml-auto text-success" aria-hidden />
+                          <Check size={14} className="ms-auto text-success" aria-hidden />
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-end">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteOne(d._id)}
-                          aria-label="Delete variant"
+                          aria-label={t('variants.deleteVariant')}
                           disabled={deleteOne.isPending && deleteOne.variables === d._id}
                         >
                           <Trash2 size={14} strokeWidth={1.5} className="text-destructive" />
@@ -509,8 +509,8 @@ function VariantsInner({
                   <Input
                     value={newRow.size}
                     onChange={(e) => setNewRow((p) => ({ ...p, size: e.target.value }))}
-                    placeholder="Size (optional — defaults to 'one size')"
-                    aria-label="New variant size"
+                    placeholder={t('variants.newSizePlaceholderDesktop')}
+                    aria-label={t('variants.newSizeAria')}
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -519,8 +519,8 @@ function VariantsInner({
                     onChange={(v) => setNewRow((p) => ({ ...p, color: v ?? '' }))}
                     items={colorsQuery.data ?? []}
                     getKey={(c) => c._id}
-                    getLabel={(c) => c.name.en}
-                    placeholder="Color"
+                    getLabel={(c) => toLocalized(c.name)}
+                    placeholder={t('variants.colorPlaceholder')}
                     clearable={false}
                   />
                 </td>
@@ -532,7 +532,7 @@ function VariantsInner({
                   />
                 </td>
                 <td className="px-4 py-3" />
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-end">
                   <Button
                     size="sm"
                     onClick={handleAdd}
@@ -540,7 +540,7 @@ function VariantsInner({
                     disabled={!newRow.color}
                   >
                     <Plus size={14} strokeWidth={1.5} aria-hidden />
-                    Add
+                    {t('variants.addBtn')}
                   </Button>
                 </td>
               </tr>
@@ -563,17 +563,17 @@ function VariantsInner({
               size="sm"
               onClick={() => setBulkDeleting(true)}
               isLoading={bulkDelete.isPending}
-              loadingText={`Deleting ${selected.size}…`}
+              loadingText={t('variants.deletingCount', { count: selected.size })}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden />
-              Delete selected ({selected.size})
+              {t('variants.deleteSelected', { count: selected.size })}
             </Button>
           ) : null
         }
         secondary={
           dirtyRows.length > 0 ? (
             <Button variant="ghost" onClick={handleDiscard} disabled={bulkUpdate.isPending}>
-              Discard
+              {t('variants.discard')}
             </Button>
           ) : null
         }
@@ -582,10 +582,10 @@ function VariantsInner({
             <Button
               onClick={handleBulkSave}
               isLoading={bulkUpdate.isPending}
-              loadingText={`Saving ${dirtyRows.length}…`}
+              loadingText={t('variants.savingCount', { count: dirtyRows.length })}
             >
               <Save size={14} strokeWidth={1.5} aria-hidden />
-              Save {dirtyRows.length} change{dirtyRows.length === 1 ? '' : 's'}
+              {t('variants.saveChanges', { count: dirtyRows.length })}
             </Button>
           ) : null
         }
@@ -594,10 +594,10 @@ function VariantsInner({
       <ConfirmDialog
         open={bulkDeleting}
         onOpenChange={setBulkDeleting}
-        title={`Delete ${selected.size} variant(s)?`}
-        description="The selected variants will be removed. Orders that reference them will keep historical pricing but won't be re-orderable."
+        title={t('variants.confirm.bulkDelete.title', { count: selected.size })}
+        description={t('variants.confirm.bulkDelete.description')}
         variant="destructive"
-        confirmLabel="Delete"
+        confirmLabel={t('variants.confirm.bulkDelete.confirmLabel')}
         isPending={bulkDelete.isPending}
         onConfirm={handleBulkDelete}
       />

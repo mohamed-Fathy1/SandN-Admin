@@ -1,0 +1,130 @@
+{
+  "title": "الطلبات",
+  "subtitle": "صفّ حسب الحالة، وافتح أي طلب للتأكيد أو الشحن أو الإلغاء.",
+  "kpis": {
+    "onPage": "في هذه الصفحة",
+    "pendingAction": "بانتظار إجراء",
+    "shippedToday": "شُحن اليوم",
+    "revenuePage": "الإيرادات (الصفحة)"
+  },
+  "list": {
+    "searchPlaceholder": "ابحث برقم الطلب…",
+    "matches_one": "نتيجة واحدة",
+    "matches_other": "{{count}} نتيجة",
+    "onPage": "{{count}} في هذه الصفحة",
+    "items_one": "منتج واحد",
+    "items_other": "{{count}} منتج",
+    "columns": {
+      "orderNumber": "رقم الطلب",
+      "customer": "العميل",
+      "items": "المنتجات",
+      "region": "المنطقة",
+      "total": "الإجمالي",
+      "status": "الحالة"
+    },
+    "viewOrder": "عرض الطلب {{number}}",
+    "view": "عرض",
+    "empty": {
+      "title": "لا توجد طلبات",
+      "noneYet": "لم يُقدَّم أي طلب بعد.",
+      "noneStatus": "لا توجد طلبات {{status}} بعد."
+    }
+  },
+  "tabs": {
+    "all": "الكل",
+    "under_review": "قيد المراجعة",
+    "confirmed": "مؤكد",
+    "ordered": "تم الطلب",
+    "shipped": "تم الشحن",
+    "delivered": "تم التوصيل",
+    "cancelled": "ملغى",
+    "deleted": "محذوف"
+  },
+  "status": {
+    "under_review": "قيد المراجعة",
+    "confirmed": "مؤكد",
+    "ordered": "تم الطلب",
+    "shipped": "تم الشحن",
+    "delivered": "تم التوصيل",
+    "cancelled": "ملغى",
+    "deleted": "محذوف"
+  },
+  "statusDescription": {
+    "under_review": "الحالة الأولية — بانتظار مراجعة المسؤول.",
+    "confirmed": "أكد المسؤول الطلب.",
+    "ordered": "تم الطلب / جاري التجهيز.",
+    "shipped": "في الطريق للتسليم.",
+    "delivered": "استلم العميل الطلب.",
+    "cancelled": "تم إلغاء الطلب.",
+    "deleted": "الطلب مخفي."
+  },
+  "search": {
+    "placeholder": "ابحث برقم الطلب أو الاسم أو الهاتف"
+  },
+  "table": {
+    "orderNumber": "رقم الطلب",
+    "customer": "العميل",
+    "phone": "الهاتف",
+    "total": "الإجمالي",
+    "status": "الحالة",
+    "placed": "تاريخ الطلب",
+    "actions": "الإجراءات",
+    "empty": "لا توجد طلبات هنا"
+  },
+  "detail": {
+    "title": "طلب رقم {{number}}",
+    "crumb": "طلب {{number}}",
+    "placed": "قُدِّم {{when}}",
+    "allOrders": "كل الطلبات",
+    "backToOrders": "العودة إلى الطلبات",
+    "header": {
+      "order": "الطلب",
+      "total": "الإجمالي"
+    },
+    "units_one": "قطعة واحدة",
+    "units_other": "{{count}} قطعة",
+    "items_one": "منتج واحد",
+    "items_other": "{{count}} منتج",
+    "noFurther": "لا توجد إجراءات إضافية.",
+    "applyFreeShipping": "تطبيق شحن مجاني",
+    "cancelOrder": "إلغاء الطلب",
+    "markAs": "تعليم كـ {{status}}",
+    "progress": "التقدم",
+    "products": "المنتجات",
+    "summary": "الملخص",
+    "recipient": "المستلم",
+    "noProducts": "لا توجد منتجات في هذا الطلب.",
+    "size": "مقاس {{value}}",
+    "fields": {
+      "subtotal": "المجموع الفرعي",
+      "shipping": "الشحن",
+      "discount": "الخصم",
+      "total": "الإجمالي",
+      "name": "الاسم",
+      "phone": "الهاتف",
+      "altPhone": "هاتف بديل",
+      "email": "البريد الإلكتروني",
+      "region": "المنطقة",
+      "address": "العنوان",
+      "apartment": "الشقة / الجناح",
+      "postal": "الرمز البريدي"
+    },
+    "confirm": {
+      "cancel": {
+        "title": "إلغاء الطلب {{number}}؟",
+        "description": "لن يستلم العميل هذا الطلب. لا يمكن التراجع.",
+        "confirmLabel": "إلغاء الطلب"
+      }
+    }
+  },
+  "confirm": {
+    "cancel": {
+      "title": "إلغاء الطلب؟",
+      "description": "سيتم إخطار العميل."
+    }
+  },
+  "toast": {
+    "updateStatus": { "success": "تم تحديث حالة الطلب", "error": "تعذر تحديث الحالة" },
+    "cancel": { "success": "تم إلغاء الطلب", "error": "تعذر إلغاء الطلب" }
+  }
+}

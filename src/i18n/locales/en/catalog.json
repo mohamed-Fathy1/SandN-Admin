@@ -1,0 +1,232 @@
+{
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Categories drive the storefront's top-level navigation.",
+    "addCategory": "Add category",
+    "edit": "Edit category",
+    "new": "New category",
+    "tabs": { "active": "Active", "deleted": "Deleted" },
+    "searchPlaceholder": "Search categories by name…",
+    "meta": "{{count}} of {{total}}",
+    "columns": {
+      "icon": "Icon",
+      "name": "Name",
+      "group": "Group",
+      "created": "Created"
+    },
+    "aria": {
+      "hide": "Hide {{name}}",
+      "edit": "Edit {{name}}",
+      "permDelete": "Permanently delete {{name}}"
+    },
+    "empty": {
+      "noCategories": "No categories yet",
+      "trashTitle": "Nothing in the trash",
+      "intro": "Set up at least one size group before creating categories.",
+      "trash": "Soft-deleted categories will appear here."
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholderEn": "Bras",
+      "namePlaceholderAr": "حمالة صدر",
+      "sizeGroup": "Size group",
+      "pickSizeGroup": "Pick a size group",
+      "icon": "Icon",
+      "iconHint": "Pick a category icon. Manage the library in Catalog → Category Icons.",
+      "coverImage": "Cover image",
+      "create": "Create category",
+      "newDescription": "Bilingual name, one size group, one image."
+    },
+    "confirm": {
+      "soft": {
+        "title": "Remove \"{{name}}\"?",
+        "description": "The category will be hidden from the storefront but can be restored from the Deleted tab.",
+        "confirmLabel": "Remove"
+      },
+      "hard": {
+        "title": "Permanently delete \"{{name}}\"?",
+        "description": "This removes the category from the database. Sub-categories and products referencing it may break.",
+        "confirmLabel": "Delete permanently"
+      }
+    }
+  },
+  "subCategories": {
+    "title": "Sub-categories",
+    "subtitle": "Sub-categories belong to a parent category and refine browsing.",
+    "addSubCategory": "Add sub-category",
+    "new": "New sub-category",
+    "edit": "Edit sub-category",
+    "tabs": { "active": "Active", "deleted": "Deleted" },
+    "searchPlaceholder": "Search sub-categories by name…",
+    "meta": "{{count}} of {{total}}",
+    "allCategories": "All categories",
+    "filterAria": "Filter by parent category",
+    "columns": {
+      "name": "Name",
+      "category": "Category",
+      "created": "Created"
+    },
+    "aria": {
+      "hide": "Hide {{name}}",
+      "edit": "Edit {{name}}",
+      "permDelete": "Permanently delete {{name}}"
+    },
+    "empty": {
+      "noSubCategories": "No sub-categories yet",
+      "trashTitle": "Nothing in the trash",
+      "intro": "Create a parent category first, then add sub-categories underneath.",
+      "trash": "Soft-deleted sub-categories will appear here."
+    },
+    "form": {
+      "newDescription": "Pick a parent category, then add localized names.",
+      "parentCategory": "Parent category",
+      "pickCategory": "Pick a category",
+      "name": "Name",
+      "namePlaceholderEn": "Sportswear",
+      "namePlaceholderAr": "ملابس رياضية",
+      "sizeGroup": "Size group",
+      "pickSizeGroup": "Pick a size group",
+      "coverImage": "Cover image",
+      "create": "Create sub-category"
+    },
+    "confirm": {
+      "soft": {
+        "title": "Remove \"{{name}}\"?",
+        "description": "The sub-category will be hidden but can be restored from the Deleted tab.",
+        "confirmLabel": "Remove"
+      },
+      "hard": {
+        "title": "Permanently delete \"{{name}}\"?",
+        "description": "This removes the sub-category from the database. Any products referencing it may break.",
+        "confirmLabel": "Delete permanently"
+      }
+    }
+  },
+  "colors": {
+    "title": "Colors",
+    "subtitle": "Colors are reused across product variants. Keep the palette tight.",
+    "addColor": "Add color",
+    "new": "New color",
+    "edit": "Edit color",
+    "columns": { "name": "Name", "hex": "Hex" },
+    "ariaDelete": "Delete {{name}}",
+    "empty": {
+      "title": "No colors yet",
+      "description": "Add colors before creating product variants."
+    },
+    "form": {
+      "newDescription": "Define both names + hex.",
+      "name": "Name",
+      "namePlaceholderEn": "Dusty Rose",
+      "namePlaceholderAr": "وردي مغبر",
+      "hex": "Hex",
+      "create": "Create color"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete \"{{name}}\"?",
+        "description": "Any product variant using this color will keep its existing hex but lose this label. This action cannot be undone.",
+        "confirmLabel": "Delete color"
+      }
+    }
+  },
+  "sizes": {
+    "title": "Sizes",
+    "subtitle": "Sizes belong to a group and control sort order on the storefront.",
+    "addSize": "Add size",
+    "new": "New size",
+    "edit": "Edit size",
+    "tabAll": "All",
+    "columns": {
+      "size": "Size",
+      "group": "Group",
+      "order": "Order"
+    },
+    "ariaDelete": "Delete size {{name}}",
+    "empty": {
+      "title": "No sizes yet",
+      "description": "Add sizes to a group so categories can use them on the storefront."
+    },
+    "form": {
+      "newDescription": "Each size belongs to one group.",
+      "group": "Group",
+      "pickGroup": "Pick a group",
+      "size": "Size",
+      "sizeHint": "e.g. XS, S, M, L or 36, 38, 40.",
+      "sizePlaceholder": "M",
+      "order": "Display order",
+      "orderHint": "Lower numbers appear first.",
+      "create": "Create size"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete size \"{{name}}\"?",
+        "description": "Any product variant using this size may stop rendering correctly. This action cannot be undone.",
+        "confirmLabel": "Delete size"
+      }
+    }
+  },
+  "groups": {
+    "title": "Groups",
+    "subtitle": "Size groups define whether a category uses letter-style or numeric sizing.",
+    "addGroup": "Add group",
+    "new": "New group",
+    "edit": "Edit group",
+    "columns": {
+      "name": "Name",
+      "created": "Created"
+    },
+    "empty": {
+      "title": "No size groups yet",
+      "description": "Create a group before adding individual sizes or categories."
+    },
+    "form": {
+      "newDescription": "Give this sizing group a name.",
+      "name": "Name",
+      "namePlaceholder": "e.g. letters, numeric, one size",
+      "create": "Create group",
+      "invalid": "Invalid"
+    }
+  },
+  "icons": {
+    "title": "Category Icons",
+    "subtitle": "Reusable SVG icons assigned to categories. Keys must be unique.",
+    "addIcon": "Add icon",
+    "new": "New icon",
+    "edit": "Edit icon",
+    "searchPlaceholder": "Search icons by key…",
+    "meta": "{{count}} of {{total}}",
+    "ariaDelete": "Delete {{name}}",
+    "columns": {
+      "key": "Key",
+      "status": "Status",
+      "created": "Created"
+    },
+    "empty": {
+      "title": "No icons yet",
+      "description": "Add SVG icons before assigning them to categories."
+    },
+    "form": {
+      "newDescription": "Paste SVG markup and give it a unique key.",
+      "editDescription": "Update the SVG markup or toggle availability for \"{{name}}\".",
+      "key": "Key",
+      "keyHintNew": "Lowercase letters, numbers, dashes.",
+      "keyHintEdit": "Key is immutable once set.",
+      "keyPlaceholder": "bras",
+      "svg": "SVG markup",
+      "svgPlaceholder": "<svg viewBox='0 0 24 24'>…</svg>",
+      "preview": "Preview",
+      "previewPrompt": "Paste SVG markup to see a preview.",
+      "active": "Active",
+      "activeHint": "Inactive icons stay in the library but are hidden from category pickers.",
+      "create": "Create icon"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete \"{{name}}\"?",
+        "description": "Categories assigned to this icon will lose their icon link. This action cannot be undone.",
+        "confirmLabel": "Delete icon"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminTable,
@@ -15,6 +16,8 @@ import type { ApiGroup } from '@/shared/types/api';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 
 export function GroupsPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiGroup | null>(null);
   const sheetOpen = creating || editing !== null;
@@ -25,14 +28,14 @@ export function GroupsPage() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: t('groups.columns.name'),
         cell: ({ row }) => (
           <span className="font-medium text-foreground">{formatGroupName(row.original.name)}</span>
         ),
       },
       {
         id: 'created',
-        header: 'Created',
+        header: t('groups.columns.created'),
         accessorFn: (g) => g.createdAt ?? '',
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDate(row.original.createdAt)}</span>
@@ -53,24 +56,24 @@ export function GroupsPage() {
               }}
             >
               <Pencil size={14} strokeWidth={1.5} aria-hidden />
-              Edit
+              {tCommon('actions.edit')}
             </Button>
           </div>
         ),
       },
     ],
-    []
+    [t, tCommon]
   );
 
   return (
     <>
       <PageHeader
-        title="Groups"
-        subtitle="Size groups define whether a category uses letter-style or numeric sizing."
+        title={t('groups.title')}
+        subtitle={t('groups.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add group
+            {t('groups.addGroup')}
           </Button>
         }
       />
@@ -84,8 +87,8 @@ export function GroupsPage() {
         onRetry={() => groupsQuery.refetch()}
         getRowId={(g) => g._id}
         emptyState={{
-          title: 'No size groups yet',
-          description: 'Create a group before adding individual sizes or categories.',
+          title: t('groups.empty.title'),
+          description: t('groups.empty.description'),
         }}
       />
 
@@ -109,6 +112,8 @@ interface GroupFormSheetProps {
 }
 
 function GroupFormSheet({ open, onClose, entity }: GroupFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateGroup();
   const update = useUpdateGroup();
   const isEdit = Boolean(entity);
@@ -122,7 +127,7 @@ function GroupFormSheet({ open, onClose, entity }: GroupFormSheetProps) {
     setError(undefined);
     const parsed = groupFormSchema.safeParse(values);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Invalid');
+      setError(parsed.error.issues[0]?.message ?? t('groups.form.invalid'));
       return;
     }
     if (isEdit && entity) {
@@ -141,25 +146,25 @@ function GroupFormSheet({ open, onClose, entity }: GroupFormSheetProps) {
       onOpenChange={(next) => {
         if (!next) onClose();
       }}
-      title={isEdit ? 'Edit group' : 'New group'}
-      description={isEdit ? entity?.name : 'Give this sizing group a name.'}
+      title={isEdit ? t('groups.edit') : t('groups.new')}
+      description={isEdit ? entity?.name : t('groups.form.newDescription')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save changes' : 'Create group'}
+            {isEdit ? tCommon('actions.saveChanges') : t('groups.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <AdminFormField label="Name" required error={error}>
+        <AdminFormField label={t('groups.form.name')} required error={error}>
           <Input
             value={values.name}
             onChange={(e) => setValues({ name: e.target.value })}
-            placeholder="e.g. letters, numeric, one size"
+            placeholder={t('groups.form.namePlaceholder')}
             disabled={isPending}
             autoFocus
           />

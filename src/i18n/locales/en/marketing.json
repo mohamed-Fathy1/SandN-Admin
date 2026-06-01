@@ -1,0 +1,134 @@
+{
+  "offers": {
+    "title": "Offers",
+    "subtitle": "Promotions applied automatically at checkout when the minimum is met.",
+    "addOffer": "Add offer",
+    "new": "New offer",
+    "edit": "Edit offer",
+    "types": {
+      "fixed_discount": "Fixed discount",
+      "free_shipping": "Free shipping"
+    },
+    "ariaToggle": "Toggle {{name}}",
+    "ariaDelete": "Delete offer",
+    "columns": {
+      "type": "Type",
+      "description": "Description",
+      "minOrder": "Min order",
+      "discount": "Discount",
+      "active": "Active"
+    },
+    "mobile": {
+      "min": "Min {{value}}"
+    },
+    "empty": {
+      "title": "No offers",
+      "description": "Create an offer to start running promotions."
+    },
+    "form": {
+      "newDescription": "Pick a type, set the threshold, go live.",
+      "type": "Type",
+      "active": "Active",
+      "banner": "Banner",
+      "description": "Description",
+      "descriptionPlaceholderEn": "Free shipping on orders above 500 EGP",
+      "descriptionPlaceholderAr": "شحن مجاني عند الشراء بـ 500 جنيه",
+      "minOrder": "Min order amount",
+      "discount": "Discount amount",
+      "discountHintApplied": "Subtracted from the order total.",
+      "discountHintIgnored": "Only applies to \"Fixed discount\" offers.",
+      "create": "Create offer",
+      "save": "Save offer"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete this offer?",
+        "description": "It will stop being applied to new orders immediately.",
+        "confirmLabel": "Delete offer"
+      }
+    }
+  },
+  "hero": {
+    "title": "Hero Slider",
+    "subtitle": "Each slide pairs a small and a large banner. They drive the storefront's homepage.",
+    "addSlide": "Add slide",
+    "addFirstSlide": "Add first slide",
+    "new": "New hero slide",
+    "edit": "Edit hero slide",
+    "alt": { "small": "Small banner", "large": "Large banner" },
+    "ariaDelete": "Delete hero slide",
+    "empty": {
+      "title": "Homepage hero is empty",
+      "description": "Without a slide the storefront's homepage will load with a blank banner. Add one to bring it back."
+    },
+    "form": {
+      "description": "Upload one small and one large image. Both go live together.",
+      "smallImage": "Small image",
+      "largeImage": "Large image",
+      "bothRequired": "Both images are required.",
+      "create": "Create slide",
+      "save": "Save slide"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete this hero slide?",
+        "description": "It will disappear from the storefront hero immediately.",
+        "confirmLabel": "Delete slide"
+      }
+    }
+  },
+  "socialReviews": {
+    "title": "Social Reviews",
+    "subtitle": "Social-proof images shown on the storefront. Drag to add or click the tile.",
+    "alt": "Social review",
+    "ariaEdit": "Edit social review",
+    "ariaDelete": "Delete social review",
+    "empty": {
+      "title": "No reviews yet",
+      "description": "Upload your first social proof image to start a feed."
+    },
+    "form": {
+      "title": "Replace review image",
+      "description": "Upload a new image to replace this social review.",
+      "image": "Image"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete this review?",
+        "description": "It will disappear from the storefront social section.",
+        "confirmLabel": "Delete"
+      }
+    }
+  },
+  "shipping": {
+    "title": "Shipping",
+    "subtitle": "Regions and their delivery cost. Customers pick one at checkout.",
+    "addRegion": "Add region",
+    "new": "New region",
+    "edit": "Edit region",
+    "columns": {
+      "region": "Region",
+      "cost": "Cost"
+    },
+    "ariaDelete": "Delete {{name}}",
+    "empty": {
+      "title": "No shipping regions",
+      "description": "Add one so customers can check out."
+    },
+    "form": {
+      "newDescription": "Customers see the EN name at checkout.",
+      "name": "Name",
+      "namePlaceholderEn": "Cairo",
+      "namePlaceholderAr": "القاهرة",
+      "cost": "Cost",
+      "create": "Create region"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete \"{{name}}\"?",
+        "description": "Orders previously placed against this region keep their original cost. New checkouts will lose this option.",
+        "confirmLabel": "Delete region"
+      }
+    }
+  }
+}

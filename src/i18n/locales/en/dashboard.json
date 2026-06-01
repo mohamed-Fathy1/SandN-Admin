@@ -1,0 +1,85 @@
+{
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "lateEvening": "Late evening"
+  },
+  "header": {
+    "title": "The storefront, at a glance.",
+    "subtitle": "A daily pulse of inventory, orders, and the things customers love.",
+    "refresh": "Refresh"
+  },
+  "kpi": {
+    "todaySales": { "label": "Today sales", "helper": "Captured today, all statuses." },
+    "todayOrders": { "label": "Today orders", "helperLink": "Open orders" },
+    "totalRevenue": { "label": "Total revenue", "helper": "All-time, excluding cancellations." },
+    "avgOrder": { "label": "Avg order value", "helper": "Across all completed orders." },
+    "products": { "label": "Products", "helperLink": "Manage", "soldOut": "{{count}} sold out" },
+    "categories": { "label": "Categories", "helperLink": "Manage", "subs": "{{count}} sub-categories" },
+    "customers": { "label": "Customers", "helper": "Registered shoppers." },
+    "inventory": {
+      "label": "Inventory value",
+      "footer": "Wholesale {{wholesale}} · ~{{margin}}% margin"
+    }
+  },
+  "charts": {
+    "last7Days": "Last 7 days",
+    "revenueMode": "Daily revenue",
+    "ordersMode": "Daily order volume",
+    "modeRevenue": "Revenue",
+    "modeOrders": "Orders",
+    "chartMode": "Chart mode",
+    "byStatus": "By status",
+    "orderDistribution": "Order distribution",
+    "emptyWeek": { "title": "No data in the last week", "description": "Once orders come in they'll plot here." },
+    "noOrders": "No orders yet."
+  },
+  "topSelling": {
+    "title": "Top selling",
+    "subtitle": "Most units sold",
+    "sold": "{{count}} sold",
+    "empty": { "title": "Nothing sold yet", "description": "As orders complete, top-selling products appear here." }
+  },
+  "mostWishlisted": {
+    "title": "Most wishlisted",
+    "subtitle": "Saved-for-later leaders",
+    "viewAll": "View wishlist",
+    "empty": { "title": "Empty wishlists", "description": "When customers save products, they'll surface here." }
+  },
+  "recentOrders": {
+    "title": "Recent orders",
+    "subtitle": "Latest activity",
+    "viewAll": "View all",
+    "empty": { "title": "No orders yet", "description": "When customers place orders, they'll show up here." },
+    "columns": {
+      "orderNumber": "Order #",
+      "customer": "Customer",
+      "total": "Total",
+      "status": "Status",
+      "when": "When"
+    }
+  },
+  "title": "Dashboard",
+  "subtitle": "Snapshot of revenue, orders and catalog health.",
+  "kpis": {
+    "revenue": "Revenue",
+    "orders": "Orders",
+    "products": "Products",
+    "customers": "Customers",
+    "avgOrderValue": "Avg. order value",
+    "fulfilled": "Fulfilled",
+    "pending": "Pending",
+    "cancelled": "Cancelled"
+  },
+  "charts": {
+    "last7Days": "Last 7 days",
+    "ordersByStatus": "Orders by status",
+    "noData": "No data for this period"
+  },
+  "ranges": {
+    "today": "Today",
+    "week": "This week",
+    "month": "This month"
+  }
+}

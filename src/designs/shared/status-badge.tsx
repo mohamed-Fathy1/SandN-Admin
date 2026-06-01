@@ -10,48 +10,42 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/utils/cn';
 import type { OrderStatus } from '@/config/constants';
 
-const STATUS_META: Record<OrderStatus, { label: string; icon: LucideIcon; classes: string; ring: string }> = {
+const STATUS_META: Record<OrderStatus, { icon: LucideIcon; classes: string; ring: string }> = {
   ordered: {
-    label: 'Ordered',
     icon: ShoppingBag,
     classes: 'bg-status-ordered-bg text-status-ordered',
     ring: 'ring-status-ordered/15',
   },
   confirmed: {
-    label: 'Confirmed',
     icon: Check,
     classes: 'bg-status-confirmed-bg text-status-confirmed',
     ring: 'ring-status-confirmed/15',
   },
   under_review: {
-    label: 'Under review',
     icon: Eye,
     classes: 'bg-status-under-review-bg text-status-under-review',
     ring: 'ring-status-under-review/15',
   },
   shipped: {
-    label: 'Shipped',
     icon: Truck,
     classes: 'bg-status-shipped-bg text-status-shipped',
     ring: 'ring-status-shipped/15',
   },
   delivered: {
-    label: 'Delivered',
     icon: PackageCheck,
     classes: 'bg-status-delivered-bg text-status-delivered',
     ring: 'ring-status-delivered/15',
   },
   cancelled: {
-    label: 'Cancelled',
     icon: X,
     classes: 'bg-status-cancelled-bg text-status-cancelled',
     ring: 'ring-status-cancelled/15',
   },
   deleted: {
-    label: 'Deleted',
     icon: Trash2,
     classes: 'bg-status-deleted-bg text-status-deleted',
     ring: 'ring-status-deleted/15',
@@ -77,6 +71,7 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps) {
   const meta = STATUS_META[status];
+  const { t } = useTranslation('orders');
   if (!meta) return null;
   const Icon = meta.icon;
   return (
@@ -90,7 +85,7 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
       )}
     >
       <Icon size={size === 'sm' ? 12 : 14} strokeWidth={2.25} aria-hidden />
-      {meta.label}
+      {t(`status.${status}`)}
     </span>
   );
 }
@@ -126,9 +121,10 @@ export function GenericBadge({
 }
 
 export function ActiveBadge({ isActive }: { isActive: boolean }) {
+  const { t } = useTranslation('common');
   return (
     <GenericBadge
-      label={isActive ? 'Active' : 'Inactive'}
+      label={isActive ? t('status.active') : t('status.inactive')}
       tone={isActive ? 'success' : 'muted'}
       icon={isActive ? CircleCheck : Clock}
       size="sm"

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/designs/shared/button';
 import { Card } from '@/designs/shared/card';
 import { OtpInput, type OtpInputHandle } from '@/features/auth/components/otp-input';
@@ -13,6 +14,7 @@ import { A } from '@/designs/layout/tokens';
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export function OtpPage() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const search = useSearch({ from: '/login_/verify' });
   const email = search.email;
@@ -33,9 +35,9 @@ export function OtpPage() {
           window.location.href = redirect;
         },
         onError: (err) => {
-          const msg = err instanceof Error ? err.message : 'Verification failed';
-          if (/expired/i.test(msg)) setError('Code expired — request a new one.');
-          else if (/incorrect/i.test(msg)) setError('Code is incorrect.');
+          const msg = err instanceof Error ? err.message : t('otp.errors.default');
+          if (/expired/i.test(msg)) setError(t('otp.errors.expired'));
+          else if (/incorrect/i.test(msg)) setError(t('otp.errors.incorrect'));
           else setError(msg);
           setCode('');
           otpRef.current?.focusFirst();
@@ -82,21 +84,24 @@ export function OtpPage() {
             className="mb-6 inline-flex items-center gap-1 rounded-md px-1 -mx-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
-            Change email
+            {t('otp.back')}
           </button>
 
           <div className="mb-8 text-center">
             <p className="mb-3 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
               <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-r from-transparent to-accent/70" />
-              Verify
+              {t('otp.eyebrow')}
               <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-l from-transparent to-accent/70" />
             </p>
             <h1 className="m-0 font-display text-3xl italic leading-tight tracking-tight text-foreground">
-              Enter the code
+              {t('otp.title')}
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              We sent a 6-digit code to <strong className="text-foreground">{email}</strong>.
-            </p>
+            <p
+              className="mt-3 text-sm leading-relaxed text-muted-foreground"
+              dangerouslySetInnerHTML={{
+                __html: t('otp.subtitle', { email: `<strong class="text-foreground">${email}</strong>` }),
+              }}
+            />
           </div>
 
           <div className="space-y-5">
@@ -121,20 +126,20 @@ export function OtpPage() {
               className="w-full"
               onClick={() => {
                 if (code.length !== 6) {
-                  setError('Enter the 6-digit code.');
+                  setError(t('otp.errors.missing'));
                   otpRef.current?.focusFirst();
                   return;
                 }
                 submitCode(code);
               }}
               isLoading={activate.isPending}
-              loadingText="Verifying…"
+              loadingText={t('otp.verifying')}
             >
-              Verify
+              {t('otp.submit')}
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
-              Didn&rsquo;t get the code?{' '}
+              {t('otp.resendPrompt')}{' '}
               <button
                 type="button"
                 onClick={handleResend}
@@ -142,10 +147,10 @@ export function OtpPage() {
                 className="rounded-md px-1 -mx-1 font-semibold text-accent transition-colors hover:underline disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {cooldown.isActive
-                  ? `Resend in ${cooldown.secondsLeft}s`
+                  ? t('otp.resendIn', { seconds: cooldown.secondsLeft })
                   : resend.isPending
-                    ? 'Sending…'
-                    : 'Resend code'}
+                    ? t('otp.sending')
+                    : t('otp.resend')}
               </button>
             </div>
           </div>

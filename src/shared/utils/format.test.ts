@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import i18n from '@/i18n';
 import { formatDate, formatDateTime, formatEGP, formatGroupName, formatNumber } from './format';
+
+// Pin to English so the formatter tests stay deterministic regardless of the
+// default locale set elsewhere.
+beforeAll(async () => {
+  await i18n.changeLanguage('en');
+});
 
 describe('format', () => {
   describe('formatEGP', () => {

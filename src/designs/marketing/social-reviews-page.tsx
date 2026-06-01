@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pencil, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminImageUploader,
@@ -21,6 +22,8 @@ import {
 import type { ApiSocialReview } from '@/shared/types/api';
 
 export function SocialReviewsPage() {
+  const { t } = useTranslation('marketing');
+  const { t: tCommon } = useTranslation('common');
   const [deleting, setDeleting] = useState<ApiSocialReview | null>(null);
   const [editing, setEditing] = useState<ApiSocialReview | null>(null);
   const [editImageUrl, setEditImageUrl] = useState('');
@@ -51,8 +54,8 @@ export function SocialReviewsPage() {
   return (
     <>
       <PageHeader
-        title="Social Reviews"
-        subtitle="Social-proof images shown on the storefront. Drag to add or click the tile."
+        title={t('socialReviews.title')}
+        subtitle={t('socialReviews.subtitle')}
       />
 
       {reviewsQuery.isPending ? (
@@ -61,9 +64,9 @@ export function SocialReviewsPage() {
         <QueryErrorState error={reviewsQuery.error} onRetry={() => reviewsQuery.refetch()} />
       ) : !hasReviews ? (
         <div className="mx-auto max-w-md text-center">
-          <h3 className="text-lg font-semibold text-foreground">No reviews yet</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t('socialReviews.empty.title')}</h3>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Upload your first social proof image to start a feed.
+            {t('socialReviews.empty.description')}
           </p>
           <div className="mt-6">
             <AdminImageUploader
@@ -79,7 +82,7 @@ export function SocialReviewsPage() {
             <Card key={review._id} padding="none" className="group relative overflow-hidden">
               <img
                 src={review.image?.mediaUrl}
-                alt="Social review"
+                alt={t('socialReviews.alt')}
                 loading="lazy"
                 decoding="async"
                 className="aspect-square w-full object-cover"
@@ -88,7 +91,7 @@ export function SocialReviewsPage() {
                 <button
                   type="button"
                   onClick={() => openEdit(review)}
-                  aria-label="Edit social review"
+                  aria-label={t('socialReviews.ariaEdit')}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Pencil size={14} strokeWidth={1.75} aria-hidden />
@@ -96,7 +99,7 @@ export function SocialReviewsPage() {
                 <button
                   type="button"
                   onClick={() => setDeleting(review)}
-                  aria-label="Delete social review"
+                  aria-label={t('socialReviews.ariaDelete')}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <X size={16} strokeWidth={1.75} aria-hidden />
@@ -114,25 +117,25 @@ export function SocialReviewsPage() {
       <FormSheet
         open={editing !== null}
         onOpenChange={(o) => !o && closeEdit()}
-        title="Replace review image"
-        description="Upload a new image to replace this social review."
+        title={t('socialReviews.form.title')}
+        description={t('socialReviews.form.description')}
         footer={
           <>
             <Button variant="ghost" onClick={closeEdit}>
-              Cancel
+              {tCommon('actions.cancel')}
             </Button>
             <Button
               onClick={submitEdit}
               disabled={!editImageUrl || updateReview.isPending}
-              loadingText="Saving…"
+              loadingText={tCommon('states.saving')}
               isLoading={updateReview.isPending}
             >
-              Save
+              {tCommon('actions.save')}
             </Button>
           </>
         }
       >
-        <AdminFormField label="Image" htmlFor="social-review-image" required>
+        <AdminFormField label={t('socialReviews.form.image')} htmlFor="social-review-image" required>
           <AdminImageUploader
             folder="SocialReview"
             value={editImageUrl}
@@ -145,9 +148,9 @@ export function SocialReviewsPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete this review?"
-        description="It will disappear from the storefront social section."
-        confirmLabel="Delete"
+        title={t('socialReviews.confirm.delete.title')}
+        description={t('socialReviews.confirm.delete.description')}
+        confirmLabel={t('socialReviews.confirm.delete.confirmLabel')}
         isPending={deleteReview.isPending}
         onConfirm={() => {
           if (!deleting) return;

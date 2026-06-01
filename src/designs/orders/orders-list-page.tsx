@@ -4,6 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
 import { formatDistanceToNowStrict } from 'date-fns';
+import { ar as dfAr, enUS as dfEn } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import {
   AdminTable,
   Button,
@@ -15,7 +17,8 @@ import {
   TabsTrigger,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
-import { ROUTES, type OrderStatus } from '@/config/constants';
+import { ROUTES, type Locale, type OrderStatus } from '@/config/constants';
+import { useLocaleStore } from '@/shared/stores/locale-store';
 import { useOrders } from '@/features/orders/hooks/use-orders';
 import { prefetchOrder } from '@/features/orders/hooks/use-orders';
 import { ORDER_STATUS_TABS } from '@/features/orders/lib/status-meta';
@@ -41,11 +44,14 @@ function getInitials(first?: string, last?: string): string {
   return (a + b).toUpperCase() || '—';
 }
 
-function timeAgo(iso?: string): string {
+function timeAgo(iso?: string, locale?: Locale): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return formatDistanceToNowStrict(d, { addSuffix: true });
+  return formatDistanceToNowStrict(d, {
+    addSuffix: true,
+    locale: locale === 'ar' ? dfAr : dfEn,
+  });
 }
 
 function isToday(iso?: string): boolean {
@@ -70,6 +76,8 @@ export function OrdersListPage({
 }: OrdersListPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation('orders');
+  const locale = useLocaleStore((s) => s.locale);
 
   const listQuery = useOrders({ page, status, search });
   const orders = useMemo(() => listQuery.data?.orders ?? [], [listQuery.data]);
@@ -110,20 +118,20 @@ export function OrdersListPage({
     () => [
       {
         id: 'orderNumber',
-        header: 'Order #',
+        header: t('list.columns.orderNumber'),
         accessorFn: (o) => o.orderNumber,
         cell: ({ row }) => (
           <div className="leading-tight">
             <span className="font-mono text-xs text-foreground">{row.original.orderNumber}</span>
             <div className="mt-0.5 text-[11px] text-muted-foreground">
-              {timeAgo(row.original.createdAt)}
+              {timeAgo(row.original.createdAt, locale)}
             </div>
           </div>
         ),
       },
       {
         id: 'customer',
-        header: 'Customer',
+        header: t('list.columns.customer'),
         enableSorting: false,
         cell: ({ row }) => {
           const info = row.original.customerInfo;
@@ -148,21 +156,21 @@ export function OrdersListPage({
       },
       {
         id: 'items',
-        header: 'Items',
+        header: t('list.columns.items'),
         enableSorting: false,
         meta: { numeric: true },
         cell: ({ row }) => {
           const n = row.original.products?.length ?? 0;
           return (
             <span className="font-tabular text-muted-foreground">
-              {n} <span className="text-light-foreground">{n === 1 ? 'item' : 'items'}</span>
+              {t('list.items', { count: n })}
             </span>
           );
         },
       },
       {
         id: 'shipping',
-        header: 'Region',
+        header: t('list.columns.region'),
         enableSorting: false,
         cell: ({ row }) => (
           <span className="text-muted-foreground">
@@ -172,7 +180,7 @@ export function OrdersListPage({
       },
       {
         id: 'total',
-        header: 'Total',
+        header: t('list.columns.total'),
         accessorFn: (o) => o.total,
         meta: { numeric: true },
         cell: ({ row }) => (
@@ -183,7 +191,7 @@ export function OrdersListPage({
       },
       {
         id: 'status',
-        header: 'Status',
+        header: t('list.columns.status'),
         enableSorting: false,
         cell: ({ row }) => <StatusBadge status={row.original.status} size="sm" />,
       },
@@ -200,16 +208,16 @@ export function OrdersListPage({
                 e.stopPropagation();
                 navigate({ to: ROUTES.orderDetail(row.original._id) });
               }}
-              aria-label={`View order ${row.original.orderNumber}`}
+              aria-label={t('list.viewOrder', { number: row.original.orderNumber })}
             >
               <Eye size={14} strokeWidth={1.5} aria-hidden />
-              <span className="hidden xl:inline">View</span>
+              <span className="hidden xl:inline">{t('list.view')}</span>
             </Button>
           </div>
         ),
       },
     ],
-    [navigate]
+    [navigate, t, locale]
   );
 
   const prefetchDetail = (row: ApiOrder) => {
@@ -218,13 +226,13 @@ export function OrdersListPage({
 
   const tabValue = status ?? 'all';
   const activeTabLabel =
-    ORDER_STATUS_TABS.find((t) => t.value === tabValue)?.label ?? 'All';
+    status ? t(`status.${status}`) : t('tabs.all');
 
   return (
     <PageTransition>
       <PageHeader
-        title="Orders"
-        subtitle="Filter by status, drill in to confirm, ship, or cancel an order."
+        title={t('title')}
+        subtitle={t('subtitle')}
         tabs={
           <Tabs
             value={tabValue}
@@ -236,11 +244,11 @@ export function OrdersListPage({
                 const showCount = tabCounts && count !== undefined;
                 return (
                   <TabsTrigger key={tab.value} value={tab.value} className="group">
-                    <span>{tab.label}</span>
+                    <span>{t(tab.labelKey)}</span>
                     {showCount ? (
                       <span
                         className={cn(
-                          'ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] tabular-nums',
+                          'ms-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] tabular-nums',
                           'bg-muted text-muted-foreground',
                           'group-data-[state=active]:bg-white/25 group-data-[state=active]:text-accent-foreground'
                         )}
@@ -272,12 +280,12 @@ export function OrdersListPage({
           onSearchCommit={(next) => {
             if (next !== search) onSearchChange(next);
           }}
-          searchPlaceholder="Search by order number…"
+          searchPlaceholder={t('list.searchPlaceholder')}
           meta={
             search
-              ? `${orders.length} match${orders.length === 1 ? '' : 'es'}`
+              ? t('list.matches', { count: orders.length })
               : orders.length
-                ? `${orders.length} on this page`
+                ? t('list.onPage', { count: orders.length })
                 : undefined
           }
         />
@@ -302,7 +310,7 @@ export function OrdersListPage({
         mobileRender={(order) => {
           const info = order.customerInfo;
           const name = `${info?.firstName ?? ''} ${info?.lastName ?? ''}`.trim() || '—';
-          const placed = timeAgo(order.createdAt);
+          const placed = timeAgo(order.createdAt, locale);
           return (
             <button
               type="button"
@@ -328,7 +336,7 @@ export function OrdersListPage({
                 <p className="mt-1 truncate text-sm font-medium text-foreground">{name}</p>
                 <div className="mt-2 flex items-end justify-between gap-2">
                   <span className="text-xs text-muted-foreground tabular-nums">
-                    {order.products?.length ?? 0} items
+                    {t('list.items', { count: order.products?.length ?? 0 })}
                   </span>
                   <span className="text-base font-semibold leading-none tabular-nums text-foreground">
                     {formatEGP(order.total)}
@@ -344,12 +352,12 @@ export function OrdersListPage({
           onPageChange,
         }}
         emptyState={{
-          title: search ? undefined : 'No orders',
+          title: search ? undefined : t('list.empty.title'),
           description: search
             ? undefined
             : status
-              ? `No ${activeTabLabel.toLowerCase()} orders yet.`
-              : 'No orders have been placed yet.',
+              ? t('list.empty.noneStatus', { status: activeTabLabel })
+              : t('list.empty.noneYet'),
         }}
       />
     </PageTransition>
@@ -369,11 +377,12 @@ function KpiStrip({
   revenue: number;
   loading: boolean;
 }) {
+  const { t } = useTranslation('orders');
   const cells: { label: string; value: string; tone?: 'accent' }[] = [
-    { label: 'On this page', value: loading ? '—' : String(pageCount) },
-    { label: 'Pending action', value: loading ? '—' : String(pending), tone: 'accent' },
-    { label: 'Shipped today', value: loading ? '—' : String(shippedToday) },
-    { label: 'Revenue (page)', value: loading ? '—' : formatEGP(revenue) },
+    { label: t('kpis.onPage'), value: loading ? '—' : String(pageCount) },
+    { label: t('kpis.pendingAction'), value: loading ? '—' : String(pending), tone: 'accent' },
+    { label: t('kpis.shippedToday'), value: loading ? '—' : String(shippedToday) },
+    { label: t('kpis.revenuePage'), value: loading ? '—' : formatEGP(revenue) },
   ];
   return (
     <>

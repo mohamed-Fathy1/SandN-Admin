@@ -1,4 +1,5 @@
 import { ArrowLeft, FileQuestion } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import { EmptyState } from './empty-state';
 import { ApiError } from '@/shared/lib/axios';
@@ -18,20 +19,18 @@ function messageFromError(error: unknown): string | undefined {
 export function NotFoundState({
   error,
   onBack,
-  backLabel = 'Go back',
+  backLabel,
 }: NotFoundStateProps) {
+  const { t } = useTranslation('common');
   return (
     <EmptyState
       icon={FileQuestion}
-      title="Not found"
-      description={
-        messageFromError(error) ??
-        'This item may have been removed or the link is no longer valid.'
-      }
+      title={t('notFound.title')}
+      description={messageFromError(error) ?? t('notFound.description')}
       action={
         <Button variant="outline" onClick={onBack}>
           <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
-          {backLabel}
+          {backLabel ?? t('actions.back')}
         </Button>
       }
     />

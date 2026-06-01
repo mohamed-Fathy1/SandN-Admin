@@ -1,0 +1,273 @@
+{
+  "title": "Products",
+  "subtitle": "The full catalog. Edit details, manage variants, or take a product offline.",
+  "new": "New product",
+  "edit": "Edit product",
+  "addProduct": "Add Product",
+  "tabs": {
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "deleted": "Deleted"
+  },
+  "list": {
+    "searchPlaceholder": "Search products by name…",
+    "searching": "Searching…",
+    "results_one": "{{count}} result",
+    "results_other": "{{count}} results",
+    "totalProducts": "{{count}} products",
+    "allCategories": "All categories",
+    "allSubCategories": "All sub-categories",
+    "pickCategoryFirst": "Pick a category first",
+    "removeFromStore": "Remove from storefront",
+    "permanentDelete": "Permanently delete",
+    "flags": {
+      "onSale": "On sale",
+      "new": "New",
+      "best": "Best",
+      "soldOut": "Sold out"
+    },
+    "columns": {
+      "name": "Name",
+      "category": "Category",
+      "subCategory": "Sub-Category",
+      "price": "Price",
+      "sold": "Sold",
+      "variants": "Variants",
+      "created": "Created"
+    },
+    "badges": {
+      "sale": "Sale",
+      "new": "New",
+      "best": "Best",
+      "soldOut": "Sold out"
+    },
+    "empty": {
+      "noProducts": "No products yet",
+      "createFirst": "Create your first product to populate the storefront.",
+      "emptyTrash": "Nothing in the trash",
+      "trashDescription": "Soft-deleted products will appear here."
+    },
+    "confirm": {
+      "soft": {
+        "title": "Remove \"{{name}}\"?",
+        "description": "The product will be hidden from the storefront. You can restore it from the Deleted tab.",
+        "confirmLabel": "Remove"
+      },
+      "hard": {
+        "title": "Permanently delete \"{{name}}\"?",
+        "description": "This removes the product, its variants, and S3 images. Cannot be undone.",
+        "confirmLabel": "Delete permanently"
+      }
+    }
+  },
+  "search": {
+    "placeholder": "Search by name or SKU"
+  },
+  "filters": {
+    "category": "Category",
+    "subCategory": "Sub-category",
+    "group": "Group",
+    "color": "Color",
+    "size": "Size",
+    "status": "Status",
+    "any": "Any"
+  },
+  "table": {
+    "image": "Image",
+    "name": "Name",
+    "category": "Category",
+    "subCategory": "Sub-category",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status",
+    "updated": "Updated",
+    "actions": "Actions",
+    "empty": "No products yet",
+    "emptyFiltered": "No products match your filters"
+  },
+  "form": {
+    "header": {
+      "newTitle": "New product",
+      "editTitle": "Edit product",
+      "loadingCrumb": "Loading…",
+      "loadingSubtitle": "Fetching catalog details.",
+      "editCrumb": "Edit: {{name}}",
+      "editSubtitle": "Update details, swap images, or adjust variants.",
+      "back": "Back",
+      "backToProducts": "Back to products",
+      "manageVariants": "Manage variants"
+    },
+    "stepper": {
+      "label": "Form sections",
+      "basics": "Basics",
+      "pricing": "Pricing",
+      "classification": "Catalog",
+      "variants": "Variants",
+      "media": "Media"
+    },
+    "meta": {
+      "outOfStock": "Out of stock",
+      "inStock": "{{count}} in stock"
+    },
+    "leaveConfirm": "You have unsaved changes. Leave this page and discard them?",
+    "sections": {
+      "basics": {
+        "title": "Basics",
+        "subtitle": "Name and description, in both languages."
+      },
+      "pricing": {
+        "title": "Pricing",
+        "subtitle": "Set price, wholesale, and an optional sale."
+      },
+      "classification": {
+        "title": "Catalog",
+        "subtitle": "Where this product lives in the storefront."
+      },
+      "flags": {
+        "title": "Storefront flags",
+        "subtitle": "Toggle merchandising badges shown to customers.",
+        "bestSellerLabel": "Best seller",
+        "bestSellerDescription": "Pin this product to the Best Sellers strip.",
+        "newArrivalLabel": "New arrival",
+        "newArrivalDescription": "Show the 'New' badge and surface in the new arrivals strip."
+      },
+      "variants": {
+        "title": "Variants",
+        "subtitle": "Every size + color combination customers can buy.",
+        "add": "Add",
+        "addFirst": "Add first variant",
+        "emptyTitle": "No variants yet.",
+        "emptyHint": "Add at least one size + color combination so this product can be sold.",
+        "removeAria": "Remove variant",
+        "variantsCount_one": "variant",
+        "variantsCount_other": "variants",
+        "inStock": "in stock"
+      },
+      "media": {
+        "title": "Media",
+        "subtitle": "Hero shot, gallery, and an optional size chart.",
+        "hero": "Hero image",
+        "heroHint": "Shown in product cards",
+        "gallery": "Gallery",
+        "galleryFirst": "First image leads the gallery.",
+        "sizeChart": "Size chart",
+        "optional": "(optional)"
+      }
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholderEn": "Cotton pants",
+      "namePlaceholderAr": "بنطلون قطني",
+      "description": "Description",
+      "descriptionPlaceholderEn": "Comfortable cotton pants for daily use",
+      "descriptionPlaceholderAr": "بنطلون قطني مريح للاستخدام اليومي",
+      "price": "Price",
+      "wholesalePrice": "Wholesale price",
+      "category": "Category",
+      "pickCategory": "Pick a category",
+      "subCategory": "Sub-category",
+      "subCategoryHint": "Optional",
+      "pickSubCategory": "Pick a sub-category",
+      "pickCategoryFirst": "Pick a category first",
+      "size": "Size",
+      "noSizesInGroup": "No sizes in this group",
+      "addSizesHint": "Add sizes to this group in the Sizes page.",
+      "color": "Color",
+      "qtySuffix": "qty"
+    },
+    "sale": {
+      "windowTitle": "Sale window",
+      "planTitle": "Plan a sale",
+      "windowHint": "Customers see the sale price during the window below.",
+      "planHint": "Add a sale price to schedule a window — list price stays live until then.",
+      "scheduled": "Scheduled",
+      "datesPending": "Dates pending",
+      "price": "Sale price",
+      "priceHint": "Leave 0 to disable.",
+      "start": "Sale start",
+      "end": "Sale end"
+    },
+    "actionBar": {
+      "fixHighlighted": "Fix the highlighted fields",
+      "savingEdit": "Saving changes…",
+      "savingNew": "Creating product…",
+      "fillForm": "New product — fill the form to create",
+      "discard": "Discard",
+      "create": "Create product"
+    }
+  },
+  "variants": {
+    "pageTitle": "{{name}} — Variants",
+    "crumb": "{{name}} variants",
+    "subtitle": "Inline-edit stock, sizes, and colors. Save dirty rows in one shot.",
+    "back": "Back",
+    "editProduct": "Edit product",
+    "emptyNote": "No variants yet. Add the first one below.",
+    "addPanelTitle": "Add variant",
+    "newSizePlaceholderMobile": "Size (e.g. m)",
+    "newSizePlaceholderDesktop": "Size (optional — defaults to 'one size')",
+    "newSizeAria": "New variant size",
+    "selectVariant": "Select variant",
+    "selectAll": "Select all variants",
+    "deleteVariant": "Delete variant",
+    "unsavedAria": "Unsaved",
+    "unsaved": "Unsaved",
+    "unsavedChanges": "Unsaved changes",
+    "columns": {
+      "size": "Size",
+      "color": "Color",
+      "qty": "Quantity",
+      "qtyShort": "Qty",
+      "status": "Status"
+    },
+    "colorPlaceholder": "Color",
+    "addVariantBtn": "Add variant",
+    "addBtn": "Add",
+    "leaveConfirm_one": "You have {{count}} unsaved variant change. Leave and discard?",
+    "leaveConfirm_other": "You have {{count}} unsaved variant changes. Leave and discard?",
+    "saving_one": "Saving {{count}} row…",
+    "saving_other": "Saving {{count}} rows…",
+    "unsavedRows_one": "{{count}} unsaved row",
+    "unsavedRows_other": "{{count}} unsaved rows",
+    "selectedCount": "{{count}} selected",
+    "deletingCount": "Deleting {{count}}…",
+    "deleteSelected": "Delete selected ({{count}})",
+    "discard": "Discard",
+    "savingCount": "Saving {{count}}…",
+    "saveChanges_one": "Save {{count}} change",
+    "saveChanges_other": "Save {{count}} changes",
+    "confirm": {
+      "bulkDelete": {
+        "title_one": "Delete {{count}} variant?",
+        "title_other": "Delete {{count}} variants?",
+        "description": "The selected variants will be removed. Orders that reference them will keep historical pricing but won't be re-orderable.",
+        "confirmLabel": "Delete"
+      }
+    }
+  },
+  "actions": {
+    "viewVariants": "Variants",
+    "edit": "Edit",
+    "delete": "Delete",
+    "softDelete": "Move to deleted",
+    "restore": "Restore",
+    "duplicate": "Duplicate"
+  },
+  "confirm": {
+    "delete": {
+      "title": "Delete product?",
+      "description": "This will move the product to deleted. You can restore it later."
+    },
+    "hardDelete": {
+      "title": "Permanently delete?",
+      "description": "This action cannot be undone."
+    }
+  },
+  "toast": {
+    "create": { "success": "Product created", "error": "Could not create product" },
+    "update": { "success": "Product updated", "error": "Could not update product" },
+    "delete": { "success": "Product deleted", "error": "Could not delete product" },
+    "restore": { "success": "Product restored", "error": "Could not restore product" }
+  }
+}

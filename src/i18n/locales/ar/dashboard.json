@@ -1,0 +1,85 @@
+{
+  "greeting": {
+    "morning": "صباح الخير",
+    "afternoon": "مساء الخير",
+    "evening": "مساء الخير",
+    "lateEvening": "ليلة سعيدة"
+  },
+  "header": {
+    "title": "نظرة سريعة على المتجر.",
+    "subtitle": "متابعة يومية للمخزون والطلبات وأكثر المنتجات إعجاباً.",
+    "refresh": "تحديث"
+  },
+  "kpi": {
+    "todaySales": { "label": "مبيعات اليوم", "helper": "ما تم اليوم، جميع الحالات." },
+    "todayOrders": { "label": "طلبات اليوم", "helperLink": "فتح الطلبات" },
+    "totalRevenue": { "label": "إجمالي الإيرادات", "helper": "منذ البداية، باستثناء الملغاة." },
+    "avgOrder": { "label": "متوسط قيمة الطلب", "helper": "عبر كل الطلبات المكتملة." },
+    "products": { "label": "المنتجات", "helperLink": "إدارة", "soldOut": "{{count}} نفدت" },
+    "categories": { "label": "التصنيفات", "helperLink": "إدارة", "subs": "{{count}} تصنيف فرعي" },
+    "customers": { "label": "العملاء", "helper": "العملاء المسجلون." },
+    "inventory": {
+      "label": "قيمة المخزون",
+      "footer": "الجملة {{wholesale}} · هامش ~{{margin}}%"
+    }
+  },
+  "charts": {
+    "last7Days": "آخر 7 أيام",
+    "revenueMode": "الإيراد اليومي",
+    "ordersMode": "عدد الطلبات اليومي",
+    "modeRevenue": "الإيرادات",
+    "modeOrders": "الطلبات",
+    "chartMode": "وضع الرسم",
+    "byStatus": "حسب الحالة",
+    "orderDistribution": "توزيع الطلبات",
+    "emptyWeek": { "title": "لا توجد بيانات في الأسبوع الأخير", "description": "ستظهر هنا عند ورود طلبات." },
+    "noOrders": "لا توجد طلبات بعد."
+  },
+  "topSelling": {
+    "title": "الأكثر مبيعاً",
+    "subtitle": "الأكثر عدداً في المبيعات",
+    "sold": "بيع منه {{count}}",
+    "empty": { "title": "لا توجد مبيعات بعد", "description": "ستظهر المنتجات الأكثر مبيعاً عند اكتمال الطلبات." }
+  },
+  "mostWishlisted": {
+    "title": "الأكثر إضافة لقائمة الرغبات",
+    "subtitle": "المنتجات الأكثر حفظاً",
+    "viewAll": "عرض قائمة الرغبات",
+    "empty": { "title": "قوائم الرغبات فارغة", "description": "ستظهر هنا عندما يحفظ العملاء منتجات." }
+  },
+  "recentOrders": {
+    "title": "أحدث الطلبات",
+    "subtitle": "أحدث النشاطات",
+    "viewAll": "عرض الكل",
+    "empty": { "title": "لا توجد طلبات بعد", "description": "ستظهر هنا عندما يقدم العملاء طلبات." },
+    "columns": {
+      "orderNumber": "رقم الطلب",
+      "customer": "العميل",
+      "total": "الإجمالي",
+      "status": "الحالة",
+      "when": "متى"
+    }
+  },
+  "title": "الرئيسية",
+  "subtitle": "نظرة عامة على الإيرادات والطلبات وحالة الكتالوج.",
+  "kpis": {
+    "revenue": "الإيرادات",
+    "orders": "الطلبات",
+    "products": "المنتجات",
+    "customers": "العملاء",
+    "avgOrderValue": "متوسط قيمة الطلب",
+    "fulfilled": "تم التنفيذ",
+    "pending": "قيد الانتظار",
+    "cancelled": "ملغاة"
+  },
+  "charts": {
+    "last7Days": "آخر 7 أيام",
+    "ordersByStatus": "الطلبات حسب الحالة",
+    "noData": "لا توجد بيانات لهذه الفترة"
+  },
+  "ranges": {
+    "today": "اليوم",
+    "week": "هذا الأسبوع",
+    "month": "هذا الشهر"
+  }
+}

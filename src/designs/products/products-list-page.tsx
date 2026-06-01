@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminTable,
   Button,
@@ -32,16 +33,17 @@ import { useSubCategories } from '@/features/catalog/sub-categories/hooks/use-su
 import type { ApiCategory, ApiProduct, ApiSubCategory } from '@/shared/types/api';
 import { formatDate, formatEGP } from '@/shared/utils/format';
 import { idOf, nameOf } from '@/shared/utils/relations';
+import { toLocalized } from '@/shared/utils/bilingual';
 
 export type ProductsListTab = 'active' | 'deleted';
 
 export type ProductFlagFilter = 'isSale' | 'isNewArrival' | 'isBestSeller' | 'isSoldOut';
 
-const FLAG_CHIPS: Array<{ key: ProductFlagFilter; label: string }> = [
-  { key: 'isSale', label: 'On sale' },
-  { key: 'isNewArrival', label: 'New' },
-  { key: 'isBestSeller', label: 'Best' },
-  { key: 'isSoldOut', label: 'Sold out' },
+const FLAG_CHIPS: Array<{ key: ProductFlagFilter; labelKey: string }> = [
+  { key: 'isSale', labelKey: 'list.flags.onSale' },
+  { key: 'isNewArrival', labelKey: 'list.flags.new' },
+  { key: 'isBestSeller', labelKey: 'list.flags.best' },
+  { key: 'isSoldOut', labelKey: 'list.flags.soldOut' },
 ];
 
 interface ProductsListPageProps {
@@ -75,6 +77,8 @@ export function ProductsListPage({
 }: ProductsListPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation('products');
+  const { t: tCommon } = useTranslation('common');
   const deferredSearch = useDeferredValue(search);
   const isSearching = deferredSearch.trim().length >= 2;
 
@@ -134,18 +138,18 @@ export function ProductsListPage({
       },
       {
         id: 'name',
-        header: 'Name',
+        header: t('list.columns.name'),
         accessorFn: (p) => p.name.en,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p className="truncate font-medium text-foreground">{toLocalized(row.original.name)}</p>
             <ProductBadgeRow product={row.original} />
           </div>
         ),
       },
       {
         id: 'category',
-        header: 'Category',
+        header: t('list.columns.category'),
         accessorFn: (p) => nameOf(p.category),
         cell: ({ row }) => (
           <span className="text-muted-foreground">{nameOf(row.original.category)}</span>
@@ -153,7 +157,7 @@ export function ProductsListPage({
       },
       {
         id: 'subCategory',
-        header: 'Sub-Category',
+        header: t('list.columns.subCategory'),
         accessorFn: (p) => nameOf(p.subCategory),
         cell: ({ row }) => (
           <span className="text-muted-foreground">{nameOf(row.original.subCategory)}</span>
@@ -161,13 +165,13 @@ export function ProductsListPage({
       },
       {
         id: 'price',
-        header: 'Price',
+        header: t('list.columns.price'),
         accessorFn: (p) => p.finalPrice ?? p.price,
         cell: ({ row }) => <PriceCell product={row.original} />,
       },
       {
         id: 'sold',
-        header: 'Sold',
+        header: t('list.columns.sold'),
         accessorFn: (p) => p.soldItems ?? 0,
         cell: ({ row }) => (
           <span className="tabular-nums text-muted-foreground">
@@ -177,7 +181,7 @@ export function ProductsListPage({
       },
       {
         id: 'variants',
-        header: 'Variants',
+        header: t('list.columns.variants'),
         enableSorting: false,
         cell: ({ row }) => (
           <span className="tabular-nums text-muted-foreground">
@@ -187,7 +191,7 @@ export function ProductsListPage({
       },
       {
         id: 'created',
-        header: 'Created',
+        header: t('list.columns.created'),
         accessorFn: (p) => p.createdAt ?? '',
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDate(row.original.createdAt)}</span>
@@ -209,7 +213,7 @@ export function ProductsListPage({
                 }}
               >
                 <Pencil size={14} strokeWidth={1.5} aria-hidden />
-                Edit
+                {tCommon('actions.edit')}
               </Button>
               <Button
                 variant="ghost"
@@ -218,7 +222,7 @@ export function ProductsListPage({
                   e.stopPropagation();
                   setSoftDeleting(row.original);
                 }}
-                aria-label="Remove from storefront"
+                aria-label={t('list.removeFromStore')}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -235,7 +239,7 @@ export function ProductsListPage({
                 isLoading={restore.isPending && restore.variables === row.original._id}
               >
                 <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
-                Restore
+                {tCommon('actions.restore')}
               </Button>
               <Button
                 variant="ghost"
@@ -244,7 +248,7 @@ export function ProductsListPage({
                   e.stopPropagation();
                   setHardDeleting(row.original);
                 }}
-                aria-label="Permanently delete"
+                aria-label={t('list.permanentDelete')}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -252,7 +256,7 @@ export function ProductsListPage({
           ),
       },
     ],
-    [navigate, tab, restore]
+    [navigate, tab, restore, t, tCommon]
   );
 
   const prefetchDetail = (row: ApiProduct) => {
@@ -273,19 +277,19 @@ export function ProductsListPage({
   return (
     <PageTransition>
       <PageHeader
-        title="Products"
-        subtitle="The full catalog. Edit details, manage variants, or take a product offline."
+        title={t('title')}
+        subtitle={t('subtitle')}
         action={
           <Button onClick={() => navigate({ to: ROUTES.productsNew })}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add Product
+            {t('addProduct')}
           </Button>
         }
         tabs={
           <Tabs value={tab} onValueChange={(v) => onTabChange(v as ProductsListTab)}>
             <TabsList>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="deleted">Deleted</TabsTrigger>
+              <TabsTrigger value="active">{t('tabs.active')}</TabsTrigger>
+              <TabsTrigger value="deleted">{t('tabs.deleted')}</TabsTrigger>
             </TabsList>
           </Tabs>
         }
@@ -295,14 +299,14 @@ export function ProductsListPage({
         <TableToolbar
           search={search}
           onSearchChange={onSearchChange}
-          searchPlaceholder="Search products by name…"
+          searchPlaceholder={t('list.searchPlaceholder')}
           meta={
             isSearching
               ? searchQuery.isFetching
-                ? 'Searching…'
-                : `${products.length} result${products.length === 1 ? '' : 's'}`
+                ? t('list.searching')
+                : t('list.results', { count: products.length })
               : filterMetaCount
-                ? `${filterMetaCount} products`
+                ? t('list.totalProducts', { count: filterMetaCount })
                 : undefined
           }
           filters={
@@ -315,8 +319,8 @@ export function ProductsListPage({
                 }}
                 items={categoriesQuery.data ?? []}
                 getKey={(c) => c._id}
-                getLabel={(c) => c.name.en}
-                placeholder="All categories"
+                getLabel={(c) => toLocalized(c.name)}
+                placeholder={t('list.allCategories')}
                 clearable
                 className="min-w-[180px]"
               />
@@ -325,9 +329,9 @@ export function ProductsListPage({
                 onChange={(v) => onSubCategoryChange(v ?? undefined)}
                 items={subCategoryOptions}
                 getKey={(c) => c._id}
-                getLabel={(c) => c.name.en}
+                getLabel={(c) => toLocalized(c.name)}
                 placeholder={
-                  category ? 'All sub-categories' : 'Pick a category first'
+                  category ? t('list.allSubCategories') : t('list.pickCategoryFirst')
                 }
                 disabled={!category}
                 clearable
@@ -339,7 +343,7 @@ export function ProductsListPage({
                   active={flags.includes(chip.key)}
                   onClick={() => toggleFlag(chip.key)}
                 >
-                  {chip.label}
+                  {t(chip.labelKey)}
                 </FilterChip>
               ))}
             </>
@@ -367,7 +371,7 @@ export function ProductsListPage({
             <Thumbnail src={product.defaultImage?.mediaUrl} size="lg" rounded="xl" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">
-                {product.name.en}
+                {toLocalized(product.name)}
               </p>
               <p className="mt-0.5 truncate text-xs text-muted-foreground">
                 {nameOf(product.category)}
@@ -399,22 +403,22 @@ export function ProductsListPage({
         emptyState={{
           title:
             tab === 'deleted'
-              ? 'Nothing in the trash'
+              ? t('list.empty.emptyTrash')
               : isSearching
                 ? undefined
-                : 'No products yet',
+                : t('list.empty.noProducts'),
           description:
             tab === 'deleted'
-              ? 'Soft-deleted products will appear here.'
+              ? t('list.empty.trashDescription')
               : isSearching
                 ? undefined
-                : 'Create your first product to populate the storefront.',
+                : t('list.empty.createFirst'),
           action:
             tab === 'active' && !isSearching ? (
               <Button asChild>
                 <Link to={ROUTES.productsNew}>
                   <Plus size={16} strokeWidth={1.5} aria-hidden />
-                  Add Product
+                  {t('addProduct')}
                 </Link>
               </Button>
             ) : undefined,
@@ -424,10 +428,10 @@ export function ProductsListPage({
       <ConfirmDialog
         open={softDeleting !== null}
         onOpenChange={(o) => !o && setSoftDeleting(null)}
-        title={`Remove "${softDeleting?.name.en}"?`}
-        description="The product will be hidden from the storefront. You can restore it from the Deleted tab."
+        title={t('list.confirm.soft.title', { name: softDeleting ? toLocalized(softDeleting.name) : '' })}
+        description={t('list.confirm.soft.description')}
         variant="warning"
-        confirmLabel="Remove"
+        confirmLabel={t('list.confirm.soft.confirmLabel')}
         isPending={softDelete.isPending}
         onConfirm={() => {
           if (!softDeleting) return;
@@ -438,9 +442,9 @@ export function ProductsListPage({
       <ConfirmDialog
         open={hardDeleting !== null}
         onOpenChange={(o) => !o && setHardDeleting(null)}
-        title={`Permanently delete "${hardDeleting?.name.en}"?`}
-        description="This removes the product, its variants, and S3 images. Cannot be undone."
-        confirmLabel="Delete permanently"
+        title={t('list.confirm.hard.title', { name: hardDeleting ? toLocalized(hardDeleting.name) : '' })}
+        description={t('list.confirm.hard.description')}
+        confirmLabel={t('list.confirm.hard.confirmLabel')}
         requireTypedConfirmation="delete"
         isPending={hardDelete.isPending}
         onConfirm={() => {
@@ -474,11 +478,12 @@ function ProductBadgeRow({
   product: ApiProduct;
   className?: string;
 }) {
+  const { t } = useTranslation('products');
   const badges: Array<{ key: string; label: string; tone: 'accent' | 'success' | 'warning' | 'destructive' }> = [];
-  if (product.isSale) badges.push({ key: 'sale', label: 'Sale', tone: 'accent' });
-  if (product.isNewArrival) badges.push({ key: 'new', label: 'New', tone: 'success' });
-  if (product.isBestSeller) badges.push({ key: 'best', label: 'Best', tone: 'warning' });
-  if (product.isSoldOut) badges.push({ key: 'sold', label: 'Sold out', tone: 'destructive' });
+  if (product.isSale) badges.push({ key: 'sale', label: t('list.badges.sale'), tone: 'accent' });
+  if (product.isNewArrival) badges.push({ key: 'new', label: t('list.badges.new'), tone: 'success' });
+  if (product.isBestSeller) badges.push({ key: 'best', label: t('list.badges.best'), tone: 'warning' });
+  if (product.isSoldOut) badges.push({ key: 'sold', label: t('list.badges.soldOut'), tone: 'destructive' });
   if (badges.length === 0) return null;
   return (
     <div className={`flex flex-wrap items-center gap-1.5 ${className ?? 'mt-1'}`}>

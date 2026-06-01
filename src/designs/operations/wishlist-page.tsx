@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ExternalLink, Mail, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { AdminTable, Button, TableToolbar, Thumbnail } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
 import { ROUTES } from '@/config/constants';
@@ -10,7 +11,7 @@ import { useWishlist } from '@/features/wishlist/hooks/use-wishlist';
 import { prefetchProduct } from '@/features/products/hooks/use-products';
 import type { ApiWishlistEntry } from '@/shared/types/api';
 import { formatDateTime, formatEGP } from '@/shared/utils/format';
-import { toEN } from '@/shared/utils/bilingual';
+import { toEN, toLocalized } from '@/shared/utils/bilingual';
 
 interface WishlistPageProps {
   page: number;
@@ -20,6 +21,7 @@ interface WishlistPageProps {
 export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { t } = useTranslation('wishlist');
   const wishlistQuery = useWishlist(page);
   const items = useMemo(() => wishlistQuery.data?.items ?? [], [wishlistQuery.data?.items]);
   const [search, setSearch] = useState('');
@@ -58,12 +60,12 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
       },
       {
         id: 'name',
-        header: 'Product',
+        header: t('columns.product'),
         accessorFn: (i) => toEN(i.product?.name),
         cell: ({ row }) => (
           <div className="min-w-0">
             <p className="truncate font-medium text-foreground">
-              {toEN(row.original.product?.name) || '—'}
+              {toLocalized(row.original.product?.name) || '—'}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
               {formatEGP(row.original.product?.finalPrice ?? row.original.product?.price ?? 0)}
@@ -73,7 +75,7 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
       },
       {
         id: 'customer',
-        header: 'Customer',
+        header: t('columns.customer'),
         enableSorting: false,
         cell: ({ row }) => (
           <div className="min-w-0 space-y-0.5 text-xs">
@@ -99,7 +101,7 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
       },
       {
         id: 'createdAt',
-        header: 'Added',
+        header: t('columns.addedAt'),
         accessorFn: (i) => i.createdAt,
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDateTime(row.original.createdAt)}</span>
@@ -123,14 +125,14 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
                 }}
               >
                 <ExternalLink size={14} strokeWidth={1.5} aria-hidden />
-                Open
+                {t('open')}
               </Button>
             </div>
           );
         },
       },
     ],
-    [navigate]
+    [navigate, t]
   );
 
   const totalItems = wishlistQuery.data?.totalItems ?? items.length;
@@ -138,16 +140,20 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
   return (
     <>
       <PageHeader
-        title="Wishlist"
-        subtitle="What customers are saving for later. Read-only."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       <div className="mb-4">
         <TableToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search by product or customer…"
-          meta={wishlistQuery.data ? `${filteredItems.length} of ${totalItems}` : undefined}
+          searchPlaceholder={t('searchPlaceholder')}
+          meta={
+            wishlistQuery.data
+              ? t('meta', { count: filteredItems.length, total: totalItems })
+              : undefined
+          }
         />
       </div>
 
@@ -176,7 +182,7 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
               <Thumbnail src={i.product?.defaultImage?.mediaUrl} size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-foreground">
-                  {toEN(i.product?.name) || '—'}
+                  {toLocalized(i.product?.name) || '—'}
                 </p>
                 {i.customer?.phone ? (
                   <p className="truncate text-xs text-muted-foreground tabular-nums">
@@ -206,8 +212,8 @@ export function WishlistPage({ page, onPageChange }: WishlistPageProps) {
           );
         }}
         emptyState={{
-          title: 'No saved items',
-          description: 'No customers have added products to their wishlist yet.',
+          title: t('empty.title'),
+          description: t('empty.description'),
         }}
       />
     </>

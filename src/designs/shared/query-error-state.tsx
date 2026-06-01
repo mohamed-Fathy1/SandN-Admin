@@ -1,4 +1,5 @@
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import { ApiError } from '@/shared/lib/axios';
 import { cn } from '@/shared/utils/cn';
@@ -11,12 +12,13 @@ interface QueryErrorStateProps {
 }
 
 export function QueryErrorState({ error, onRetry, className, title }: QueryErrorStateProps) {
+  const { t } = useTranslation('common');
   const message =
     error instanceof ApiError
       ? error.message
       : error instanceof Error
         ? error.message
-        : 'Something went wrong loading this data.';
+        : t('errors.generic');
 
   return (
     <div
@@ -30,13 +32,13 @@ export function QueryErrorState({ error, onRetry, className, title }: QueryError
         <AlertTriangle size={22} strokeWidth={1.5} aria-hidden />
       </div>
       <h3 className="m-0 text-base font-semibold text-foreground">
-        {title ?? "Couldn't load"}
+        {title ?? t('errors.loadFailed')}
       </h3>
       <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{message}</p>
       {onRetry ? (
         <Button variant="outline" size="sm" onClick={onRetry} className="mt-5">
           <RefreshCcw size={14} strokeWidth={1.5} aria-hidden />
-          Try again
+          {t('states.tryAgain')}
         </Button>
       ) : null}
     </div>

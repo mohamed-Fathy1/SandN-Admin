@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowUpRight,
   Boxes,
@@ -34,9 +35,8 @@ import { PageHeader } from '@/designs/layout/page-header';
 import { useProductAnalysis } from '@/features/products/hooks/use-products';
 import { useOrders } from '@/features/orders/hooks/use-orders';
 import { ORDER_STATUSES, ROUTES, type OrderStatus } from '@/config/constants';
-import { ORDER_STATUS_META } from '@/features/orders/lib/status-meta';
 import { formatDateTime, formatEGP, formatNumber } from '@/shared/utils/format';
-import { toEN } from '@/shared/utils/bilingual';
+import { toLocalized } from '@/shared/utils/bilingual';
 import type {
   ApiOrder,
   ApiProductAnalysis,
@@ -48,24 +48,25 @@ import type { ColumnDef } from '@tanstack/react-table';
 const OrdersByStatusChart = lazy(() => import('./orders-by-status-chart'));
 const Last7DaysChart = lazy(() => import('./last-7-days-chart'));
 
-const HOUR_GREETING = (() => {
+function hourGreetingKey(): string {
   const h = new Date().getHours();
-  if (h < 5) return 'Late evening';
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  if (h < 21) return 'Good evening';
-  return 'Late evening';
-})();
+  if (h < 5) return 'greeting.lateEvening';
+  if (h < 12) return 'greeting.morning';
+  if (h < 17) return 'greeting.afternoon';
+  if (h < 21) return 'greeting.evening';
+  return 'greeting.lateEvening';
+}
 
 export function DashboardPage() {
+  const { t } = useTranslation('dashboard');
   const analysisQuery = useProductAnalysis();
 
   return (
     <PageTransition>
       <PageHeader
-        eyebrow={HOUR_GREETING}
-        title="The storefront, at a glance."
-        subtitle="A daily pulse of inventory, orders, and the things customers love."
+        eyebrow={t(hourGreetingKey())}
+        title={t('header.title')}
+        subtitle={t('header.subtitle')}
         action={
           <Button
             variant="ghost"
@@ -74,7 +75,7 @@ export function DashboardPage() {
             isLoading={analysisQuery.isFetching}
           >
             <RefreshCw size={14} strokeWidth={1.75} aria-hidden />
-            Refresh
+            {t('header.refresh')}
           </Button>
         }
       />
@@ -91,18 +92,18 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <FadeUp delay={0} className="h-full">
           <KpiCard
-            label="Today sales"
+            label={t('kpi.todaySales.label')}
             icon={Coins}
             isPending={analysisQuery.isPending}
             value={
               analysisQuery.data ? formatEGP(analysisQuery.data.orders.todaySales) : undefined
             }
-            helper="Captured today, all statuses."
+            helper={t('kpi.todaySales.helper')}
           />
         </FadeUp>
         <FadeUp delay={0.06} className="h-full">
           <KpiCard
-            label="Today orders"
+            label={t('kpi.todayOrders.label')}
             icon={ShoppingBag}
             isPending={analysisQuery.isPending}
             value={
@@ -111,24 +112,24 @@ export function DashboardPage() {
                 : undefined
             }
             helperHref={ROUTES.orders}
-            helperLabel="Open orders"
+            helperLabel={t('kpi.todayOrders.helperLink')}
             helperSearch={{ page: 1, search: '' }}
           />
         </FadeUp>
         <FadeUp delay={0.12} className="h-full">
           <KpiCard
-            label="Total revenue"
+            label={t('kpi.totalRevenue.label')}
             icon={TrendingUp}
             isPending={analysisQuery.isPending}
             value={
               analysisQuery.data ? formatEGP(analysisQuery.data.orders.totalRevenue) : undefined
             }
-            helper="All-time, excluding cancellations."
+            helper={t('kpi.totalRevenue.helper')}
           />
         </FadeUp>
         <FadeUp delay={0.18} className="h-full">
           <KpiCard
-            label="Avg order value"
+            label={t('kpi.avgOrder.label')}
             icon={Sparkles}
             isPending={analysisQuery.isPending}
             value={
@@ -136,7 +137,7 @@ export function DashboardPage() {
                 ? formatEGP(analysisQuery.data.orders.averageOrderValue)
                 : undefined
             }
-            helper="Across all completed orders."
+            helper={t('kpi.avgOrder.helper')}
           />
         </FadeUp>
       </div>
@@ -144,7 +145,7 @@ export function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <FadeUp delay={0.22} className="h-full">
           <KpiCard
-            label="Products"
+            label={t('kpi.products.label')}
             icon={Package}
             isPending={analysisQuery.isPending}
             value={
@@ -152,17 +153,17 @@ export function DashboardPage() {
             }
             helper={
               analysisQuery.data
-                ? `${formatNumber(analysisQuery.data.products.soldOut)} sold out`
+                ? t('kpi.products.soldOut', { count: analysisQuery.data.products.soldOut })
                 : undefined
             }
             helperHref={ROUTES.products}
-            helperLabel="Manage"
+            helperLabel={t('kpi.products.helperLink')}
             helperSearch={{ page: 1, search: '', tab: 'active', flags: [] }}
           />
         </FadeUp>
         <FadeUp delay={0.26} className="h-full">
           <KpiCard
-            label="Categories"
+            label={t('kpi.categories.label')}
             icon={Tag}
             isPending={analysisQuery.isPending}
             value={
@@ -170,22 +171,22 @@ export function DashboardPage() {
             }
             helper={
               analysisQuery.data
-                ? `${formatNumber(analysisQuery.data.categories.subCategories)} sub-categories`
+                ? t('kpi.categories.subs', { count: analysisQuery.data.categories.subCategories })
                 : undefined
             }
             helperHref={ROUTES.categories}
-            helperLabel="Manage"
+            helperLabel={t('kpi.categories.helperLink')}
           />
         </FadeUp>
         <FadeUp delay={0.3} className="h-full">
           <KpiCard
-            label="Customers"
+            label={t('kpi.customers.label')}
             icon={Users}
             isPending={analysisQuery.isPending}
             value={
               analysisQuery.data ? formatNumber(analysisQuery.data.customers.total) : undefined
             }
-            helper="Registered shoppers."
+            helper={t('kpi.customers.helper')}
           />
         </FadeUp>
         <FadeUp delay={0.34} className="h-full">
@@ -244,7 +245,7 @@ function KpiCard({
   value,
   helper,
   helperHref,
-  helperLabel = 'Manage',
+  helperLabel,
   helperSearch,
 }: KpiCardProps) {
   return (
@@ -300,6 +301,7 @@ function InventoryValueCard({
   analysis: ApiProductAnalysis | undefined;
   isPending: boolean;
 }) {
+  const { t } = useTranslation('dashboard');
   const final = analysis?.products.totalFinalPrice ?? 0;
   const wholesale = analysis?.products.totalWholesalePrice ?? 0;
   const margin = final > 0 ? Math.round(((final - wholesale) / final) * 100) : 0;
@@ -308,7 +310,7 @@ function InventoryValueCard({
     <Card padding="none" className="h-full overflow-hidden">
       <div className="flex h-full flex-col p-5">
         <div className="flex items-start justify-between gap-3">
-          <Eyebrow>Inventory value</Eyebrow>
+          <Eyebrow>{t('kpi.inventory.label')}</Eyebrow>
           <span
             aria-hidden
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent"
@@ -324,7 +326,7 @@ function InventoryValueCard({
           )}
           {!isPending ? (
             <p className="mt-2 text-xs text-muted-foreground font-tabular">
-              Wholesale {formatEGP(wholesale)} · ~{margin}% margin
+              {t('kpi.inventory.footer', { wholesale: formatEGP(wholesale), margin })}
             </p>
           ) : null}
         </div>
@@ -340,6 +342,7 @@ function Last7DaysCard({
   analysis: ApiProductAnalysis | undefined;
   isPending: boolean;
 }) {
+  const { t } = useTranslation('dashboard');
   const [mode, setMode] = useState<'revenue' | 'orders'>('revenue');
   const data = analysis?.orders.last7Days ?? [];
   const empty = !isPending && data.length === 0;
@@ -348,14 +351,14 @@ function Last7DaysCard({
     <Card padding="none">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-6">
         <div>
-          <h2 className="m-0 text-base font-semibold text-foreground">Last 7 days</h2>
+          <h2 className="m-0 text-base font-semibold text-foreground">{t('charts.last7Days')}</h2>
           <Eyebrow as="p" className="mt-0.5">
-            {mode === 'revenue' ? 'Daily revenue' : 'Daily order volume'}
+            {mode === 'revenue' ? t('charts.revenueMode') : t('charts.ordersMode')}
           </Eyebrow>
         </div>
         <div
           role="tablist"
-          aria-label="Chart mode"
+          aria-label={t('charts.chartMode')}
           className="inline-flex h-9 items-center rounded-full border border-border bg-card p-1"
         >
           <button
@@ -369,7 +372,7 @@ function Last7DaysCard({
                 : 'inline-flex h-7 items-center rounded-full px-3 text-xs font-medium text-muted-foreground hover:text-foreground'
             }
           >
-            Revenue
+            {t('charts.modeRevenue')}
           </button>
           <button
             type="button"
@@ -382,7 +385,7 @@ function Last7DaysCard({
                 : 'inline-flex h-7 items-center rounded-full px-3 text-xs font-medium text-muted-foreground hover:text-foreground'
             }
           >
-            Orders
+            {t('charts.modeOrders')}
           </button>
         </div>
       </div>
@@ -391,8 +394,8 @@ function Last7DaysCard({
           <Skeleton className="h-48 w-full" />
         ) : empty ? (
           <EmptyState
-            title="No data in the last week"
-            description="Once orders come in they'll plot here."
+            title={t('charts.emptyWeek.title')}
+            description={t('charts.emptyWeek.description')}
           />
         ) : (
           <Suspense fallback={<Skeleton className="h-48 w-full" />}>
@@ -411,27 +414,29 @@ function OrdersByStatusCard({
   analysis: ApiProductAnalysis | undefined;
   isPending: boolean;
 }) {
+  const { t } = useTranslation('dashboard');
+  const { t: tOrders } = useTranslation('orders');
   const chartData = useMemo(() => {
     if (!analysis) return [];
     return ORDER_STATUSES.map((status: OrderStatus) => ({
       status,
-      label: ORDER_STATUS_META[status].label,
+      label: tOrders(`status.${status}`),
       count: analysis.orders.byStatus[status] ?? 0,
     }));
-  }, [analysis]);
+  }, [analysis, tOrders]);
 
   const allZero = chartData.every((c) => c.count === 0);
 
   return (
     <Card>
       <div className="mb-2">
-        <h2 className="m-0 text-base font-semibold text-foreground">By status</h2>
-        <Eyebrow as="p" className="mt-0.5">Order distribution</Eyebrow>
+        <h2 className="m-0 text-base font-semibold text-foreground">{t('charts.byStatus')}</h2>
+        <Eyebrow as="p" className="mt-0.5">{t('charts.orderDistribution')}</Eyebrow>
       </div>
       {isPending ? (
         <Skeleton className="mt-4 h-48 w-full" />
       ) : allZero ? (
-        <p className="mt-4 text-sm text-muted-foreground">No orders yet.</p>
+        <p className="mt-4 text-sm text-muted-foreground">{t('charts.noOrders')}</p>
       ) : (
         <div className="mt-4">
           <Suspense fallback={<Skeleton className="h-48 w-full" />}>
@@ -450,15 +455,16 @@ function TopSellingCard({
   products: AnalysisTopSellingProduct[];
   isPending: boolean;
 }) {
+  const { t } = useTranslation('dashboard');
   return (
     <Card padding="none">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-6">
         <div>
           <h2 className="m-0 flex items-center gap-2 text-base font-semibold text-foreground">
             <Crown size={14} strokeWidth={1.75} aria-hidden className="text-accent" />
-            Top selling
+            {t('topSelling.title')}
           </h2>
-          <Eyebrow as="p" className="mt-0.5">Most units sold</Eyebrow>
+          <Eyebrow as="p" className="mt-0.5">{t('topSelling.subtitle')}</Eyebrow>
         </div>
       </div>
       {isPending ? (
@@ -472,8 +478,8 @@ function TopSellingCard({
       ) : products.length === 0 ? (
         <div className="px-6 py-6">
           <EmptyState
-            title="Nothing sold yet"
-            description="As orders complete, top-selling products appear here."
+            title={t('topSelling.empty.title')}
+            description={t('topSelling.empty.description')}
           />
         </div>
       ) : (
@@ -492,7 +498,7 @@ function TopSellingCard({
                   to={ROUTES.productDetail(p._id) as never}
                   className="block truncate text-sm font-medium text-foreground hover:text-accent"
                 >
-                  {toEN(p.name) || '—'}
+                  {toLocalized(p.name) || '—'}
                 </Link>
                 {p.finalPrice != null ? (
                   <p className="text-xs text-muted-foreground tabular-nums">
@@ -501,7 +507,7 @@ function TopSellingCard({
                 ) : null}
               </div>
               <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-foreground">
-                {formatNumber(p.soldItems)} sold
+                {t('topSelling.sold', { count: p.soldItems })}
               </span>
             </li>
           ))}
@@ -518,19 +524,20 @@ function MostWishlistedCard({
   products: AnalysisWishlistedProduct[];
   isPending: boolean;
 }) {
+  const { t } = useTranslation('dashboard');
   return (
     <Card padding="none">
       <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-6">
         <div>
           <h2 className="m-0 flex items-center gap-2 text-base font-semibold text-foreground">
             <Heart size={14} strokeWidth={1.75} aria-hidden className="text-accent" />
-            Most wishlisted
+            {t('mostWishlisted.title')}
           </h2>
-          <Eyebrow as="p" className="mt-0.5">Saved-for-later leaders</Eyebrow>
+          <Eyebrow as="p" className="mt-0.5">{t('mostWishlisted.subtitle')}</Eyebrow>
         </div>
         <Button asChild variant="ghost" size="sm">
           <Link to={ROUTES.wishlist} search={{ page: 1 }}>
-            View wishlist
+            {t('mostWishlisted.viewAll')}
             <ArrowUpRight size={12} strokeWidth={2} aria-hidden />
           </Link>
         </Button>
@@ -546,8 +553,8 @@ function MostWishlistedCard({
       ) : products.length === 0 ? (
         <div className="px-6 py-6">
           <EmptyState
-            title="Empty wishlists"
-            description="When customers save products, they'll surface here."
+            title={t('mostWishlisted.empty.title')}
+            description={t('mostWishlisted.empty.description')}
           />
         </div>
       ) : (
@@ -560,7 +567,7 @@ function MostWishlistedCard({
                   to={ROUTES.productDetail(entry.product._id) as never}
                   className="block truncate text-sm font-medium text-foreground hover:text-accent"
                 >
-                  {toEN(entry.product.name) || '—'}
+                  {toLocalized(entry.product.name) || '—'}
                 </Link>
                 {entry.product.finalPrice != null ? (
                   <p className="text-xs text-muted-foreground tabular-nums">
@@ -581,6 +588,7 @@ function MostWishlistedCard({
 }
 
 function RecentOrdersCard() {
+  const { t } = useTranslation('dashboard');
   const q = useOrders({ page: 1 });
   const recent = (q.data?.orders ?? []).slice(0, 6);
 
@@ -588,7 +596,7 @@ function RecentOrdersCard() {
     () => [
       {
         id: 'orderNumber',
-        header: 'Order #',
+        header: t('recentOrders.columns.orderNumber'),
         enableSorting: false,
         cell: ({ row }) => (
           <Link
@@ -601,7 +609,7 @@ function RecentOrdersCard() {
       },
       {
         id: 'customer',
-        header: 'Customer',
+        header: t('recentOrders.columns.customer'),
         enableSorting: false,
         cell: ({ row }) => {
           const info = row.original.customerInfo;
@@ -611,7 +619,7 @@ function RecentOrdersCard() {
       },
       {
         id: 'total',
-        header: 'Total',
+        header: t('recentOrders.columns.total'),
         enableSorting: false,
         meta: { numeric: true },
         cell: ({ row }) => (
@@ -620,32 +628,32 @@ function RecentOrdersCard() {
       },
       {
         id: 'status',
-        header: 'Status',
+        header: t('recentOrders.columns.status'),
         enableSorting: false,
         cell: ({ row }) => <StatusBadge status={row.original.status} size="sm" />,
       },
       {
         id: 'when',
-        header: 'When',
+        header: t('recentOrders.columns.when'),
         enableSorting: false,
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDateTime(row.original.createdAt)}</span>
         ),
       },
     ],
-    []
+    [t]
   );
 
   return (
     <Card padding="none">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-6">
         <div>
-          <h2 className="m-0 text-base font-semibold text-foreground">Recent orders</h2>
-          <Eyebrow as="p" className="mt-0.5">Latest activity</Eyebrow>
+          <h2 className="m-0 text-base font-semibold text-foreground">{t('recentOrders.title')}</h2>
+          <Eyebrow as="p" className="mt-0.5">{t('recentOrders.subtitle')}</Eyebrow>
         </div>
         <Button asChild variant="ghost" size="sm">
           <Link to={ROUTES.orders} search={{ page: 1, search: '' }}>
-            View all
+            {t('recentOrders.viewAll')}
             <ArrowUpRight size={12} strokeWidth={2} aria-hidden />
           </Link>
         </Button>
@@ -664,8 +672,8 @@ function RecentOrdersCard() {
       ) : recent.length === 0 ? (
         <div className="px-6 py-4">
           <EmptyState
-            title="No orders yet"
-            description="When customers place orders, they'll show up here."
+            title={t('recentOrders.empty.title')}
+            description={t('recentOrders.empty.description')}
           />
         </div>
       ) : (

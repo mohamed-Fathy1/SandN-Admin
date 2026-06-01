@@ -11,58 +11,58 @@ import {
 import type { OrderStatus } from '@/config/constants';
 
 export interface OrderStatusMeta {
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
-  description: string;
+  descriptionKey: string;
 }
 
 export const ORDER_STATUS_META: Record<OrderStatus, OrderStatusMeta> = {
   under_review: {
-    label: 'Under review',
+    labelKey: 'status.under_review',
     icon: Eye,
-    description: 'Initial state — awaiting admin review.',
+    descriptionKey: 'statusDescription.under_review',
   },
   confirmed: {
-    label: 'Confirmed',
+    labelKey: 'status.confirmed',
     icon: Check,
-    description: 'Admin confirmed the order.',
+    descriptionKey: 'statusDescription.confirmed',
   },
   ordered: {
-    label: 'Ordered',
+    labelKey: 'status.ordered',
     icon: ShoppingBag,
-    description: 'Order placed / processed for fulfillment.',
+    descriptionKey: 'statusDescription.ordered',
   },
   shipped: {
-    label: 'Shipped',
+    labelKey: 'status.shipped',
     icon: Truck,
-    description: 'Out for delivery.',
+    descriptionKey: 'statusDescription.shipped',
   },
   delivered: {
-    label: 'Delivered',
+    labelKey: 'status.delivered',
     icon: PackageCheck,
-    description: 'Customer received the order.',
+    descriptionKey: 'statusDescription.delivered',
   },
   cancelled: {
-    label: 'Cancelled',
+    labelKey: 'status.cancelled',
     icon: X,
-    description: 'Order was cancelled.',
+    descriptionKey: 'statusDescription.cancelled',
   },
   deleted: {
-    label: 'Deleted',
+    labelKey: 'status.deleted',
     icon: Trash2,
-    description: 'Order is hidden.',
+    descriptionKey: 'statusDescription.deleted',
   },
 };
 
-export const ORDER_STATUS_TABS: { value: 'all' | OrderStatus; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'under_review', label: 'Under review' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'ordered', label: 'Ordered' },
-  { value: 'shipped', label: 'Shipped' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'deleted', label: 'Deleted' },
+export const ORDER_STATUS_TABS: { value: 'all' | OrderStatus; labelKey: string }[] = [
+  { value: 'all', labelKey: 'tabs.all' },
+  { value: 'under_review', labelKey: 'tabs.under_review' },
+  { value: 'confirmed', labelKey: 'tabs.confirmed' },
+  { value: 'ordered', labelKey: 'tabs.ordered' },
+  { value: 'shipped', labelKey: 'tabs.shipped' },
+  { value: 'delivered', labelKey: 'tabs.delivered' },
+  { value: 'cancelled', labelKey: 'tabs.cancelled' },
+  { value: 'deleted', labelKey: 'tabs.deleted' },
 ];
 
 /** Linear stepper order per the API spec. */

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminTable,
@@ -22,12 +23,13 @@ import {
   type ShippingFormValues,
 } from '@/features/shipping/schemas/shipping-form';
 import type { ApiShipping } from '@/shared/types/api';
-import { CURRENCY_SUFFIX } from '@/config/constants';
-import { emptyBilingual } from '@/shared/utils/bilingual';
+import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { formatEGP } from '@/shared/utils/format';
 
 export function ShippingPage() {
+  const { t } = useTranslation('marketing');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiShipping | null>(null);
   const [deleting, setDeleting] = useState<ApiShipping | null>(null);
@@ -39,11 +41,11 @@ export function ShippingPage() {
     () => [
       {
         id: 'region',
-        header: 'Region',
+        header: t('shipping.columns.region'),
         accessorFn: (s) => s.name.en,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p className="truncate font-medium text-foreground">{toLocalized(row.original.name)}</p>
             <p
               dir="rtl"
               className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
@@ -56,7 +58,7 @@ export function ShippingPage() {
       },
       {
         id: 'cost',
-        header: 'Cost',
+        header: t('shipping.columns.cost'),
         accessorFn: (s) => s.cost,
         cell: ({ row }) => (
           <span className="tabular-nums font-medium text-foreground">
@@ -79,7 +81,7 @@ export function ShippingPage() {
               }}
             >
               <Pencil size={14} strokeWidth={1.5} aria-hidden />
-              Edit
+              {tCommon('actions.edit')}
             </Button>
             <Button
               variant="ghost"
@@ -88,7 +90,7 @@ export function ShippingPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
-              aria-label={`Delete ${row.original.name.en}`}
+              aria-label={t('shipping.ariaDelete', { name: toLocalized(row.original.name) })}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>
@@ -96,7 +98,7 @@ export function ShippingPage() {
         ),
       },
     ],
-    []
+    [t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -104,12 +106,12 @@ export function ShippingPage() {
   return (
     <>
       <PageHeader
-        title="Shipping"
-        subtitle="Regions and their delivery cost. Customers pick one at checkout."
+        title={t('shipping.title')}
+        subtitle={t('shipping.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add region
+            {t('shipping.addRegion')}
           </Button>
         }
       />
@@ -123,8 +125,8 @@ export function ShippingPage() {
         onRetry={() => shippingQuery.refetch()}
         getRowId={(s) => s._id}
         emptyState={{
-          title: 'No shipping regions',
-          description: 'Add one so customers can check out.',
+          title: t('shipping.empty.title'),
+          description: t('shipping.empty.description'),
         }}
       />
 
@@ -141,9 +143,9 @@ export function ShippingPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title={`Delete "${deleting?.name.en}"?`}
-        description="Orders previously placed against this region keep their original cost. New checkouts will lose this option."
-        confirmLabel="Delete region"
+        title={t('shipping.confirm.delete.title', { name: deleting ? toLocalized(deleting.name) : '' })}
+        description={t('shipping.confirm.delete.description')}
+        confirmLabel={t('shipping.confirm.delete.confirmLabel')}
         isPending={deleteRegion.isPending}
         onConfirm={() => {
           if (!deleting) return;
@@ -161,6 +163,8 @@ interface ShippingFormSheetProps {
 }
 
 function ShippingFormSheet({ open, onClose, entity }: ShippingFormSheetProps) {
+  const { t } = useTranslation('marketing');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateShipping();
   const update = useUpdateShipping();
   const isEdit = Boolean(entity);
@@ -224,34 +228,34 @@ function ShippingFormSheet({ open, onClose, entity }: ShippingFormSheetProps) {
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit region' : 'New region'}
-      description={isEdit ? entity?.name.en : 'Customers see the EN name at checkout.'}
+      title={isEdit ? t('shipping.edit') : t('shipping.new')}
+      description={isEdit && entity ? toLocalized(entity.name) : t('shipping.form.newDescription')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save changes' : 'Create region'}
+            {isEdit ? tCommon('actions.saveChanges') : t('shipping.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <BilingualInput
-          label="Name"
+          label={t('shipping.form.name')}
           required
           value={values.name}
           onChange={(name) => setValues((p) => ({ ...p, name }))}
           error={errors.name}
-          placeholder={{ en: 'Cairo', ar: 'القاهرة' }}
+          placeholder={{ en: t('shipping.form.namePlaceholderEn'), ar: t('shipping.form.namePlaceholderAr') }}
         />
 
-        <AdminFormField label="Cost" required error={errors.cost}>
+        <AdminFormField label={t('shipping.form.cost')} required error={errors.cost}>
           <NumberInput
             value={values.cost}
             onChange={(cost) => setValues((p) => ({ ...p, cost }))}
-            suffix={CURRENCY_SUFFIX}
+            suffix={tCommon('currencySuffix')}
             clampMin={0}
             hasError={Boolean(errors.cost)}
             disabled={isPending}

@@ -2,6 +2,7 @@ import { Link, useRouterState } from '@tanstack/react-router';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { motion } from 'framer-motion';
 import { LogOut, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { NAV_GROUPS } from './nav-config';
 import { logoutAndRedirect } from '@/features/auth/lib/logout';
 import { cn } from '@/shared/utils/cn';
@@ -22,6 +23,8 @@ export function SidebarNav({
   onNavigate,
 }: SidebarNavProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useTranslation('nav');
+  const { t: tCommon } = useTranslation('common');
 
   return (
     <>
@@ -32,7 +35,7 @@ export function SidebarNav({
               to="/"
               onClick={onNavigate}
               className="group inline-flex items-baseline gap-0.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label="S and N — Dashboard"
+              aria-label={tCommon('appName')}
             >
               <span className="font-display text-2xl leading-none text-sidebar-foreground-active">
                 S
@@ -49,10 +52,10 @@ export function SidebarNav({
             <button
               type="button"
               onClick={onToggleCollapse}
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={collapsed ? tCommon('actions.open') : tCommon('actions.close')}
               className={cn(
                 'inline-flex h-8 w-8 items-center justify-center rounded-md text-white/45 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                collapsed ? 'mx-auto' : 'ml-auto'
+                collapsed ? 'mx-auto' : 'ms-auto'
               )}
             >
               {collapsed ? (
@@ -72,10 +75,10 @@ export function SidebarNav({
         >
           {NAV_GROUPS.map((group, gIdx) => (
             <div key={gIdx} className={cn('mb-5', gIdx === 0 && 'mb-3')}>
-              {group.label && !collapsed ? (
-                <p className="mb-2 px-2 text-eyebrow text-white/55">{group.label}</p>
+              {group.labelKey && !collapsed ? (
+                <p className="mb-2 px-2 text-eyebrow text-white/55">{t(group.labelKey)}</p>
               ) : null}
-              {group.label && collapsed ? (
+              {group.labelKey && collapsed ? (
                 <div className="mx-auto mb-2 h-px w-6 bg-white/10" />
               ) : null}
               <ul className="space-y-0.5">
@@ -99,7 +102,7 @@ export function SidebarNav({
               <button
                 type="button"
                 onClick={logoutAndRedirect}
-                aria-label="Log out"
+                aria-label={tCommon('header.logout')}
                 className={cn(
                   'group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   collapsed && 'justify-center px-0'
@@ -111,7 +114,7 @@ export function SidebarNav({
                   aria-hidden
                   className="transition-transform motion-safe:group-hover:-translate-x-0.5"
                 />
-                {!collapsed && <span>Log out</span>}
+                {!collapsed && <span>{tCommon('header.logout')}</span>}
               </button>
             </Tooltip.Trigger>
             {collapsed && (
@@ -121,7 +124,7 @@ export function SidebarNav({
                   sideOffset={10}
                   className="rounded-md border border-white/10 bg-sidebar px-2.5 py-1.5 text-xs text-white shadow-overlay"
                 >
-                  Log out
+                  {tCommon('header.logout')}
                 </Tooltip.Content>
               </Tooltip.Portal>
             )}
@@ -133,7 +136,7 @@ export function SidebarNav({
 }
 
 interface SidebarLinkProps {
-  item: { label: string; to: string; icon: LucideIcon };
+  item: { labelKey: string; to: string; icon: LucideIcon };
   collapsed: boolean;
   pathname: string;
   onNavigate?: () => void;
@@ -141,6 +144,7 @@ interface SidebarLinkProps {
 
 function SidebarLink({ item, collapsed, pathname, onNavigate }: SidebarLinkProps) {
   const Icon = item.icon;
+  const { t } = useTranslation('nav');
   const isActive =
     item.to === '/' ? pathname === '/' : pathname === item.to || pathname.startsWith(`${item.to}/`);
 
@@ -182,7 +186,7 @@ function SidebarLink({ item, collapsed, pathname, onNavigate }: SidebarLinkProps
             />
             {!collapsed && (
               <span className={cn('relative truncate', isActive && 'font-semibold')}>
-                {item.label}
+                {t(item.labelKey)}
               </span>
             )}
           </Link>
@@ -194,7 +198,7 @@ function SidebarLink({ item, collapsed, pathname, onNavigate }: SidebarLinkProps
               sideOffset={10}
               className="rounded-md border border-white/10 bg-sidebar px-2.5 py-1.5 text-xs text-white shadow-overlay"
             >
-              {item.label}
+              {t(item.labelKey)}
             </Tooltip.Content>
           </Tooltip.Portal>
         )}

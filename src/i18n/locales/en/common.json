@@ -1,0 +1,184 @@
+{
+  "appName": "S&N Admin",
+  "currencySuffix": "EGP",
+  "actions": {
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "new": "New",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "reset": "Reset",
+    "retry": "Retry",
+    "view": "View",
+    "open": "Open",
+    "upload": "Upload",
+    "replace": "Replace",
+    "remove": "Remove",
+    "restore": "Restore",
+    "duplicate": "Duplicate",
+    "copy": "Copy",
+    "loadMore": "Load more",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "states": {
+    "loading": "Loading…",
+    "saving": "Saving…",
+    "submitting": "Submitting…",
+    "noResults": "No results",
+    "noData": "No data yet",
+    "empty": "Nothing here yet",
+    "error": "Something went wrong",
+    "tryAgain": "Try again",
+    "comingSoon": "Coming soon"
+  },
+  "table": {
+    "empty": "No records found",
+    "emptyFiltered": "No records match your filters",
+    "rowsSelected_one": "{{count}} row selected",
+    "rowsSelected_other": "{{count}} rows selected",
+    "page": "Page",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next",
+    "perPage": "Per page"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "deleted": "Deleted",
+    "all": "All",
+    "pending": "Pending",
+    "draft": "Draft",
+    "published": "Published"
+  },
+  "form": {
+    "required": "Required",
+    "optional": "Optional",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "image": {
+    "upload": "Upload image",
+    "replace": "Replace image",
+    "remove": "Remove image",
+    "drag": "Drag image here or click to upload",
+    "hint": "PNG, JPG or WEBP — max 5 MB",
+    "uploading": "Uploading…"
+  },
+  "confirmDialog": {
+    "title": "Are you sure?",
+    "description": "This action cannot be undone.",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "typeToConfirm": "Type"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "loadFailed": "Failed to load",
+    "saveFailed": "Failed to save",
+    "deleteFailed": "Failed to delete",
+    "sessionExpired": "Session expired. Please log in again."
+  },
+  "search": {
+    "placeholder": "Search…",
+    "noResults": "No matches",
+    "shortcut": "Press {{key}} to open"
+  },
+  "header": {
+    "account": "Account menu",
+    "signedIn": "Signed in",
+    "logout": "Log out",
+    "notifications": "Notifications",
+    "openMenu": "Open navigation menu",
+    "language": "Language"
+  },
+  "locale": {
+    "ar": "العربية",
+    "en": "English"
+  },
+  "session": {
+    "signInRequired": "Please sign in to continue.",
+    "expired": "Your session expired. Please sign in again.",
+    "invalid": "Your session is invalid. Please sign in again.",
+    "revoked": "Your session was revoked. Please sign in again.",
+    "forbidden": "You don't have permission to perform this action.",
+    "serverError": "Server error. Please try again later or contact support."
+  },
+  "skipToContent": "Skip to content",
+  "toolbar": {
+    "refine": "Refine the list below."
+  },
+  "pagination": {
+    "label": "Pagination",
+    "first": "First page",
+    "previous": "Previous page",
+    "next": "Next page",
+    "last": "Last page"
+  },
+  "notFound": {
+    "title": "Not found",
+    "description": "This item may have been removed or the link is no longer valid."
+  },
+  "palette": {
+    "title": "Command palette",
+    "description": "Search and jump to any page.",
+    "placeholder": "Type a page name…",
+    "noMatchesFor": "No matches for",
+    "navigate": "navigate"
+  },
+  "emptyState": {
+    "no-data": {
+      "title": "Nothing here yet",
+      "description": "New entries will appear here."
+    },
+    "no-results": {
+      "title": "No matches",
+      "description": "Try a different search or clear active filters."
+    },
+    "clearFilters": "Clear filters"
+  },
+  "stickyBar": {
+    "pendingChanges": "Pending changes",
+    "status": "Status",
+    "idle": "All changes saved",
+    "dirty": "Unsaved changes",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "error": "Could not save"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "subtitle": "Move faster with these.",
+    "palette": "Open command palette",
+    "paletteHint": "Jump to any page",
+    "toggleSidebar": "Toggle sidebar",
+    "showHelp": "Show this help"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "subtitle": "The admin dashboard hit an unexpected error."
+  },
+  "adminTable": {
+    "selectAllRows": "Select all rows",
+    "selectRow": "Select row",
+    "bulkActions": "Bulk actions",
+    "openRow": "Open row",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "clear": "Clear"
+  }
+}

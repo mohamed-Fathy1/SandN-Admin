@@ -1,9 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useSidebarStore } from './sidebar-store';
 import { SidebarNav } from './sidebar-nav';
 
 export function MobileSidebar() {
+  const { t } = useTranslation('common');
   const mobileOpen = useSidebarStore((s) => s.mobileOpen);
   const setMobileOpen = useSidebarStore((s) => s.setMobileOpen);
   const closeMobile = useSidebarStore((s) => s.closeMobile);
@@ -16,8 +18,8 @@ export function MobileSidebar() {
           style={{ WebkitBackdropFilter: 'blur(4px)' }}
         />
         <Dialog.Content
-          className="fixed inset-y-0 left-0 z-50 flex w-[min(288px,85vw)] flex-col overflow-hidden font-body text-sidebar-foreground shadow-overlay focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left lg:hidden"
-          aria-label="Mobile navigation"
+          className="fixed inset-y-0 start-0 z-50 flex w-[min(288px,85vw)] flex-col overflow-hidden font-body text-sidebar-foreground shadow-overlay focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left lg:hidden"
+          aria-label={t('header.openMenu')}
           style={{
             background:
               'linear-gradient(180deg, #22101A 0%, #1C0B12 35%, #170810 100%)',
@@ -37,7 +39,7 @@ export function MobileSidebar() {
                 </span>
               </Dialog.Title>
               <Dialog.Close
-                aria-label="Close menu"
+                aria-label={t('actions.close')}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md text-white/55 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X size={18} strokeWidth={1.5} aria-hidden />

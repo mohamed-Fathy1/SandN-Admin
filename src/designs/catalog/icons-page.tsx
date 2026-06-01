@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   ActiveBadge,
   AdminFormField,
@@ -30,6 +31,8 @@ import { formatDate } from '@/shared/utils/format';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 
 export function IconsPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiCategoryIcon | null>(null);
   const [deleting, setDeleting] = useState<ApiCategoryIcon | null>(null);
@@ -56,19 +59,19 @@ export function IconsPage() {
       },
       {
         accessorKey: 'key',
-        header: 'Key',
+        header: t('icons.columns.key'),
         cell: ({ row }) => (
           <span className="font-mono text-sm text-foreground">{row.original.key}</span>
         ),
       },
       {
         accessorKey: 'isActive',
-        header: 'Status',
+        header: t('icons.columns.status'),
         cell: ({ row }) => <ActiveBadge isActive={Boolean(row.original.isActive)} />,
       },
       {
         id: 'created',
-        header: 'Created',
+        header: t('icons.columns.created'),
         accessorFn: (i) => i.createdAt ?? '',
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDate(row.original.createdAt)}</span>
@@ -89,7 +92,7 @@ export function IconsPage() {
               }}
             >
               <Pencil size={14} strokeWidth={1.5} aria-hidden />
-              Edit
+              {tCommon('actions.edit')}
             </Button>
             <Button
               variant="ghost"
@@ -98,7 +101,7 @@ export function IconsPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
-              aria-label={`Delete ${row.original.key}`}
+              aria-label={t('icons.ariaDelete', { name: row.original.key })}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>
@@ -106,7 +109,7 @@ export function IconsPage() {
         ),
       },
     ],
-    []
+    [t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -114,12 +117,12 @@ export function IconsPage() {
   return (
     <>
       <PageHeader
-        title="Category Icons"
-        subtitle="Reusable SVG icons assigned to categories. Keys must be unique."
+        title={t('icons.title')}
+        subtitle={t('icons.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add icon
+            {t('icons.addIcon')}
           </Button>
         }
       />
@@ -128,10 +131,10 @@ export function IconsPage() {
         <TableToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search icons by key…"
+          searchPlaceholder={t('icons.searchPlaceholder')}
           meta={
             iconsQuery.data
-              ? `${filteredData?.length ?? 0} of ${iconsQuery.data.length}`
+              ? t('icons.meta', { count: filteredData?.length ?? 0, total: iconsQuery.data.length })
               : undefined
           }
         />
@@ -148,12 +151,12 @@ export function IconsPage() {
         isFiltered={isFiltered}
         onClearFilters={() => setSearch('')}
         emptyState={{
-          title: 'No icons yet',
-          description: 'Add SVG icons before assigning them to categories.',
+          title: t('icons.empty.title'),
+          description: t('icons.empty.description'),
           action: (
             <Button onClick={() => setCreating(true)} size="sm">
               <Plus size={14} strokeWidth={1.5} aria-hidden />
-              Add icon
+              {t('icons.addIcon')}
             </Button>
           ),
         }}
@@ -172,9 +175,9 @@ export function IconsPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title={`Delete "${deleting?.key}"?`}
-        description="Categories assigned to this icon will lose their icon link. This action cannot be undone."
-        confirmLabel="Delete icon"
+        title={t('icons.confirm.delete.title', { name: deleting?.key ?? '' })}
+        description={t('icons.confirm.delete.description')}
+        confirmLabel={t('icons.confirm.delete.confirmLabel')}
         isPending={deleteIcon.isPending}
         onConfirm={() => {
           if (!deleting) return;
@@ -192,6 +195,8 @@ interface IconFormSheetProps {
 }
 
 function IconFormSheet({ open, onClose, entity }: IconFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateIcon();
   const update = useUpdateIcon();
   const isEdit = Boolean(entity);
@@ -246,35 +251,35 @@ function IconFormSheet({ open, onClose, entity }: IconFormSheetProps) {
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit icon' : 'New icon'}
+      title={isEdit ? t('icons.edit') : t('icons.new')}
       description={
         isEdit
-          ? `Update the SVG markup or toggle availability for "${entity?.key}".`
-          : 'Paste SVG markup and give it a unique key.'
+          ? t('icons.form.editDescription', { name: entity?.key ?? '' })
+          : t('icons.form.newDescription')
       }
       size="lg"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save changes' : 'Create icon'}
+            {isEdit ? tCommon('actions.saveChanges') : t('icons.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <AdminFormField
-          label="Key"
+          label={t('icons.form.key')}
           required
-          hint={isEdit ? 'Key is immutable once set.' : 'Lowercase letters, numbers, dashes.'}
+          hint={isEdit ? t('icons.form.keyHintEdit') : t('icons.form.keyHintNew')}
           error={errors.key}
         >
           <Input
             value={values.key}
             onChange={(e) => setValues((p) => ({ ...p, key: e.target.value }))}
-            placeholder="bras"
+            placeholder={t('icons.form.keyPlaceholder')}
             disabled={isEdit || isPending}
             hasError={Boolean(errors.key)}
             autoComplete="off"
@@ -282,11 +287,11 @@ function IconFormSheet({ open, onClose, entity }: IconFormSheetProps) {
           />
         </AdminFormField>
 
-        <AdminFormField label="SVG markup" required error={errors.svg}>
+        <AdminFormField label={t('icons.form.svg')} required error={errors.svg}>
           <Textarea
             value={values.svg}
             onChange={(e) => setValues((p) => ({ ...p, svg: e.target.value }))}
-            placeholder="<svg viewBox='0 0 24 24'>…</svg>"
+            placeholder={t('icons.form.svgPlaceholder')}
             rows={6}
             hasError={Boolean(errors.svg)}
             spellCheck={false}
@@ -294,21 +299,21 @@ function IconFormSheet({ open, onClose, entity }: IconFormSheetProps) {
           />
         </AdminFormField>
 
-        <AdminFormField label="Preview">
+        <AdminFormField label={t('icons.form.preview')}>
           <Card className="flex min-h-[120px] items-center justify-center bg-muted/40">
             {values.svg ? (
               <IconPreview svg={values.svg} size="xl" />
             ) : (
               <span className="text-xs text-light-foreground">
-                Paste SVG markup to see a preview.
+                {t('icons.form.previewPrompt')}
               </span>
             )}
           </Card>
         </AdminFormField>
 
         <AdminFormField
-          label="Active"
-          hint="Inactive icons stay in the library but are hidden from category pickers."
+          label={t('icons.form.active')}
+          hint={t('icons.form.activeHint')}
         >
           <Switch
             checked={values.isActive}

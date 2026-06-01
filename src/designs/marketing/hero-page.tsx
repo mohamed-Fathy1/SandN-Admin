@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminImageUploader,
@@ -23,6 +24,8 @@ import { findHeroImageUrl } from '@/features/hero/api/hero';
 import type { ApiHeroSection } from '@/shared/types/api';
 
 export function HeroPage() {
+  const { t } = useTranslation('marketing');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiHeroSection | null>(null);
   const [deleting, setDeleting] = useState<ApiHeroSection | null>(null);
@@ -35,12 +38,12 @@ export function HeroPage() {
   return (
     <>
       <PageHeader
-        title="Hero Slider"
-        subtitle="Each slide pairs a small and a large banner. They drive the storefront's homepage."
+        title={t('hero.title')}
+        subtitle={t('hero.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add slide
+            {t('hero.addSlide')}
           </Button>
         }
       />
@@ -51,12 +54,12 @@ export function HeroPage() {
         <QueryErrorState error={heroQuery.error} onRetry={() => heroQuery.refetch()} />
       ) : !heroQuery.data || heroQuery.data.length === 0 ? (
         <EmptyState
-          title="Homepage hero is empty"
-          description="Without a slide the storefront's homepage will load with a blank banner. Add one to bring it back."
+          title={t('hero.empty.title')}
+          description={t('hero.empty.description')}
           action={
             <Button onClick={() => setCreating(true)}>
               <Plus size={16} strokeWidth={1.5} aria-hidden />
-              Add first slide
+              {t('hero.addFirstSlide')}
             </Button>
           }
         />
@@ -68,7 +71,7 @@ export function HeroPage() {
                 <div className="overflow-hidden rounded-lg bg-muted sm:w-1/3 sm:shrink-0">
                   <img
                     src={findHeroImageUrl(hero, 'small')}
-                    alt="Small banner"
+                    alt={t('hero.alt.small')}
                     loading="lazy"
                     decoding="async"
                     className="aspect-[3/4] h-full w-full object-cover"
@@ -77,7 +80,7 @@ export function HeroPage() {
                 <div className="flex-1 overflow-hidden rounded-lg bg-muted">
                   <img
                     src={findHeroImageUrl(hero, 'large')}
-                    alt="Large banner"
+                    alt={t('hero.alt.large')}
                     loading="lazy"
                     decoding="async"
                     className="aspect-video h-full w-full object-cover"
@@ -87,13 +90,13 @@ export function HeroPage() {
               <div className="flex items-center justify-end gap-1 border-t border-border px-3 py-2">
                 <Button variant="ghost" size="sm" onClick={() => setEditing(hero)}>
                   <Pencil size={14} strokeWidth={1.5} aria-hidden />
-                  Edit
+                  {tCommon('actions.edit')}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setDeleting(hero)}
-                  aria-label="Delete hero slide"
+                  aria-label={t('hero.ariaDelete')}
                 >
                   <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
                 </Button>
@@ -116,9 +119,9 @@ export function HeroPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title="Delete this hero slide?"
-        description="It will disappear from the storefront hero immediately."
-        confirmLabel="Delete slide"
+        title={t('hero.confirm.delete.title')}
+        description={t('hero.confirm.delete.description')}
+        confirmLabel={t('hero.confirm.delete.confirmLabel')}
         isPending={deleteHero.isPending}
         onConfirm={() => {
           if (!deleting) return;
@@ -136,6 +139,8 @@ interface HeroFormSheetProps {
 }
 
 function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
+  const { t } = useTranslation('marketing');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateHeroSection();
   const update = useUpdateHeroSection();
   const isEdit = Boolean(entity);
@@ -149,7 +154,7 @@ function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
     e.preventDefault();
     setError(null);
     if (!smallImage || !largeImage) {
-      setError('Both images are required.');
+      setError(t('hero.form.bothRequired'));
       return;
     }
     const payload: HeroPayload = { smallImageUrl: smallImage, largeImageUrl: largeImage };
@@ -164,21 +169,21 @@ function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit hero slide' : 'New hero slide'}
-      description="Upload one small and one large image. Both go live together."
+      title={isEdit ? t('hero.edit') : t('hero.new')}
+      description={t('hero.form.description')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save slide' : 'Create slide'}
+            {isEdit ? t('hero.form.save') : t('hero.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <AdminFormField label="Small image" required error={error && !smallImage ? error : undefined}>
+        <AdminFormField label={t('hero.form.smallImage')} required error={error && !smallImage ? error : undefined}>
           <AdminImageUploader
             folder="ImageSlider"
             value={smallImage || undefined}
@@ -190,7 +195,7 @@ function HeroFormSheet({ open, onClose, entity }: HeroFormSheetProps) {
           />
         </AdminFormField>
 
-        <AdminFormField label="Large image" required error={error && !largeImage ? error : undefined}>
+        <AdminFormField label={t('hero.form.largeImage')} required error={error && !largeImage ? error : undefined}>
           <AdminImageUploader
             folder="ImageSlider"
             value={largeImage || undefined}

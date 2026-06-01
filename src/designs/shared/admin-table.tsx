@@ -11,6 +11,7 @@ import {
 import { ChevronsUpDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const sortedRowModel = getSortedRowModel();
 import { Checkbox } from './checkbox';
@@ -97,6 +98,7 @@ export function AdminTable<T>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const reduced = usePrefersReducedMotion();
   const hasAnimatedRef = useRef(false);
+  const { t: tableT } = useTranslation('common', { keyPrefix: 'adminTable' });
 
   const allColumns = useMemo<ColumnDef<T>[]>(() => {
     if (!rowSelection) return columns;
@@ -109,20 +111,20 @@ export function AdminTable<T>({
           checked={table.getIsAllRowsSelected()}
           indeterminate={!table.getIsAllRowsSelected() && table.getIsSomeRowsSelected()}
           onCheckedChange={(checked) => table.toggleAllRowsSelected(Boolean(checked))}
-          aria-label="Select all rows"
+          aria-label={tableT('selectAllRows')}
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(checked) => row.toggleSelected(Boolean(checked))}
-          aria-label="Select row"
+          aria-label={tableT('selectRow')}
           onClick={(e) => e.stopPropagation()}
         />
       ),
     };
     return [selectionCol, ...columns];
-  }, [columns, rowSelection]);
+  }, [columns, rowSelection, tableT]);
 
   const handleSelectionChange = useCallback(
     (updater: Updater<RowSelectionState>) => {
@@ -194,21 +196,21 @@ export function AdminTable<T>({
         <div
           className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-accent-soft/60 px-5 py-3"
           role="region"
-          aria-label="Bulk actions"
+          aria-label={tableT('bulkActions')}
         >
           <div className="flex items-center gap-3">
             <span
               className="inline-flex h-7 items-center rounded-full bg-accent px-3 text-xs font-semibold text-accent-foreground"
               aria-live="polite"
             >
-              {selectedCount} selected
+              {tableT('selectedCount', { count: selectedCount })}
             </span>
             <button
               type="button"
               onClick={clearSelection}
               className="text-eyebrow text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
-              Clear
+              {tableT('clear')}
             </button>
           </div>
           <div className="flex items-center gap-2">{bulkActions(selectedRows, clearSelection)}</div>
@@ -250,9 +252,9 @@ export function AdminTable<T>({
                       className={cn(
                         'sticky top-0 z-[1] px-6 text-eyebrow text-muted-foreground',
                         density === 'compact' ? 'py-2.5' : 'py-3.5',
-                        numeric ? 'text-right' : 'text-left',
+                        numeric ? 'text-end' : 'text-start',
                         sticky &&
-                          'md:sticky md:left-0 md:z-[2] md:bg-[color-mix(in_srgb,var(--card)_92%,transparent)] md:shadow-[1px_0_0_0_var(--border)]'
+                          'md:sticky md:start-0 md:z-[2] md:bg-[color-mix(in_srgb,var(--card)_92%,transparent)] md:shadow-[1px_0_0_0_var(--border)]'
                       )}
                       style={{ width: header.getSize() === 0 ? undefined : header.getSize() }}
                     >
@@ -262,7 +264,7 @@ export function AdminTable<T>({
                           onClick={header.column.getToggleSortingHandler()}
                           className={cn(
                             'inline-flex items-center gap-1.5 rounded transition-colors',
-                            numeric ? 'text-right' : 'text-left',
+                            numeric ? 'text-end' : 'text-start',
                             'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                             sortDir && 'text-accent'
                           )}
@@ -304,7 +306,7 @@ export function AdminTable<T>({
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                   onMouseEnter={onRowHover ? () => onRowHover(row.original) : undefined}
                   tabIndex={onRowClick ? 0 : undefined}
-                  aria-label={onRowClick ? 'Open row' : undefined}
+                  aria-label={onRowClick ? tableT('openRow') : undefined}
                   onKeyDown={
                     onRowClick
                       ? (e) => {
@@ -334,10 +336,10 @@ export function AdminTable<T>({
                         className={cn(
                           'px-6 align-middle text-foreground',
                           density === 'compact' ? 'py-2.5' : 'py-4',
-                          numeric && 'text-right font-tabular',
+                          numeric && 'text-end font-tabular',
                           stickyFirstCol && 'border-b border-border/60',
                           sticky &&
-                            'md:sticky md:left-0 md:z-[1] md:shadow-[1px_0_0_0_var(--border)]',
+                            'md:sticky md:start-0 md:z-[1] md:shadow-[1px_0_0_0_var(--border)]',
                           sticky &&
                             (isSelected
                               ? 'md:bg-[color-mix(in_srgb,var(--accent-soft)_30%,var(--card))]'

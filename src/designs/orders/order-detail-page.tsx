@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Truck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -30,7 +31,7 @@ import {
 import { cn } from '@/shared/utils/cn';
 import { formatDateTime, formatEGP } from '@/shared/utils/format';
 import { idOf, nameOf } from '@/shared/utils/relations';
-import { toEN } from '@/shared/utils/bilingual';
+import { toLocalized } from '@/shared/utils/bilingual';
 import { isNotFoundError } from '@/shared/lib/api-error';
 import type { ApiOrder, ApiOrderProduct } from '@/shared/types/api';
 
@@ -40,6 +41,7 @@ interface OrderDetailPageProps {
 
 export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation('orders');
   const orderQuery = useOrder(orderId);
   const updateStatus = useUpdateOrderStatus();
   const freeShipping = useApplyFreeShipping();
@@ -57,7 +59,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
               search: { page: 1, status: undefined, search: '' },
             })
           }
-          backLabel="Back to orders"
+          backLabel={t('detail.backToOrders')}
         />
       );
     }
@@ -78,13 +80,13 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
     <>
       <PageHeader
         title={order.orderNumber}
-        breadcrumbLabel={`Order ${order.orderNumber}`}
-        subtitle={`Placed ${formatDateTime(order.createdAt)}`}
+        breadcrumbLabel={t('detail.crumb', { number: order.orderNumber })}
+        subtitle={t('detail.placed', { when: formatDateTime(order.createdAt) })}
         action={
           <Button asChild variant="ghost" size="sm">
             <Link to={ROUTES.orders} search={{ page: 1, search: '' }}>
               <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
-              All orders
+              {t('detail.allOrders')}
             </Link>
           </Button>
         }
@@ -100,7 +102,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-eyebrow text-muted-foreground">
-                Order
+                {t('detail.header.order')}
               </p>
               <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-foreground tabular-nums sm:text-3xl">
                 {order.orderNumber}
@@ -111,7 +113,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 <span className="text-foreground">{customerName}</span>
                 <span aria-hidden className="text-light-foreground">·</span>
                 <span>
-                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                  {t('detail.items', { count: itemCount })}
                 </span>
               </p>
             </div>
@@ -121,7 +123,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div>
               <p className="text-eyebrow text-muted-foreground">
-                Total
+                {t('detail.header.total')}
               </p>
               <p className="mt-1 text-2xl font-semibold leading-tight tracking-tight text-accent tabular-nums sm:text-3xl">
                 {formatEGP(order.total)}
@@ -140,11 +142,11 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                   ) : (
                     <Check size={14} strokeWidth={1.5} aria-hidden />
                   )}
-                  Mark as {ORDER_STATUS_META[next].label.toLowerCase()}
+                  {t('detail.markAs', { status: t(`status.${next}`) })}
                 </Button>
               ) : terminal ? (
                 <span className="text-sm italic text-muted-foreground">
-                  No further actions.
+                  {t('detail.noFurther')}
                 </span>
               ) : null}
 
@@ -155,7 +157,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                   isLoading={freeShipping.isPending}
                   disabled={freeShipping.isPending}
                 >
-                  Apply free shipping
+                  {t('detail.applyFreeShipping')}
                 </Button>
               ) : null}
 
@@ -165,7 +167,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                   onClick={() => setConfirmCancel(true)}
                   disabled={updateStatus.isPending}
                 >
-                  Cancel order
+                  {t('detail.cancelOrder')}
                 </Button>
               ) : null}
             </div>
@@ -177,7 +179,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         <div className="space-y-6 lg:col-span-2">
           <Card>
             <h2 className="m-0 text-eyebrow text-muted-foreground">
-              Progress
+              {t('detail.progress')}
             </h2>
             <StatusTimeline currentStatus={order.status} />
           </Card>
@@ -185,10 +187,10 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
           <Card padding="none">
             <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
               <h2 className="m-0 text-eyebrow text-muted-foreground">
-                Products
+                {t('detail.products')}
               </h2>
               <span className="text-xs text-muted-foreground tabular-nums">
-                {itemCount} {itemCount === 1 ? 'unit' : 'units'}
+                {t('detail.units', { count: itemCount })}
               </span>
             </div>
             <ProductsList products={order.products ?? []} />
@@ -198,14 +200,14 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
           <Card>
             <h2 className="m-0 text-eyebrow text-muted-foreground">
-              Summary
+              {t('detail.summary')}
             </h2>
             <CostSummary order={order} />
           </Card>
 
           <Card>
             <h2 className="m-0 text-eyebrow text-muted-foreground">
-              Recipient
+              {t('detail.recipient')}
             </h2>
             <Recipient order={order} />
           </Card>
@@ -215,10 +217,10 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
       <ConfirmDialog
         open={confirmCancel}
         onOpenChange={setConfirmCancel}
-        title={`Cancel order ${order.orderNumber}?`}
-        description="The customer will not receive this order. This cannot be undone."
+        title={t('detail.confirm.cancel.title', { number: order.orderNumber })}
+        description={t('detail.confirm.cancel.description')}
         variant="destructive"
-        confirmLabel="Cancel order"
+        confirmLabel={t('detail.confirm.cancel.confirmLabel')}
         isPending={updateStatus.isPending}
         onConfirm={() => {
           updateStatus.mutate(
@@ -241,6 +243,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 }
 
 function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }) {
+  const { t } = useTranslation('orders');
   const offPath = currentStatus === 'cancelled' || currentStatus === 'deleted';
 
   if (offPath) {
@@ -248,7 +251,7 @@ function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }
       <div className="mt-4 flex items-start gap-3 rounded-xl border border-dashed border-status-cancelled/40 bg-status-cancelled-bg/40 px-4 py-3">
         <StatusBadge status={currentStatus} size="sm" />
         <p className="text-sm text-muted-foreground">
-          {ORDER_STATUS_META[currentStatus].description}
+          {t(ORDER_STATUS_META[currentStatus].descriptionKey)}
         </p>
       </div>
     );
@@ -299,7 +302,7 @@ function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }
                       : 'text-xs text-light-foreground'
                 )}
               >
-                {meta.label}
+                {t(meta.labelKey)}
               </span>
             </li>
           );
@@ -308,10 +311,10 @@ function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }
 
       {/* Mobile — vertical */}
       <ol className="relative space-y-3 sm:hidden">
-        <div aria-hidden className="absolute left-[17px] top-3 bottom-3 w-px bg-border" />
+        <div aria-hidden className="absolute start-[17px] top-3 bottom-3 w-px bg-border" />
         <div
           aria-hidden
-          className="absolute left-[17px] top-3 w-px bg-accent transition-[height] duration-500 ease-out"
+          className="absolute start-[17px] top-3 w-px bg-accent transition-[height] duration-500 ease-out"
           style={{ height: `calc((100% - 24px) * ${progressPct / 100})` }}
         />
         {steps.map((status, idx) => {
@@ -342,7 +345,7 @@ function StatusTimeline({ currentStatus }: { currentStatus: ApiOrder['status'] }
                       : 'text-light-foreground'
                 )}
               >
-                {meta.label}
+                {t(meta.labelKey)}
               </span>
             </li>
           );
@@ -358,7 +361,7 @@ function normalizeSize(v: unknown): string | null {
   if (typeof v === 'object') {
     const o = v as { size?: unknown; name?: unknown };
     if (typeof o.size === 'string') return o.size;
-    if (o.name) return typeof o.name === 'string' ? o.name : toEN(o.name as never);
+    if (o.name) return typeof o.name === 'string' ? o.name : toLocalized(o.name as never);
   }
   return null;
 }
@@ -369,7 +372,7 @@ function normalizeColor(v: unknown): { label: string; hex?: string } | null {
   if (typeof v === 'object') {
     const o = v as { name?: unknown; hex?: unknown };
     const label =
-      typeof o.name === 'string' ? o.name : o.name ? toEN(o.name as never) : '';
+      typeof o.name === 'string' ? o.name : o.name ? toLocalized(o.name as never) : '';
     if (!label) return null;
     return { label, hex: typeof o.hex === 'string' ? o.hex : undefined };
   }
@@ -377,10 +380,11 @@ function normalizeColor(v: unknown): { label: string; hex?: string } | null {
 }
 
 function ProductsList({ products }: { products: ApiOrderProduct[] }) {
+  const { t } = useTranslation('orders');
   if (products.length === 0) {
     return (
       <div className="px-5 py-8 text-center text-sm text-muted-foreground sm:px-6">
-        No products on this order.
+        {t('detail.noProducts')}
       </div>
     );
   }
@@ -389,7 +393,11 @@ function ProductsList({ products }: { products: ApiOrderProduct[] }) {
     <ul className="divide-y divide-border">
       {products.map((p, idx) => {
         const productName =
-          p.name?.en ?? (typeof p.productId === 'object' ? toEN(p.productId.name) : '—');
+          p.name
+            ? toLocalized(p.name as never)
+            : typeof p.productId === 'object'
+              ? toLocalized(p.productId.name)
+              : '—';
         const imageMedia =
           p.image ?? (typeof p.productId === 'object' ? p.productId.defaultImage : undefined);
         const imageUrl =
@@ -419,7 +427,7 @@ function ProductsList({ products }: { products: ApiOrderProduct[] }) {
                 <p className="mt-1 flex flex-wrap items-center gap-1.5">
                   {sizeLabel ? (
                     <span className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground">
-                      Size {sizeLabel}
+                      {t('detail.size', { value: sizeLabel })}
                     </span>
                   ) : null}
                   {color ? (
@@ -452,16 +460,17 @@ function ProductsList({ products }: { products: ApiOrderProduct[] }) {
 }
 
 function CostSummary({ order }: { order: ApiOrder }) {
+  const { t } = useTranslation('orders');
   return (
     <dl className="mt-4 space-y-2.5 text-sm">
-      <Row label="Subtotal" value={formatEGP(order.subtotal)} />
-      <Row label="Shipping" value={formatEGP(order.shippingCost)} />
+      <Row label={t('detail.fields.subtotal')} value={formatEGP(order.subtotal)} />
+      <Row label={t('detail.fields.shipping')} value={formatEGP(order.shippingCost)} />
       {order.discount && order.discount > 0 ? (
-        <Row label="Discount" value={`− ${formatEGP(order.discount)}`} tone="muted" />
+        <Row label={t('detail.fields.discount')} value={`− ${formatEGP(order.discount)}`} tone="muted" />
       ) : null}
       <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
         <dt className="text-eyebrow text-muted-foreground">
-          Total
+          {t('detail.fields.total')}
         </dt>
         <dd className="text-xl font-semibold tabular-nums text-accent sm:text-2xl">
           {formatEGP(order.total)}
@@ -496,6 +505,7 @@ function Row({
 }
 
 function Recipient({ order }: { order: ApiOrder }) {
+  const { t } = useTranslation('orders');
   const info = order.customerInfo;
   const name = `${info?.firstName ?? ''} ${info?.lastName ?? ''}`.trim() || '—';
   const phone = order.customerPhone ?? '—';
@@ -509,17 +519,17 @@ function Recipient({ order }: { order: ApiOrder }) {
   return (
     <div className="mt-4 space-y-5 text-sm">
       <div className="space-y-3">
-        <Field label="Name" value={name} />
-        <Field label="Phone" value={phone} />
-        {altPhone ? <Field label="Alt. phone" value={altPhone} /> : null}
-        {email ? <Field label="Email" value={email} /> : null}
+        <Field label={t('detail.fields.name')} value={name} />
+        <Field label={t('detail.fields.phone')} value={phone} />
+        {altPhone ? <Field label={t('detail.fields.altPhone')} value={altPhone} /> : null}
+        {email ? <Field label={t('detail.fields.email')} value={email} /> : null}
       </div>
       <div className="border-t border-border" />
       <div className="space-y-3">
-        <Field label="Region" value={region || '—'} />
-        <Field label="Address" value={address || '—'} />
-        {apt ? <Field label="Apartment / suite" value={apt} /> : null}
-        <Field label="Postal code" value={postal || '—'} mono />
+        <Field label={t('detail.fields.region')} value={region || '—'} />
+        <Field label={t('detail.fields.address')} value={address || '—'} />
+        {apt ? <Field label={t('detail.fields.apartment')} value={apt} /> : null}
+        <Field label={t('detail.fields.postal')} value={postal || '—'} mono />
       </div>
     </div>
   );

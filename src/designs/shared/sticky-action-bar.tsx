@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/shared/utils/cn';
 import { A } from '@/designs/layout/tokens';
 import { useSidebarStore } from '@/designs/layout/sidebar-store';
@@ -22,12 +23,12 @@ interface StickyActionBarProps {
   className?: string;
 }
 
-const STATUS_COPY: Record<StickyActionStatus, string> = {
-  idle: 'All changes saved',
-  dirty: 'Unsaved changes',
-  saving: 'Saving…',
-  saved: 'Saved',
-  error: 'Could not save',
+const STATUS_KEYS: Record<StickyActionStatus, string> = {
+  idle: 'stickyBar.idle',
+  dirty: 'stickyBar.dirty',
+  saving: 'stickyBar.saving',
+  saved: 'stickyBar.saved',
+  error: 'stickyBar.error',
 };
 
 /**
@@ -47,13 +48,14 @@ export function StickyActionBar({
 }: StickyActionBarProps) {
   const reduced = usePrefersReducedMotion();
   const sidebarCollapsed = useSidebarStore((s) => s.collapsed);
+  const { t } = useTranslation('common');
   return (
     <AnimatePresence>
       {open ? (
         <motion.div
           key="sticky-action-bar"
           role="region"
-          aria-label="Pending changes"
+          aria-label={t('stickyBar.pendingChanges')}
           initial={reduced ? false : { y: 24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={reduced ? { opacity: 0 } : { y: 24, opacity: 0 }}
@@ -77,16 +79,16 @@ export function StickyActionBar({
             <div className="flex min-w-0 items-center gap-3">
               <StatusDot status={status} />
               <div className="flex flex-col leading-tight">
-                <span className="text-eyebrow text-light-foreground">Status</span>
+                <span className="text-eyebrow text-light-foreground">{t('stickyBar.status')}</span>
                 <span
                   className="text-sm font-medium text-foreground"
                   aria-live="polite"
                   aria-atomic="true"
                 >
-                  {statusLabel ?? STATUS_COPY[status]}
+                  {statusLabel ?? t(STATUS_KEYS[status])}
                 </span>
               </div>
-              {destructive ? <div className="ml-2 flex items-center gap-2">{destructive}</div> : null}
+              {destructive ? <div className="ms-2 flex items-center gap-2">{destructive}</div> : null}
             </div>
             <div className="flex items-center gap-2">
               {secondary}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminTable,
@@ -23,10 +24,12 @@ import {
   type ColorFormValues,
 } from '@/features/catalog/colors/schemas/color-form';
 import type { ApiColor } from '@/shared/types/api';
-import { emptyBilingual } from '@/shared/utils/bilingual';
+import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 
 export function ColorsPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiColor | null>(null);
   const [deleting, setDeleting] = useState<ApiColor | null>(null);
@@ -51,11 +54,11 @@ export function ColorsPage() {
       },
       {
         id: 'name',
-        header: 'Name',
+        header: t('colors.columns.name'),
         accessorFn: (c) => c.name.en,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p className="truncate font-medium text-foreground">{toLocalized(row.original.name)}</p>
             <p
               dir="rtl"
               className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
@@ -68,7 +71,7 @@ export function ColorsPage() {
       },
       {
         accessorKey: 'hex',
-        header: 'Hex',
+        header: t('colors.columns.hex'),
         cell: ({ row }) => (
           <span className="font-mono text-xs uppercase text-muted-foreground">
             {row.original.hex}
@@ -90,7 +93,7 @@ export function ColorsPage() {
               }}
             >
               <Pencil size={14} strokeWidth={1.5} aria-hidden />
-              Edit
+              {tCommon('actions.edit')}
             </Button>
             <Button
               variant="ghost"
@@ -99,7 +102,7 @@ export function ColorsPage() {
                 e.stopPropagation();
                 setDeleting(row.original);
               }}
-              aria-label={`Delete ${row.original.name.en}`}
+              aria-label={t('colors.ariaDelete', { name: toLocalized(row.original.name) })}
             >
               <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
             </Button>
@@ -107,7 +110,7 @@ export function ColorsPage() {
         ),
       },
     ],
-    []
+    [t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -115,12 +118,12 @@ export function ColorsPage() {
   return (
     <>
       <PageHeader
-        title="Colors"
-        subtitle="Colors are reused across product variants. Keep the palette tight."
+        title={t('colors.title')}
+        subtitle={t('colors.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add color
+            {t('colors.addColor')}
           </Button>
         }
       />
@@ -134,8 +137,8 @@ export function ColorsPage() {
         onRetry={() => colorsQuery.refetch()}
         getRowId={(c) => c._id}
         emptyState={{
-          title: 'No colors yet',
-          description: 'Add colors before creating product variants.',
+          title: t('colors.empty.title'),
+          description: t('colors.empty.description'),
         }}
       />
 
@@ -152,9 +155,9 @@ export function ColorsPage() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
-        title={`Delete "${deleting?.name.en}"?`}
-        description="Any product variant using this color will keep its existing hex but lose this label. This action cannot be undone."
-        confirmLabel="Delete color"
+        title={t('colors.confirm.delete.title', { name: deleting ? toLocalized(deleting.name) : '' })}
+        description={t('colors.confirm.delete.description')}
+        confirmLabel={t('colors.confirm.delete.confirmLabel')}
         isPending={deleteColor.isPending}
         onConfirm={() => {
           if (!deleting) return;
@@ -172,6 +175,8 @@ interface ColorFormSheetProps {
 }
 
 function ColorFormSheet({ open, onClose, entity }: ColorFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateColor();
   const update = useUpdateColor();
   const isEdit = Boolean(entity);
@@ -233,30 +238,30 @@ function ColorFormSheet({ open, onClose, entity }: ColorFormSheetProps) {
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit color' : 'New color'}
-      description={isEdit ? entity?.name.en : 'Define both names + hex.'}
+      title={isEdit ? t('colors.edit') : t('colors.new')}
+      description={isEdit && entity ? toLocalized(entity.name) : t('colors.form.newDescription')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending}>
-            {isEdit ? 'Save changes' : 'Create color'}
+            {isEdit ? tCommon('actions.saveChanges') : t('colors.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <BilingualInput
-          label="Name"
+          label={t('colors.form.name')}
           required
           value={values.name}
           onChange={(name) => setValues((p) => ({ ...p, name }))}
           error={errors.name}
-          placeholder={{ en: 'Dusty Rose', ar: 'وردي مغبر' }}
+          placeholder={{ en: t('colors.form.namePlaceholderEn'), ar: t('colors.form.namePlaceholderAr') }}
         />
 
-        <AdminFormField label="Hex" required error={errors.hex}>
+        <AdminFormField label={t('colors.form.hex')} required error={errors.hex}>
           <HexColorInput
             value={values.hex}
             onChange={(hex) => setValues((p) => ({ ...p, hex }))}

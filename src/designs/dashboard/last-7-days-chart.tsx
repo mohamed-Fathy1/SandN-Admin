@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import i18n from '@/i18n';
 import { formatEGP } from '@/shared/utils/format';
 
 export interface DailyDatum {
@@ -26,7 +27,8 @@ function shortDate(id: string): string {
   // expects YYYY-MM-DD
   const d = new Date(id);
   if (Number.isNaN(d.getTime())) return id;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const locale = (i18n.language || 'ar').startsWith('ar') ? 'ar-EG' : 'en-US';
+  return d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
 }
 
 export default function Last7DaysChart({ data, mode = 'revenue' }: Last7DaysChartProps) {

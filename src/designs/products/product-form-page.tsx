@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useBlocker, useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   Boxes,
@@ -34,7 +35,7 @@ import {
   usePrefersReducedMotion,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
-import { CURRENCY_SUFFIX, ROUTES } from '@/config/constants';
+import { ROUTES } from '@/config/constants';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { useCategories, useCategory } from '@/features/catalog/categories/hooks/use-categories';
 import { useSubCategories, useSubCategory } from '@/features/catalog/sub-categories/hooks/use-sub-categories';
@@ -53,7 +54,8 @@ import type {
   ApiSize,
   ApiSubCategory,
 } from '@/shared/types/api';
-import { emptyBilingual } from '@/shared/utils/bilingual';
+import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
+import { formatNumber } from '@/shared/utils/format';
 import { idOf } from '@/shared/utils/relations';
 import { isNotFoundError } from '@/shared/lib/api-error';
 import { cn } from '@/shared/utils/cn';
@@ -104,6 +106,7 @@ interface ProductFormPageProps {
 
 export function ProductFormPage({ productId }: ProductFormPageProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation('products');
   const isEdit = Boolean(productId);
   const productQuery = useProduct(productId);
 
@@ -111,9 +114,9 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
     return (
       <>
         <PageHeader
-          title="Edit product"
-          breadcrumbLabel="Loading…"
-          subtitle="Fetching catalog details."
+          title={t('form.header.editTitle')}
+          breadcrumbLabel={t('form.header.loadingCrumb')}
+          subtitle={t('form.header.loadingSubtitle')}
         />
         <Card>
           <FormSkeleton fields={6} />
@@ -127,7 +130,7 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
         <NotFoundState
           error={productQuery.error}
           onBack={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}
-          backLabel="Back to products"
+          backLabel={t('form.header.backToProducts')}
         />
       );
     }
@@ -146,16 +149,18 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
 
 type SectionId = 'basics' | 'pricing' | 'classification' | 'variants' | 'media';
 
-const SECTIONS: { id: SectionId; label: string }[] = [
-  { id: 'basics', label: 'Basics' },
-  { id: 'pricing', label: 'Pricing' },
-  { id: 'classification', label: 'Catalog' },
-  { id: 'variants', label: 'Variants' },
-  { id: 'media', label: 'Media' },
+const SECTIONS: { id: SectionId; labelKey: string }[] = [
+  { id: 'basics', labelKey: 'form.stepper.basics' },
+  { id: 'pricing', labelKey: 'form.stepper.pricing' },
+  { id: 'classification', labelKey: 'form.stepper.classification' },
+  { id: 'variants', labelKey: 'form.stepper.variants' },
+  { id: 'media', labelKey: 'form.stepper.media' },
 ];
 
 function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   const navigate = useNavigate();
+  const { t } = useTranslation('products');
+  const { t: tCommon } = useTranslation('common');
   const isEdit = Boolean(existing);
 
   const categoriesQuery = useCategories();
@@ -186,9 +191,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     shouldBlockFn: () => {
       if (justSavedRef.current) return false;
       if (!isDirty) return false;
-      return !window.confirm(
-        'You have unsaved changes. Leave this page and discard them?'
-      );
+      return !window.confirm(t('form.leaveConfirm'));
     },
     enableBeforeUnload: () => isDirty && !justSavedRef.current,
   });
@@ -256,7 +259,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   const subCategoryName = useMemo(() => {
     if (!values.subCategory) return null;
     const sc = (subCategoriesQuery.data ?? []).find((s) => s._id === values.subCategory);
-    return sc?.name.en ?? null;
+    return sc ? toLocalized(sc.name) : null;
   }, [values.subCategory, subCategoriesQuery.data]);
 
   const totalStock = useMemo(
@@ -440,24 +443,24 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   return (
     <>
       <PageHeader
-        title={isEdit ? existing?.name.en || 'Edit product' : 'New product'}
+        title={isEdit ? (existing ? toLocalized(existing.name) : t('form.header.editTitle')) : t('form.header.newTitle')}
         breadcrumbLabel={
           isEdit
-            ? existing?.name.en
-              ? `Edit: ${existing.name.en}`
+            ? existing
+              ? t('form.header.editCrumb', { name: toLocalized(existing.name) })
               : undefined
-            : 'New product'
+            : t('form.header.newTitle')
         }
         subtitle={
           isEdit
-            ? 'Update details, swap images, or adjust variants.'
+            ? t('form.header.editSubtitle')
             : undefined
         }
         action={
           <div className="flex items-center gap-2">
             <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}>
               <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
-              Back
+              {t('form.header.back')}
             </Button>
             {isEdit && existing ? (
               <Button
@@ -467,7 +470,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                 }
               >
                 <Boxes size={16} strokeWidth={1.5} aria-hidden />
-                Manage variants
+                {t('form.header.manageVariants')}
               </Button>
             ) : null}
           </div>
@@ -490,29 +493,29 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         <FadeUp delay={0.04}>
           <SectionBlock
             id="basics"
-            title="Basics"
-            subtitle="Name and description, in both languages."
+            title={t('form.sections.basics.title')}
+            subtitle={t('form.sections.basics.subtitle')}
             titleId="basics-title"
           >
             <div className="space-y-5">
               <BilingualInput
-                label="Name"
+                label={t('form.fields.name')}
                 required
                 value={values.name}
                 onChange={(name) => setValues((p) => ({ ...p, name }))}
                 error={errors.name}
-                placeholder={{ en: 'Cotton pants', ar: 'بنطلون قطني' }}
+                placeholder={{ en: t('form.fields.namePlaceholderEn'), ar: t('form.fields.namePlaceholderAr') }}
               />
               <BilingualInput
-                label="Description"
+                label={t('form.fields.description')}
                 required
                 multiline
                 value={values.description}
                 onChange={(description) => setValues((p) => ({ ...p, description }))}
                 error={errors.description}
                 placeholder={{
-                  en: 'Comfortable cotton pants for daily use',
-                  ar: 'بنطلون قطني مريح للاستخدام اليومي',
+                  en: t('form.fields.descriptionPlaceholderEn'),
+                  ar: t('form.fields.descriptionPlaceholderAr'),
                 }}
               />
             </div>
@@ -522,25 +525,25 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         <FadeUp delay={0.08}>
           <SectionBlock
             id="pricing"
-            title="Pricing"
-            subtitle="Set price, wholesale, and an optional sale."
+            title={t('form.sections.pricing.title')}
+            subtitle={t('form.sections.pricing.subtitle')}
             titleId="pricing-title"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <AdminFormField label="Price" required error={errors.price}>
+              <AdminFormField label={t('form.fields.price')} required error={errors.price}>
                 <NumberInput
                   value={values.price}
                   onChange={(v) => setValues((p) => ({ ...p, price: v }))}
-                  suffix={CURRENCY_SUFFIX}
+                  suffix={tCommon('currencySuffix')}
                   clampMin={0}
                   hasError={Boolean(errors.price)}
                 />
               </AdminFormField>
-              <AdminFormField label="Wholesale price" required error={errors.wholesalePrice}>
+              <AdminFormField label={t('form.fields.wholesalePrice')} required error={errors.wholesalePrice}>
                 <NumberInput
                   value={values.wholesalePrice}
                   onChange={(v) => setValues((p) => ({ ...p, wholesalePrice: v }))}
-                  suffix={CURRENCY_SUFFIX}
+                  suffix={tCommon('currencySuffix')}
                   clampMin={0}
                   hasError={Boolean(errors.wholesalePrice)}
                 />
@@ -561,32 +564,32 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         <FadeUp delay={0.12}>
           <SectionBlock
             id="classification"
-            title="Catalog"
-            subtitle="Where this product lives in the storefront."
+            title={t('form.sections.classification.title')}
+            subtitle={t('form.sections.classification.subtitle')}
             titleId="classification-title"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <AdminFormField label="Category" required error={errors.category}>
+              <AdminFormField label={t('form.fields.category')} required error={errors.category}>
                 <SearchableSelect<ApiCategory>
                   value={values.category || undefined}
                   onChange={handleCategoryChange}
                   items={(categoriesQuery.data ?? []).filter((c) => !c.isDeleted)}
                   getKey={(c) => c._id}
-                  getLabel={(c) => c.name.en}
-                  placeholder="Pick a category"
+                  getLabel={(c) => toLocalized(c.name)}
+                  placeholder={t('form.fields.pickCategory')}
                   disabled={isPending}
                   clearable={false}
                 />
               </AdminFormField>
-              <AdminFormField label="Sub-category" hint="Optional" error={errors.subCategory}>
+              <AdminFormField label={t('form.fields.subCategory')} hint={t('form.fields.subCategoryHint')} error={errors.subCategory}>
                 <SearchableSelect<ApiSubCategory>
                   value={values.subCategory || undefined}
                   onChange={(v) => setValues((p) => ({ ...p, subCategory: v ?? '' }))}
                   items={filteredSubCategories.filter((sc) => !sc.isDeleted)}
                   getKey={(sc) => sc._id}
-                  getLabel={(sc) => sc.name.en}
+                  getLabel={(sc) => toLocalized(sc.name)}
                   placeholder={
-                    values.category ? 'Pick a sub-category' : 'Pick a category first'
+                    values.category ? t('form.fields.pickSubCategory') : t('form.fields.pickCategoryFirst')
                   }
                   disabled={isPending || !values.category}
                   clearable
@@ -600,21 +603,21 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
           <FadeUp delay={0.14}>
             <SectionBlock
               id="flags"
-              title="Storefront flags"
-              subtitle="Toggle merchandising badges shown to customers."
+              title={t('form.sections.flags.title')}
+              subtitle={t('form.sections.flags.subtitle')}
               titleId="flags-title"
             >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FlagRow
-                  label="Best seller"
-                  description="Pin this product to the Best Sellers strip."
+                  label={t('form.sections.flags.bestSellerLabel')}
+                  description={t('form.sections.flags.bestSellerDescription')}
                   checked={values.isBestSeller}
                   onChange={(v) => setValues((p) => ({ ...p, isBestSeller: v }))}
                   disabled={isPending}
                 />
                 <FlagRow
-                  label="New arrival"
-                  description="Show the 'New' badge and surface in the new arrivals strip."
+                  label={t('form.sections.flags.newArrivalLabel')}
+                  description={t('form.sections.flags.newArrivalDescription')}
                   checked={values.isNewArrival}
                   onChange={(v) => setValues((p) => ({ ...p, isNewArrival: v }))}
                   disabled={isPending}
@@ -627,8 +630,8 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         <FadeUp delay={0.16}>
           <SectionBlock
             id="variants"
-            title="Variants"
-            subtitle="Every size + color combination customers can buy."
+            title={t('form.sections.variants.title')}
+            subtitle={t('form.sections.variants.subtitle')}
             titleId="variants-title"
             trailing={
               values.variants.length > 0 ? (
@@ -640,7 +643,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                   disabled={isPending}
                 >
                   <Plus size={14} strokeWidth={1.5} aria-hidden />
-                  Add
+                  {t('form.sections.variants.add')}
                 </Button>
               ) : null
             }
@@ -676,11 +679,11 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                   <span className="font-semibold text-foreground tabular-nums">
                     {values.variants.length}
                   </span>{' '}
-                  variants ·{' '}
+                  {t('form.sections.variants.variantsCount', { count: values.variants.length })} ·{' '}
                   <span className="font-semibold text-foreground tabular-nums">
-                    {totalStock.toLocaleString('en-US')}
+                    {formatNumber(totalStock)}
                   </span>{' '}
-                  in stock
+                  {t('form.sections.variants.inStock')}
                 </p>
               </>
             )}
@@ -690,15 +693,15 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         <FadeUp delay={0.2}>
           <SectionBlock
             id="media"
-            title="Media"
-            subtitle="Hero shot, gallery, and an optional size chart."
+            title={t('form.sections.media.title')}
+            subtitle={t('form.sections.media.subtitle')}
             titleId="media-title"
           >
             <div className="space-y-6">
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <Eyebrow>Hero image</Eyebrow>
-                  <span className="text-xs text-muted-foreground">Shown in product cards</span>
+                  <Eyebrow>{t('form.sections.media.hero')}</Eyebrow>
+                  <span className="text-xs text-muted-foreground">{t('form.sections.media.heroHint')}</span>
                 </div>
                 <div className="max-w-sm">
                   <AdminImageUploader
@@ -718,13 +721,13 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
 
               <div className="border-t border-border pt-6">
                 <div className="mb-2 flex items-center justify-between">
-                  <Eyebrow>Gallery</Eyebrow>
+                  <Eyebrow>{t('form.sections.media.gallery')}</Eyebrow>
                   <span className="text-xs text-muted-foreground tabular-nums">
                     {values.albumImages.length} / 10
                   </span>
                 </div>
                 <p className="mb-3 text-xs text-muted-foreground">
-                  First image leads the gallery.
+                  {t('form.sections.media.galleryFirst')}
                 </p>
                 <AdminImageUploaderMulti
                   folder="Product"
@@ -746,8 +749,8 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                 >
                   <span className="flex items-center gap-2">
                     <Ruler size={14} strokeWidth={1.75} className="text-muted-foreground group-hover:text-accent" aria-hidden />
-                    <Eyebrow>Size chart</Eyebrow>
-                    <span className="text-xs text-muted-foreground">(optional)</span>
+                    <Eyebrow>{t('form.sections.media.sizeChart')}</Eyebrow>
+                    <span className="text-xs text-muted-foreground">{t('form.sections.media.optional')}</span>
                   </span>
                   <ChevronDown
                     size={14}
@@ -798,16 +801,16 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         status={stickyStatus}
         statusLabel={
           hasErrors
-            ? 'Fix the highlighted fields'
+            ? t('form.actionBar.fixHighlighted')
             : isPending
               ? isEdit
-                ? 'Saving changes…'
-                : 'Creating product…'
+                ? t('form.actionBar.savingEdit')
+                : t('form.actionBar.savingNew')
               : isEdit
                 ? isDirty
-                  ? 'Unsaved changes'
-                  : 'All changes saved'
-                : 'New product — fill the form to create'
+                  ? tCommon('stickyBar.dirty')
+                  : tCommon('stickyBar.idle')
+                : t('form.actionBar.fillForm')
         }
         secondary={
           isEdit ? (
@@ -817,14 +820,14 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
               onClick={() => setValues(initial)}
               disabled={!isDirty || isPending}
             >
-              Discard
+              {t('form.actionBar.discard')}
             </Button>
           ) : null
         }
         primary={
           <Button onClick={handleSubmit} isLoading={isPending} disabled={isEdit && !isDirty}>
-            {isEdit ? 'Save changes' : 'Create product'}
-            <Kbd className="ml-2 hidden sm:inline-flex">⌘S</Kbd>
+            {isEdit ? tCommon('actions.saveChanges') : t('form.actionBar.create')}
+            <Kbd className="ms-2 hidden sm:inline-flex">⌘S</Kbd>
           </Button>
         }
       />
@@ -882,8 +885,9 @@ function ProgressStepper({
   activeId: SectionId;
   state: Record<SectionId, 'idle' | 'done' | 'error'>;
 }) {
+  const { t } = useTranslation('products');
   return (
-    <nav aria-label="Form sections" className="mx-auto mb-6 max-w-3xl sm:mb-8">
+    <nav aria-label={t('form.stepper.label')} className="mx-auto mb-6 max-w-3xl sm:mb-8">
       <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ol className="flex min-w-max items-center sm:min-w-0">
           {SECTIONS.map((s, i) => {
@@ -934,7 +938,7 @@ function ProgressStepper({
                       i + 1
                     )}
                   </span>
-                  <span className="whitespace-nowrap">{s.label}</span>
+                  <span className="whitespace-nowrap">{t(s.labelKey)}</span>
                 </a>
                 {i < SECTIONS.length - 1 ? (
                   <span
@@ -965,6 +969,7 @@ function ProductMetaStrip({
   subCategoryName: string | null;
   totalStock: number;
 }) {
+  const { t } = useTranslation('products');
   const stockTone: 'success' | 'warning' | 'destructive' =
     totalStock === 0 ? 'destructive' : totalStock < 10 ? 'warning' : 'success';
   return (
@@ -996,8 +1001,8 @@ function ProductMetaStrip({
             <GenericBadge
               label={
                 totalStock === 0
-                  ? 'Out of stock'
-                  : `${totalStock.toLocaleString('en-US')} in stock`
+                  ? t('form.meta.outOfStock')
+                  : t('form.meta.inStock', { count: formatNumber(totalStock) })
               }
               tone={stockTone}
               size="sm"
@@ -1026,48 +1031,48 @@ function SalePanel({
   isPending: boolean;
   setValues: React.Dispatch<React.SetStateAction<FormState>>;
 }) {
+  const { t } = useTranslation('products');
+  const { t: tCommon } = useTranslation('common');
   return (
     <div
       className={cn(
-        'relative mt-6 rounded-xl border-l-2 p-4 transition-colors sm:p-5',
+        'relative mt-6 rounded-xl border-s-2 p-4 transition-colors sm:p-5',
         hasSale
-          ? 'border-l-accent bg-accent-soft/60'
-          : 'border-l-border-medium bg-muted/40'
+          ? 'border-s-accent bg-accent-soft/60'
+          : 'border-s-border-medium bg-muted/40'
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Eyebrow>{hasSale ? 'Sale window' : 'Plan a sale'}</Eyebrow>
+          <Eyebrow>{hasSale ? t('form.sale.windowTitle') : t('form.sale.planTitle')}</Eyebrow>
           <p className="mt-1 text-xs text-muted-foreground">
-            {hasSale
-              ? 'Customers see the sale price during the window below.'
-              : 'Add a sale price to schedule a window — list price stays live until then.'}
+            {hasSale ? t('form.sale.windowHint') : t('form.sale.planHint')}
           </p>
         </div>
         {hasSale ? (
           saleScheduled ? (
-            <GenericBadge label="Scheduled" tone="accent" size="sm" />
+            <GenericBadge label={t('form.sale.scheduled')} tone="accent" size="sm" />
           ) : (
-            <GenericBadge label="Dates pending" tone="warning" size="sm" />
+            <GenericBadge label={t('form.sale.datesPending')} tone="warning" size="sm" />
           )
         ) : null}
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <AdminFormField
-          label="Sale price"
-          hint="Leave 0 to disable."
+          label={t('form.sale.price')}
+          hint={t('form.sale.priceHint')}
           error={errors.salePrice}
         >
           <NumberInput
             value={values.salePrice}
             onChange={(v) => setValues((p) => ({ ...p, salePrice: v }))}
-            suffix={CURRENCY_SUFFIX}
+            suffix={tCommon('currencySuffix')}
             clampMin={0}
             hasError={Boolean(errors.salePrice)}
           />
         </AdminFormField>
-        <AdminFormField label="Sale start" error={errors.saleStartDate}>
+        <AdminFormField label={t('form.sale.start')} error={errors.saleStartDate}>
           <DateInput
             value={values.saleStartDate}
             onChange={(v) => setValues((p) => ({ ...p, saleStartDate: v }))}
@@ -1075,7 +1080,7 @@ function SalePanel({
             disabled={!hasSale || isPending}
           />
         </AdminFormField>
-        <AdminFormField label="Sale end" error={errors.saleEndDate}>
+        <AdminFormField label={t('form.sale.end')} error={errors.saleEndDate}>
           <DateInput
             value={values.saleEndDate}
             onChange={(v) => setValues((p) => ({ ...p, saleEndDate: v }))}
@@ -1097,18 +1102,19 @@ function VariantsEmptyState({
   onAdd: () => void;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation('products');
   return (
     <div className="rounded-2xl border border-dashed border-border-medium bg-muted/30 p-5 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
         <div className="flex-1">
-          <p className="text-base font-semibold text-foreground">No variants yet.</p>
+          <p className="text-base font-semibold text-foreground">{t('form.sections.variants.emptyTitle')}</p>
           <p className="mt-1 max-w-md text-sm text-muted-foreground">
-            Add at least one size + color combination so this product can be sold.
+            {t('form.sections.variants.emptyHint')}
           </p>
         </div>
         <Button type="button" size="sm" onClick={onAdd} disabled={disabled} className="shrink-0">
           <Plus size={14} strokeWidth={1.5} aria-hidden />
-          Add first variant
+          {t('form.sections.variants.addFirst')}
         </Button>
       </div>
     </div>
@@ -1136,6 +1142,7 @@ function VariantRowItem({
   setVariant: (idx: number, patch: Partial<VariantRow>) => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation('products');
   const reduced = usePrefersReducedMotion();
   const hasRowErr = Boolean(rowErrs?.size || rowErrs?.color || rowErrs?.quantity);
   return (
@@ -1162,10 +1169,10 @@ function VariantRowItem({
             getLabel={(s) => s.size}
             placeholder={
               !hasCategory
-                ? 'Pick a category first'
+                ? t('form.fields.pickCategoryFirst')
                 : sizeOptions.length === 0
-                  ? 'No sizes in this group'
-                  : 'Size'
+                  ? t('form.fields.noSizesInGroup')
+                  : t('form.fields.size')
             }
             disabled={isPending || !hasCategory || sizeOptions.length === 0}
             clearable={false}
@@ -1175,7 +1182,7 @@ function VariantRowItem({
             <p className="mt-1 text-xs text-destructive">{rowErrs.size}</p>
           ) : hasCategory && sizeOptions.length === 0 ? (
             <p className="mt-1 text-xs text-muted-foreground">
-              Add sizes to this group in the Sizes page.
+              {t('form.fields.addSizesHint')}
             </p>
           ) : null}
         </div>
@@ -1186,7 +1193,7 @@ function VariantRowItem({
             onChange={(v) => setVariant(idx, { color: v ?? '' })}
             items={colors}
             getKey={(c) => c._id}
-            getLabel={(c) => c.name.en}
+            getLabel={(c) => toLocalized(c.name)}
             renderItem={(c) => (
               <span className="flex items-center gap-2">
                 <span
@@ -1194,10 +1201,10 @@ function VariantRowItem({
                   style={{ backgroundColor: c.hex }}
                   aria-hidden
                 />
-                {c.name.en}
+                {toLocalized(c.name)}
               </span>
             )}
-            placeholder="Color"
+            placeholder={t('form.fields.color')}
             disabled={isPending}
             clearable={false}
             hasError={Boolean(rowErrs?.color)}
@@ -1213,7 +1220,7 @@ function VariantRowItem({
             onChange={(v) =>
               setVariant(idx, { quantity: typeof v === 'number' ? v : 0 })
             }
-            suffix="qty"
+            suffix={t('form.fields.qtySuffix')}
             clampMin={0}
             hasError={Boolean(rowErrs?.quantity)}
             disabled={isPending}
@@ -1227,7 +1234,7 @@ function VariantRowItem({
       <button
         type="button"
         onClick={onRemove}
-        aria-label="Remove variant"
+        aria-label={t('form.sections.variants.removeAria')}
         disabled={isPending}
         className="inline-flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
       >

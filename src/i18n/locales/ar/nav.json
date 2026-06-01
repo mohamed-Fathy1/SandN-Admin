@@ -1,0 +1,43 @@
+{
+  "groups": {
+    "catalog": "الكتالوج",
+    "operations": "العمليات",
+    "marketing": "التسويق"
+  },
+  "items": {
+    "dashboard": "الرئيسية",
+    "products": "المنتجات",
+    "categories": "التصنيفات",
+    "categoryIcons": "أيقونات التصنيفات",
+    "subCategories": "التصنيفات الفرعية",
+    "colors": "الألوان",
+    "groups": "المجموعات",
+    "sizes": "المقاسات",
+    "orders": "الطلبات",
+    "wishlist": "قائمة الرغبات",
+    "offers": "العروض",
+    "heroSlider": "البانر الرئيسي",
+    "socialReviews": "تقييمات وسائل التواصل",
+    "shipping": "الشحن"
+  },
+  "breadcrumb": {
+    "dashboard": "الرئيسية",
+    "products": "المنتجات",
+    "productNew": "منتج جديد",
+    "productEdit": "تعديل المنتج",
+    "productVariants": "الأنواع",
+    "categories": "التصنيفات",
+    "categoryIcons": "أيقونات التصنيفات",
+    "subCategories": "التصنيفات الفرعية",
+    "colors": "الألوان",
+    "groups": "المجموعات",
+    "sizes": "المقاسات",
+    "orders": "الطلبات",
+    "orderDetail": "تفاصيل الطلب",
+    "wishlist": "قائمة الرغبات",
+    "offers": "العروض",
+    "heroSlider": "البانر الرئيسي",
+    "socialReviews": "تقييمات وسائل التواصل",
+    "shipping": "الشحن"
+  }
+}

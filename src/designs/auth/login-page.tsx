@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/designs/shared/button';
 import { Input } from '@/designs/shared/input';
 import { Card } from '@/designs/shared/card';
@@ -13,6 +14,7 @@ import { emailSchema } from '@/features/auth/schemas/login-form';
 import { A, accentAlpha } from '@/designs/layout/tokens';
 
 export function LoginPage() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const search = useSearch({ from: '/login' });
   const [email, setEmail] = useState('');
@@ -24,17 +26,13 @@ export function LoginPage() {
     setError(undefined);
     const parsed = emailSchema.safeParse({ email });
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? 'Invalid email');
+      setError(parsed.error.issues[0]?.message ?? t('login.toast.invalidEmail'));
       return;
     }
     register.mutate(parsed.data.email, {
       onSuccess: (result) => {
         if (!result.codeSent) {
-          // Backend created a new account or sent a non-admin welcome email.
-          // Either way there's no activation code, so do not navigate to /verify.
-          toast.info(
-            'This email is not registered as an admin. If this is unexpected, contact support.'
-          );
+          toast.info(t('login.toast.notAdmin'));
           return;
         }
         navigate({
@@ -93,19 +91,19 @@ export function LoginPage() {
           <div className="mb-8 text-center">
             <p className="mb-3 inline-flex items-center gap-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
               <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-r from-transparent to-accent/70" />
-              S&amp;N Admin
+              {t('login.eyebrow')}
               <span aria-hidden className="inline-block h-px w-6 bg-gradient-to-l from-transparent to-accent/70" />
             </p>
             <h1 className="m-0 font-display text-4xl italic leading-tight tracking-tight text-foreground">
-              Sign in
+              {t('login.title')}
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Enter your admin email and we'll send you a one-time code.
+              {t('login.subtitle')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-            <AdminFormField label="Email" error={error}>
+            <AdminFormField label={t('login.emailLabel')} error={error}>
               <Input
                 type="email"
                 name="email"
@@ -113,7 +111,7 @@ export function LoginPage() {
                 inputMode="email"
                 spellCheck={false}
                 autoFocus
-                placeholder="admin@example.com"
+                placeholder={t('login.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={register.isPending}
@@ -126,13 +124,13 @@ export function LoginPage() {
               size="lg"
               className="w-full"
               isLoading={register.isPending}
-              loadingText="Sending code…"
+              loadingText={t('login.sending')}
             >
-              Send code
+              {t('login.submit')}
             </Button>
 
             <p className="text-center text-xs text-light-foreground">
-              We'll email a 6-digit code that expires in 5 minutes.
+              {t('login.footer')}
             </p>
           </form>
         </Card>

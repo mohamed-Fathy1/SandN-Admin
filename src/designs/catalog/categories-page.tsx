@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminImageUploader,
@@ -34,7 +35,7 @@ import {
   type CategoryFormValues,
 } from '@/features/catalog/categories/schemas/category-form';
 import type { ApiCategory, ApiCategoryIcon, ApiGroup } from '@/shared/types/api';
-import { emptyBilingual } from '@/shared/utils/bilingual';
+import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { idOf } from '@/shared/utils/relations';
@@ -42,6 +43,8 @@ import { idOf } from '@/shared/utils/relations';
 type Tab = 'active' | 'deleted';
 
 export function CategoriesPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [tab, setTab] = useState<Tab>('active');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiCategory | null>(null);
@@ -84,7 +87,7 @@ export function CategoriesPage() {
       },
       {
         id: 'icon',
-        header: 'Icon',
+        header: t('categories.columns.icon'),
         enableSorting: false,
         size: 60,
         cell: ({ row }) => {
@@ -104,11 +107,11 @@ export function CategoriesPage() {
       },
       {
         id: 'name',
-        header: 'Name',
+        header: t('categories.columns.name'),
         accessorFn: (c) => c.name.en,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p className="truncate font-medium text-foreground">{toLocalized(row.original.name)}</p>
             <p
               dir="rtl"
               className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
@@ -121,7 +124,7 @@ export function CategoriesPage() {
       },
       {
         id: 'group',
-        header: 'Group',
+        header: t('categories.columns.group'),
         accessorFn: (c) => idOf(c.groupSize),
         cell: ({ row }) => {
           const gid = idOf(row.original.groupSize);
@@ -132,7 +135,7 @@ export function CategoriesPage() {
       },
       {
         id: 'created',
-        header: 'Created',
+        header: t('categories.columns.created'),
         accessorFn: (c) => c.createdAt ?? '',
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDate(row.original.createdAt)}</span>
@@ -154,7 +157,7 @@ export function CategoriesPage() {
                 }}
               >
                 <Pencil size={14} strokeWidth={1.5} aria-hidden />
-                Edit
+                {tCommon('actions.edit')}
               </Button>
               <Button
                 variant="ghost"
@@ -163,7 +166,7 @@ export function CategoriesPage() {
                   e.stopPropagation();
                   setSoftDeleting(row.original);
                 }}
-                aria-label={`Hide ${row.original.name.en}`}
+                aria-label={t('categories.aria.hide', { name: toLocalized(row.original.name) })}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -180,7 +183,7 @@ export function CategoriesPage() {
                 isLoading={restore.isPending && restore.variables === row.original._id}
               >
                 <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
-                Restore
+                {tCommon('actions.restore')}
               </Button>
               <Button
                 variant="ghost"
@@ -189,7 +192,7 @@ export function CategoriesPage() {
                   e.stopPropagation();
                   setHardDeleting(row.original);
                 }}
-                aria-label={`Permanently delete ${row.original.name.en}`}
+                aria-label={t('categories.aria.permDelete', { name: toLocalized(row.original.name) })}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -197,7 +200,7 @@ export function CategoriesPage() {
           ),
       },
     ],
-    [tab, groupNameById, restore]
+    [tab, groupNameById, restore, t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -205,19 +208,19 @@ export function CategoriesPage() {
   return (
     <>
       <PageHeader
-        title="Categories"
-        subtitle="Categories drive the storefront's top-level navigation."
+        title={t('categories.title')}
+        subtitle={t('categories.subtitle')}
         action={
           <Button onClick={() => setCreating(true)}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add category
+            {t('categories.addCategory')}
           </Button>
         }
         tabs={
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
             <TabsList>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="deleted">Deleted</TabsTrigger>
+              <TabsTrigger value="active">{t('categories.tabs.active')}</TabsTrigger>
+              <TabsTrigger value="deleted">{t('categories.tabs.deleted')}</TabsTrigger>
             </TabsList>
           </Tabs>
         }
@@ -227,10 +230,10 @@ export function CategoriesPage() {
         <TableToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search categories by name…"
+          searchPlaceholder={t('categories.searchPlaceholder')}
           meta={
             currentQuery.data
-              ? `${filteredData?.length ?? 0} of ${currentQuery.data.length}`
+              ? t('categories.meta', { count: filteredData?.length ?? 0, total: currentQuery.data.length })
               : undefined
           }
         />
@@ -250,7 +253,7 @@ export function CategoriesPage() {
           <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
             <Thumbnail src={c.image?.mediaUrl} size="lg" />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-foreground">{c.name.en}</p>
+              <p className="truncate font-medium text-foreground">{toLocalized(c.name)}</p>
               <p
                 dir="rtl"
                 className="truncate font-body-ar text-xs text-muted-foreground"
@@ -271,7 +274,7 @@ export function CategoriesPage() {
                       e.stopPropagation();
                       setEditing(c);
                     }}
-                    aria-label={`Edit ${c.name.en}`}
+                    aria-label={t('categories.aria.edit', { name: toLocalized(c.name) })}
                   >
                     <Pencil size={14} strokeWidth={1.5} aria-hidden />
                   </Button>
@@ -282,7 +285,7 @@ export function CategoriesPage() {
                       e.stopPropagation();
                       setSoftDeleting(c);
                     }}
-                    aria-label={`Hide ${c.name.en}`}
+                    aria-label={t('categories.aria.hide', { name: toLocalized(c.name) })}
                   >
                     <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
                   </Button>
@@ -304,16 +307,16 @@ export function CategoriesPage() {
           </div>
         )}
         emptyState={{
-          title: tab === 'active' ? 'No categories yet' : 'Nothing in the trash',
+          title: tab === 'active' ? t('categories.empty.noCategories') : t('categories.empty.trashTitle'),
           description:
             tab === 'active'
-              ? 'Set up at least one size group before creating categories.'
-              : 'Soft-deleted categories will appear here.',
+              ? t('categories.empty.intro')
+              : t('categories.empty.trash'),
           action:
             tab === 'active' ? (
               <Button onClick={() => setCreating(true)} size="sm">
                 <Plus size={14} strokeWidth={1.5} aria-hidden />
-                Add category
+                {t('categories.addCategory')}
               </Button>
             ) : undefined,
         }}
@@ -336,10 +339,10 @@ export function CategoriesPage() {
       <ConfirmDialog
         open={softDeleting !== null}
         onOpenChange={(o) => !o && setSoftDeleting(null)}
-        title={`Remove "${softDeleting?.name.en}"?`}
-        description="The category will be hidden from the storefront but can be restored from the Deleted tab."
+        title={t('categories.confirm.soft.title', { name: softDeleting ? toLocalized(softDeleting.name) : '' })}
+        description={t('categories.confirm.soft.description')}
         variant="warning"
-        confirmLabel="Remove"
+        confirmLabel={t('categories.confirm.soft.confirmLabel')}
         isPending={softDelete.isPending}
         onConfirm={() => {
           if (!softDeleting) return;
@@ -350,9 +353,9 @@ export function CategoriesPage() {
       <ConfirmDialog
         open={hardDeleting !== null}
         onOpenChange={(o) => !o && setHardDeleting(null)}
-        title={`Permanently delete "${hardDeleting?.name.en}"?`}
-        description="This removes the category from the database. Sub-categories and products referencing it may break."
-        confirmLabel="Delete permanently"
+        title={t('categories.confirm.hard.title', { name: hardDeleting ? toLocalized(hardDeleting.name) : '' })}
+        description={t('categories.confirm.hard.description')}
+        confirmLabel={t('categories.confirm.hard.confirmLabel')}
         requireTypedConfirmation="delete"
         isPending={hardDelete.isPending}
         onConfirm={() => {
@@ -383,6 +386,8 @@ function CategoryFormSheet({
   iconsLoading,
   iconsError,
 }: CategoryFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateCategory();
   const update = useUpdateCategory();
   const isEdit = Boolean(entity);
@@ -464,48 +469,48 @@ function CategoryFormSheet({
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit category' : 'New category'}
-      description={isEdit ? entity?.name.en : 'Bilingual name, one size group, one image.'}
+      title={isEdit ? t('categories.edit') : t('categories.new')}
+      description={isEdit && entity ? toLocalized(entity.name) : t('categories.form.newDescription')}
       size="lg"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending} disabled={!values.imageUrl}>
-            {isEdit ? 'Save changes' : 'Create category'}
+            {isEdit ? tCommon('actions.saveChanges') : t('categories.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <BilingualInput
-          label="Name"
+          label={t('categories.form.name')}
           required
           value={values.name}
           onChange={(name) => setValues((p) => ({ ...p, name }))}
           error={errors.name}
-          placeholder={{ en: 'Bras', ar: 'حمالة صدر' }}
+          placeholder={{ en: t('categories.form.namePlaceholderEn'), ar: t('categories.form.namePlaceholderAr') }}
         />
 
-        <AdminFormField label="Size group" required error={errors.groupSize}>
+        <AdminFormField label={t('categories.form.sizeGroup')} required error={errors.groupSize}>
           <SearchableSelect<ApiGroup>
             value={values.groupSize || undefined}
             onChange={(v) => setValues((p) => ({ ...p, groupSize: v ?? '' }))}
             items={groups}
             getKey={(g) => g._id}
             getLabel={(g) => formatGroupName(g.name)}
-            placeholder="Pick a size group"
+            placeholder={t('categories.form.pickSizeGroup')}
             disabled={isPending}
             clearable={false}
           />
         </AdminFormField>
 
         <AdminFormField
-          label="Icon"
+          label={t('categories.form.icon')}
           required
           error={errors.iconId}
-          hint="Pick a category icon. Manage the library in Catalog → Category Icons."
+          hint={t('categories.form.iconHint')}
         >
           <IconPicker
             icons={icons}
@@ -518,7 +523,7 @@ function CategoryFormSheet({
           />
         </AdminFormField>
 
-        <AdminFormField label="Cover image" required error={errors.imageUrl}>
+        <AdminFormField label={t('categories.form.coverImage')} required error={errors.imageUrl}>
           <AdminImageUploader
             folder="Category"
             value={values.imageUrl || undefined}

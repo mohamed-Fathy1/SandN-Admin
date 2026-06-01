@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import { BREADCRUMB_TITLES } from './nav-config';
+import { useTranslation } from 'react-i18next';
+import { BREADCRUMB_TITLE_KEYS } from './nav-config';
 import { useUiStore } from './ui-store';
 
 interface Crumb {
@@ -12,13 +13,14 @@ const DYNAMIC_SEGMENT = /^(?:[0-9a-f]{8,}|\d+)$/i;
 export function Breadcrumb() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const override = useUiStore((s) => s.crumbOverrides[pathname]);
-  const crumbs = buildCrumbs(pathname);
+  const { t } = useTranslation('nav');
+  const crumbs = buildCrumbs(pathname, t);
   if (override && crumbs.length > 0) {
     crumbs[crumbs.length - 1] = { ...crumbs[crumbs.length - 1], label: override };
   }
 
   return (
-    <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 items-center gap-1 text-sm sm:gap-2">
+    <nav aria-label={t('breadcrumb.dashboard')} className="flex min-w-0 flex-1 items-center gap-1 text-sm sm:gap-2">
       {crumbs.map((crumb, idx) => {
         const isLast = idx === crumbs.length - 1;
         return (
@@ -50,23 +52,27 @@ export function Breadcrumb() {
   );
 }
 
-function buildCrumbs(pathname: string): Crumb[] {
+function buildCrumbs(
+  pathname: string,
+  t: (k: string) => string
+): Crumb[] {
+  const rootLabel = t('breadcrumb.dashboard');
   if (pathname === '/' || pathname === '') {
-    return [{ to: '/', label: BREADCRUMB_TITLES['/'] ?? 'Dashboard' }];
+    return [{ to: '/', label: rootLabel }];
   }
   const parts = pathname.split('/').filter(Boolean);
-  const crumbs: Crumb[] = [{ to: '/', label: 'Dashboard' }];
+  const crumbs: Crumb[] = [{ to: '/', label: rootLabel }];
   let acc = '';
-  let lastStaticLabel = 'Dashboard';
+  let lastStaticLabel = rootLabel;
   for (const part of parts) {
     acc += `/${part}`;
-    const known = BREADCRUMB_TITLES[acc];
-    if (known) {
-      crumbs.push({ to: acc, label: known });
-      lastStaticLabel = known;
+    const key = BREADCRUMB_TITLE_KEYS[acc];
+    if (key) {
+      const label = t(key);
+      crumbs.push({ to: acc, label });
+      lastStaticLabel = label;
     } else if (DYNAMIC_SEGMENT.test(part)) {
-      // Unreadable id segment — borrow the parent's label and tag it as a detail.
-      crumbs.push({ to: acc, label: `${lastStaticLabel} detail` });
+      crumbs.push({ to: acc, label: lastStaticLabel });
     } else {
       const label = toTitleCase(part);
       crumbs.push({ to: acc, label });

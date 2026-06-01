@@ -1,0 +1,43 @@
+{
+  "groups": {
+    "catalog": "Catalog",
+    "operations": "Operations",
+    "marketing": "Marketing"
+  },
+  "items": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "categories": "Categories",
+    "categoryIcons": "Category Icons",
+    "subCategories": "Sub-Categories",
+    "colors": "Colors",
+    "groups": "Groups",
+    "sizes": "Sizes",
+    "orders": "Orders",
+    "wishlist": "Wishlist",
+    "offers": "Offers",
+    "heroSlider": "Hero Slider",
+    "socialReviews": "Social Reviews",
+    "shipping": "Shipping"
+  },
+  "breadcrumb": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "productNew": "New Product",
+    "productEdit": "Edit Product",
+    "productVariants": "Variants",
+    "categories": "Categories",
+    "categoryIcons": "Category Icons",
+    "subCategories": "Sub-Categories",
+    "colors": "Colors",
+    "groups": "Groups",
+    "sizes": "Sizes",
+    "orders": "Orders",
+    "orderDetail": "Order Detail",
+    "wishlist": "Wishlist",
+    "offers": "Offers",
+    "heroSlider": "Hero Slider",
+    "socialReviews": "Social Reviews",
+    "shipping": "Shipping"
+  }
+}

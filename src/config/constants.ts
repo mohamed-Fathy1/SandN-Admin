@@ -1,7 +1,12 @@
 export const STORAGE_KEYS = {
   session: 'sn_admin_session',
   sidebar: 'sn_admin_sidebar',
+  locale: 'sn_admin_locale',
 } as const;
+
+export const LOCALES = ['ar', 'en'] as const;
+export type Locale = (typeof LOCALES)[number];
+export const DEFAULT_LOCALE: Locale = 'ar';
 
 export const QUERY_STALE_TIME = {
   short: 30 * 1000,

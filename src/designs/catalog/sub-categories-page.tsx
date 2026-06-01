@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
   AdminImageUploader,
@@ -34,7 +35,7 @@ import {
   type SubCategoryFormValues,
 } from '@/features/catalog/sub-categories/schemas/sub-category-form';
 import type { ApiCategory, ApiGroup, ApiSubCategory } from '@/shared/types/api';
-import { emptyBilingual } from '@/shared/utils/bilingual';
+import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 import { idOf } from '@/shared/utils/relations';
@@ -42,6 +43,8 @@ import { idOf } from '@/shared/utils/relations';
 type Tab = 'active' | 'deleted';
 
 export function SubCategoriesPage() {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const [tab, setTab] = useState<Tab>('active');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<ApiSubCategory | null>(null);
@@ -77,7 +80,7 @@ export function SubCategoriesPage() {
 
   const categoryNameById = useMemo(() => {
     const map = new Map<string, string>();
-    categoriesQuery.data?.forEach((c) => map.set(c._id, c.name.en));
+    categoriesQuery.data?.forEach((c) => map.set(c._id, toLocalized(c.name)));
     return map;
   }, [categoriesQuery.data]);
 
@@ -92,11 +95,11 @@ export function SubCategoriesPage() {
       },
       {
         id: 'name',
-        header: 'Name',
+        header: t('subCategories.columns.name'),
         accessorFn: (c) => c.name.en,
         cell: ({ row }) => (
           <div className="min-w-0">
-            <p className="truncate font-medium text-foreground">{row.original.name.en}</p>
+            <p className="truncate font-medium text-foreground">{toLocalized(row.original.name)}</p>
             <p
               dir="rtl"
               className="mt-0.5 truncate font-body-ar text-xs text-muted-foreground"
@@ -109,7 +112,7 @@ export function SubCategoriesPage() {
       },
       {
         id: 'category',
-        header: 'Category',
+        header: t('subCategories.columns.category'),
         accessorFn: (c) => idOf(c.category),
         cell: ({ row }) => {
           const cid = idOf(row.original.category);
@@ -120,7 +123,7 @@ export function SubCategoriesPage() {
       },
       {
         id: 'created',
-        header: 'Created',
+        header: t('subCategories.columns.created'),
         accessorFn: (c) => c.createdAt ?? '',
         cell: ({ row }) => (
           <span className="text-muted-foreground">{formatDate(row.original.createdAt)}</span>
@@ -142,7 +145,7 @@ export function SubCategoriesPage() {
                 }}
               >
                 <Pencil size={14} strokeWidth={1.5} aria-hidden />
-                Edit
+                {tCommon('actions.edit')}
               </Button>
               <Button
                 variant="ghost"
@@ -151,7 +154,7 @@ export function SubCategoriesPage() {
                   e.stopPropagation();
                   setSoftDeleting(row.original);
                 }}
-                aria-label={`Hide ${row.original.name.en}`}
+                aria-label={t('subCategories.aria.hide', { name: toLocalized(row.original.name) })}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -168,7 +171,7 @@ export function SubCategoriesPage() {
                 isLoading={restore.isPending && restore.variables === row.original._id}
               >
                 <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
-                Restore
+                {tCommon('actions.restore')}
               </Button>
               <Button
                 variant="ghost"
@@ -177,7 +180,7 @@ export function SubCategoriesPage() {
                   e.stopPropagation();
                   setHardDeleting(row.original);
                 }}
-                aria-label={`Permanently delete ${row.original.name.en}`}
+                aria-label={t('subCategories.aria.permDelete', { name: toLocalized(row.original.name) })}
               >
                 <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
               </Button>
@@ -185,7 +188,7 @@ export function SubCategoriesPage() {
           ),
       },
     ],
-    [tab, categoryNameById, restore]
+    [tab, categoryNameById, restore, t, tCommon]
   );
 
   const sheetOpen = creating || editing !== null;
@@ -193,19 +196,19 @@ export function SubCategoriesPage() {
   return (
     <>
       <PageHeader
-        title="Sub-categories"
-        subtitle="Sub-categories belong to a parent category and refine browsing."
+        title={t('subCategories.title')}
+        subtitle={t('subCategories.subtitle')}
         action={
           <Button onClick={() => setCreating(true)} disabled={!categoriesQuery.data?.length}>
             <Plus size={16} strokeWidth={1.5} aria-hidden />
-            Add sub-category
+            {t('subCategories.addSubCategory')}
           </Button>
         }
         tabs={
           <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
             <TabsList>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="deleted">Deleted</TabsTrigger>
+              <TabsTrigger value="active">{t('subCategories.tabs.active')}</TabsTrigger>
+              <TabsTrigger value="deleted">{t('subCategories.tabs.deleted')}</TabsTrigger>
             </TabsList>
           </Tabs>
         }
@@ -215,25 +218,25 @@ export function SubCategoriesPage() {
         <TableToolbar
           search={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search sub-categories by name…"
+          searchPlaceholder={t('subCategories.searchPlaceholder')}
           filters={
             categoriesQuery.data && categoriesQuery.data.length > 0 ? (
               <Select
                 value={categoryFilter || '__all'}
                 onValueChange={(v) => setCategoryFilter(v === '__all' ? '' : v)}
-                placeholder="All categories"
+                placeholder={t('subCategories.allCategories')}
                 options={[
-                  { value: '__all', label: 'All categories' },
-                  ...categoriesQuery.data.map((c) => ({ value: c._id, label: c.name.en })),
+                  { value: '__all', label: t('subCategories.allCategories') },
+                  ...categoriesQuery.data.map((c) => ({ value: c._id, label: toLocalized(c.name) })),
                 ]}
-                aria-label="Filter by parent category"
+                aria-label={t('subCategories.filterAria')}
                 className="min-w-[180px]"
               />
             ) : null
           }
           meta={
             currentQuery.data
-              ? `${filteredData?.length ?? 0} of ${currentQuery.data.length}`
+              ? t('subCategories.meta', { count: filteredData?.length ?? 0, total: currentQuery.data.length })
               : undefined
           }
         />
@@ -256,7 +259,7 @@ export function SubCategoriesPage() {
           <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
             <Thumbnail src={c.image?.mediaUrl} size="lg" />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-foreground">{c.name.en}</p>
+              <p className="truncate font-medium text-foreground">{toLocalized(c.name)}</p>
               <p
                 dir="rtl"
                 className="truncate font-body-ar text-xs text-muted-foreground"
@@ -277,7 +280,7 @@ export function SubCategoriesPage() {
                       e.stopPropagation();
                       setEditing(c);
                     }}
-                    aria-label={`Edit ${c.name.en}`}
+                    aria-label={t('subCategories.aria.edit', { name: toLocalized(c.name) })}
                   >
                     <Pencil size={14} strokeWidth={1.5} aria-hidden />
                   </Button>
@@ -288,7 +291,7 @@ export function SubCategoriesPage() {
                       e.stopPropagation();
                       setSoftDeleting(c);
                     }}
-                    aria-label={`Hide ${c.name.en}`}
+                    aria-label={t('subCategories.aria.hide', { name: toLocalized(c.name) })}
                   >
                     <Trash2 size={14} strokeWidth={1.5} aria-hidden className="text-destructive" />
                   </Button>
@@ -310,16 +313,16 @@ export function SubCategoriesPage() {
           </div>
         )}
         emptyState={{
-          title: tab === 'active' ? 'No sub-categories yet' : 'Nothing in the trash',
+          title: tab === 'active' ? t('subCategories.empty.noSubCategories') : t('subCategories.empty.trashTitle'),
           description:
             tab === 'active'
-              ? 'Create a parent category first, then add sub-categories underneath.'
-              : 'Soft-deleted sub-categories will appear here.',
+              ? t('subCategories.empty.intro')
+              : t('subCategories.empty.trash'),
           action:
             tab === 'active' && categoriesQuery.data?.length ? (
               <Button onClick={() => setCreating(true)} size="sm">
                 <Plus size={14} strokeWidth={1.5} aria-hidden />
-                Add sub-category
+                {t('subCategories.addSubCategory')}
               </Button>
             ) : undefined,
         }}
@@ -340,10 +343,10 @@ export function SubCategoriesPage() {
       <ConfirmDialog
         open={softDeleting !== null}
         onOpenChange={(o) => !o && setSoftDeleting(null)}
-        title={`Remove "${softDeleting?.name.en}"?`}
-        description="The sub-category will be hidden but can be restored from the Deleted tab."
+        title={t('subCategories.confirm.soft.title', { name: softDeleting ? toLocalized(softDeleting.name) : '' })}
+        description={t('subCategories.confirm.soft.description')}
         variant="warning"
-        confirmLabel="Remove"
+        confirmLabel={t('subCategories.confirm.soft.confirmLabel')}
         isPending={softDelete.isPending}
         onConfirm={() => {
           if (!softDeleting) return;
@@ -354,9 +357,9 @@ export function SubCategoriesPage() {
       <ConfirmDialog
         open={hardDeleting !== null}
         onOpenChange={(o) => !o && setHardDeleting(null)}
-        title={`Permanently delete "${hardDeleting?.name.en}"?`}
-        description="This removes the sub-category from the database. Any products referencing it may break."
-        confirmLabel="Delete permanently"
+        title={t('subCategories.confirm.hard.title', { name: hardDeleting ? toLocalized(hardDeleting.name) : '' })}
+        description={t('subCategories.confirm.hard.description')}
+        confirmLabel={t('subCategories.confirm.hard.confirmLabel')}
         requireTypedConfirmation="delete"
         isPending={hardDelete.isPending}
         onConfirm={() => {
@@ -383,6 +386,8 @@ function SubCategoryFormSheet({
   categories,
   groups,
 }: SubCategoryFormSheetProps) {
+  const { t } = useTranslation('catalog');
+  const { t: tCommon } = useTranslation('common');
   const create = useCreateSubCategory();
   const update = useUpdateSubCategory();
   const isEdit = Boolean(entity);
@@ -456,58 +461,58 @@ function SubCategoryFormSheet({
     <FormSheet
       open={open}
       onOpenChange={(next) => !next && onClose()}
-      title={isEdit ? 'Edit sub-category' : 'New sub-category'}
-      description={isEdit ? entity?.name.en : 'Pick a parent category, then add localized names.'}
+      title={isEdit ? t('subCategories.edit') : t('subCategories.new')}
+      description={isEdit && entity ? toLocalized(entity.name) : t('subCategories.form.newDescription')}
       size="lg"
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {tCommon('actions.cancel')}
           </Button>
           <Button onClick={handleSubmit} isLoading={isPending} disabled={!values.imageUrl}>
-            {isEdit ? 'Save changes' : 'Create sub-category'}
+            {isEdit ? tCommon('actions.saveChanges') : t('subCategories.form.create')}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        <AdminFormField label="Parent category" required error={errors.category}>
+        <AdminFormField label={t('subCategories.form.parentCategory')} required error={errors.category}>
           <SearchableSelect<ApiCategory>
             value={values.category || undefined}
             onChange={(v) => setValues((p) => ({ ...p, category: v ?? '' }))}
             items={categories}
             getKey={(c) => c._id}
-            getLabel={(c) => c.name.en}
+            getLabel={(c) => toLocalized(c.name)}
             getSearchText={(c) => `${c.name.en} ${c.name.ar}`}
-            placeholder="Pick a category"
+            placeholder={t('subCategories.form.pickCategory')}
             disabled={isPending}
             clearable={false}
           />
         </AdminFormField>
 
         <BilingualInput
-          label="Name"
+          label={t('subCategories.form.name')}
           required
           value={values.name}
           onChange={(name) => setValues((p) => ({ ...p, name }))}
           error={errors.name}
-          placeholder={{ en: 'Sportswear', ar: 'ملابس رياضية' }}
+          placeholder={{ en: t('subCategories.form.namePlaceholderEn'), ar: t('subCategories.form.namePlaceholderAr') }}
         />
 
-        <AdminFormField label="Size group" required error={errors.groupSize}>
+        <AdminFormField label={t('subCategories.form.sizeGroup')} required error={errors.groupSize}>
           <SearchableSelect<ApiGroup>
             value={values.groupSize || undefined}
             onChange={(v) => setValues((p) => ({ ...p, groupSize: v ?? '' }))}
             items={groups}
             getKey={(g) => g._id}
             getLabel={(g) => formatGroupName(g.name)}
-            placeholder="Pick a size group"
+            placeholder={t('subCategories.form.pickSizeGroup')}
             disabled={isPending}
             clearable={false}
           />
         </AdminFormField>
 
-        <AdminFormField label="Cover image" required error={errors.imageUrl}>
+        <AdminFormField label={t('subCategories.form.coverImage')} required error={errors.imageUrl}>
           <AdminImageUploader
             folder="SubCategory"
             value={values.imageUrl || undefined}
