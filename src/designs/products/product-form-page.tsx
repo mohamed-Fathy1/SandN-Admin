@@ -592,6 +592,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                     values.category ? t('form.fields.pickSubCategory') : t('form.fields.pickCategoryFirst')
                   }
                   disabled={isPending || !values.category}
+                  disabledReason={!values.category ? t('form.fields.pickCategoryFirst') : undefined}
                   clearable
                 />
               </AdminFormField>
@@ -1078,6 +1079,7 @@ function SalePanel({
             onChange={(v) => setValues((p) => ({ ...p, saleStartDate: v }))}
             hasError={Boolean(errors.saleStartDate)}
             disabled={!hasSale || isPending}
+            disabledReason={!hasSale ? t('form.sale.priceRequiredFirst') : undefined}
           />
         </AdminFormField>
         <AdminFormField label={t('form.sale.end')} error={errors.saleEndDate}>
@@ -1086,6 +1088,7 @@ function SalePanel({
             onChange={(v) => setValues((p) => ({ ...p, saleEndDate: v }))}
             hasError={Boolean(errors.saleEndDate)}
             disabled={!hasSale || isPending}
+            disabledReason={!hasSale ? t('form.sale.priceRequiredFirst') : undefined}
           />
         </AdminFormField>
       </div>
@@ -1175,6 +1178,13 @@ function VariantRowItem({
                   : t('form.fields.size')
             }
             disabled={isPending || !hasCategory || sizeOptions.length === 0}
+            disabledReason={
+              !hasCategory
+                ? t('form.fields.pickCategoryFirst')
+                : sizeOptions.length === 0
+                  ? t('form.fields.addSizesHint')
+                  : undefined
+            }
             clearable={false}
             hasError={Boolean(rowErrs?.size)}
           />

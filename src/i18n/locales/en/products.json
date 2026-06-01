@@ -186,7 +186,8 @@
       "price": "Sale price",
       "priceHint": "Leave 0 to disable.",
       "start": "Sale start",
-      "end": "Sale end"
+      "end": "Sale end",
+      "priceRequiredFirst": "Enter a sale price first to schedule a window."
     },
     "actionBar": {
       "fixHighlighted": "Fix the highlighted fields",

@@ -334,6 +334,7 @@ export function ProductsListPage({
                   category ? t('list.allSubCategories') : t('list.pickCategoryFirst')
                 }
                 disabled={!category}
+                disabledReason={!category ? t('list.pickCategoryFirst') : undefined}
                 clearable
                 className="min-w-[180px]"
               />

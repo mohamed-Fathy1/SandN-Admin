@@ -215,6 +215,18 @@ textarea {
   font-family: inherit;
 }
 
+/* iOS Safari zooms the viewport when a form control with font-size < 16px
+   gains focus. Force 16px on touch devices to suppress the zoom without
+   affecting desktop typography. */
+@media (hover: none) and (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+
 :focus-visible {
   outline: 2px solid var(--color-ring);
   outline-offset: 2px;

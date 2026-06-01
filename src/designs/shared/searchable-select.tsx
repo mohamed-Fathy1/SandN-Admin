@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 // `highlight` is clamped lazily on read (see `safeHighlight`) — no clamping effect needed.
 import * as Popover from '@radix-ui/react-popover';
 import { Check, ChevronDown, Search } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/shared/utils/cn';
 
 interface SearchableSelectProps<T> {
@@ -19,6 +20,12 @@ interface SearchableSelectProps<T> {
   clearable?: boolean;
   id?: string;
   className?: string;
+  /**
+   * Localized explanation shown as a toast when the user taps a disabled
+   * trigger. A native disabled `<button>` swallows pointer events silently,
+   * leaving the user with no signal — this surfaces the reason.
+   */
+  disabledReason?: string;
 }
 
 export function SearchableSelect<T>({
@@ -36,12 +43,14 @@ export function SearchableSelect<T>({
   clearable = true,
   id,
   className,
+  disabledReason,
 }: SearchableSelectProps<T>) {
   const listboxId = useId();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const selectedItem = useMemo(
     () => items.find((it) => getKey(it) === value),
@@ -100,10 +109,24 @@ export function SearchableSelect<T>({
   const activeItem = filtered[safeHighlight];
   const activeId = activeItem ? `${listboxId}-${getKey(activeItem)}` : undefined;
 
+  // When `disabled` + `disabledReason` are both set we keep the trigger
+  // natively *enabled* so it still receives taps — then block the popover
+  // from opening and surface the reason as a toast instead. A natively
+  // disabled <button> swallows the tap silently, leaving the user with no
+  // signal about why the field is inert.
+  const hasDisabledHint = Boolean(disabled && disabledReason);
   return (
     <Popover.Root
       open={open}
       onOpenChange={(next) => {
+        if (next && disabled) {
+          if (disabledReason) {
+            toast.info(disabledReason, {
+              id: `searchable-select-disabled-${disabledReason}`,
+            });
+          }
+          return;
+        }
         setOpen(next);
         if (!next) {
           setQuery('');
@@ -115,7 +138,8 @@ export function SearchableSelect<T>({
         <button
           id={id}
           type="button"
-          disabled={disabled}
+          disabled={disabled && !hasDisabledHint}
+          aria-disabled={disabled || undefined}
           aria-invalid={hasError || undefined}
           aria-haspopup="listbox"
           aria-expanded={open}
@@ -125,6 +149,7 @@ export function SearchableSelect<T>({
             'transition-[border-color,box-shadow,background-color] duration-150',
             'focus-visible:outline-none',
             'disabled:cursor-not-allowed disabled:opacity-50',
+            disabled && 'cursor-not-allowed opacity-50',
             hasError
               ? 'border-destructive focus-visible:border-destructive focus-visible:shadow-[var(--shadow-focus-destructive)]'
               : 'border-border-medium hover:border-border-strong focus-visible:border-accent focus-visible:shadow-[var(--shadow-focus-accent)]',
@@ -147,6 +172,13 @@ export function SearchableSelect<T>({
         <Popover.Content
           align="start"
           sideOffset={6}
+          // Manually focus the search input without scroll-into-view. iOS
+          // Safari otherwise scrolls the page up to bring the focused input
+          // into the visual viewport, hiding the dropdown above the fold.
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            searchInputRef.current?.focus({ preventScroll: true });
+          }}
           className="z-50 w-[var(--radix-popover-trigger-width)] rounded-xl border border-border bg-card p-2 shadow-popover"
         >
           <div className="relative mb-2">
@@ -157,7 +189,7 @@ export function SearchableSelect<T>({
               className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <input
-              autoFocus
+              ref={searchInputRef}
               type="search"
               inputMode="search"
               autoComplete="off"
