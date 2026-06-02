@@ -1,7 +1,7 @@
 {
   "categories": {
     "title": "Categories",
-    "subtitle": "Categories drive the storefront's top-level navigation.",
+    "subtitle": "Categories drive the storefront’s top-level navigation.",
     "addCategory": "Add category",
     "edit": "Edit category",
     "new": "New category",
@@ -12,12 +12,22 @@
       "icon": "Icon",
       "name": "Name",
       "group": "Group",
+      "order": "Order",
       "created": "Created"
     },
     "aria": {
       "hide": "Hide {{name}}",
       "edit": "Edit {{name}}",
-      "permDelete": "Permanently delete {{name}}"
+      "permDelete": "Permanently delete {{name}}",
+      "dragHandle": "Drag to reorder {{name}}"
+    },
+    "reorder": {
+      "enter": "Reorder",
+      "exit": "Done",
+      "subtitle": "Drag rows to reorder. Lower shows first on the storefront.",
+      "save": "Save order",
+      "cancel": "Cancel",
+      "noChanges": "Drag a row to change the order."
     },
     "empty": {
       "noCategories": "No categories yet",
@@ -34,6 +44,8 @@
       "icon": "Icon",
       "iconHint": "Pick a category icon. Manage the library in Catalog → Category Icons.",
       "coverImage": "Cover image",
+      "order": "Display order",
+      "orderHint": "Lower numbers show first on the storefront.",
       "create": "Create category",
       "newDescription": "Bilingual name, one size group, one image."
     },

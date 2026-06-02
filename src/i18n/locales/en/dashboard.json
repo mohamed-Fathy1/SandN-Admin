@@ -32,7 +32,7 @@
     "chartMode": "Chart mode",
     "byStatus": "By status",
     "orderDistribution": "Order distribution",
-    "emptyWeek": { "title": "No data in the last week", "description": "Once orders come in they'll plot here." },
+    "emptyWeek": { "title": "No data in the last week", "description": "Once orders come in they’ll plot here." },
     "noOrders": "No orders yet."
   },
   "topSelling": {
@@ -45,13 +45,13 @@
     "title": "Most wishlisted",
     "subtitle": "Saved-for-later leaders",
     "viewAll": "View wishlist",
-    "empty": { "title": "Empty wishlists", "description": "When customers save products, they'll surface here." }
+    "empty": { "title": "Empty wishlists", "description": "When customers save products, they’ll surface here." }
   },
   "recentOrders": {
     "title": "Recent orders",
     "subtitle": "Latest activity",
     "viewAll": "View all",
-    "empty": { "title": "No orders yet", "description": "When customers place orders, they'll show up here." },
+    "empty": { "title": "No orders yet", "description": "When customers place orders, they’ll show up here." },
     "columns": {
       "orderNumber": "Order #",
       "customer": "Customer",

@@ -147,7 +147,7 @@ function VariantsInner({
       dirtyRows.map((d) => ({
         _id: d._id,
         size: d.size,
-        color: d.color,
+        color: d.color || undefined,
         quantity: d.quantity,
       })),
       {
@@ -174,14 +174,13 @@ function VariantsInner({
   };
 
   const handleAdd = () => {
-    if (!newRow.color) return;
     const qty = typeof newRow.quantity === 'number' ? newRow.quantity : 0;
     const trimmedSize = newRow.size.trim();
     createOne.mutate(
       {
         productId,
         size: trimmedSize.length > 0 ? trimmedSize : 'one size',
-        color: newRow.color,
+        color: newRow.color || undefined,
         quantity: qty,
       },
       {
@@ -336,7 +335,7 @@ function VariantsInner({
                           </span>
                         )}
                         placeholder={t('variants.colorPlaceholder')}
-                        clearable={false}
+                        clearable={!d.original.color}
                       />
                     </label>
                   </div>
@@ -369,14 +368,13 @@ function VariantsInner({
                   getKey={(c) => c._id}
                   getLabel={(c) => toLocalized(c.name)}
                   placeholder={t('variants.colorPlaceholder')}
-                  clearable={false}
                 />
               </div>
               <Button
                 size="sm"
                 onClick={handleAdd}
                 isLoading={createOne.isPending}
-                disabled={!newRow.size.trim() || !newRow.color}
+                disabled={!newRow.size.trim()}
                 className="col-span-2"
               >
                 <Plus size={14} strokeWidth={1.5} aria-hidden />
@@ -462,7 +460,7 @@ function VariantsInner({
                             </span>
                           )}
                           placeholder={t('variants.colorPlaceholder')}
-                          clearable={false}
+                          clearable={!d.original.color}
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -521,7 +519,6 @@ function VariantsInner({
                     getKey={(c) => c._id}
                     getLabel={(c) => toLocalized(c.name)}
                     placeholder={t('variants.colorPlaceholder')}
-                    clearable={false}
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -537,7 +534,6 @@ function VariantsInner({
                     size="sm"
                     onClick={handleAdd}
                     isLoading={createOne.isPending}
-                    disabled={!newRow.color}
                   >
                     <Plus size={14} strokeWidth={1.5} aria-hidden />
                     {t('variants.addBtn')}
@@ -606,7 +602,7 @@ function VariantsInner({
 }
 
 function toDraft(v: ApiVariant): DraftRow {
-  const colorId = typeof v.color === 'string' ? v.color : v.color._id;
+  const colorId = !v.color ? '' : typeof v.color === 'string' ? v.color : v.color._id;
   return {
     _id: v._id,
     size: v.size,

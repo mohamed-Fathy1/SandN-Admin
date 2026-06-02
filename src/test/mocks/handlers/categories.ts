@@ -18,6 +18,7 @@ const sample: ApiCategory[] = [
     groupSize: 'grp-1',
     iconId: sampleIcon._id,
     icon: sampleIcon,
+    order: 0,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
@@ -27,6 +28,7 @@ const sample: ApiCategory[] = [
     groupSize: 'grp-1',
     iconId: sampleIcon._id,
     icon: sampleIcon,
+    order: 1,
     createdAt: '2026-01-02T00:00:00.000Z',
   },
 ];

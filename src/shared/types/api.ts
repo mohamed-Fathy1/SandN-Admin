@@ -62,6 +62,7 @@ export interface ApiCategory {
   groupSize: string | ApiGroup;
   iconId?: string | null;
   icon?: PopulatedCategoryIcon | null;
+  order: number;
   subCategories?: ApiSubCategory[];
   sizeCategories?: ApiSize[];
   isDeleted?: boolean;
@@ -92,7 +93,7 @@ export interface ApiShipping {
 export interface ApiVariant {
   _id: string;
   size: string;
-  color: string | ApiColor;
+  color: string | ApiColor | null;
   quantity: number;
   product?: string;
   createdAt?: string;
@@ -188,7 +189,7 @@ export interface ApiOrderProduct {
    * Per the API spec, `color` on order products is the populated color document
    * (name + hex) but legacy orders may still carry a plain ObjectId string.
    */
-  color?: string | ApiColor;
+  color?: string | ApiColor | null;
 }
 
 export interface ApiOrder {

@@ -13,6 +13,7 @@ import {
   restoreCategory,
   softDeleteCategory,
   updateCategory,
+  type CategoryPayload,
 } from '../api/categories';
 
 export function useCategories() {
@@ -97,6 +98,20 @@ export function useRestoreCategory() {
       toast.success('Category restored');
     },
     onError: (err) => toastError(err, 'Failed to restore category'),
+  });
+}
+
+export function useReorderCategories() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (updates: { id: string; payload: CategoryPayload }[]) => {
+      await Promise.all(updates.map(({ id, payload }) => updateCategory(id, payload)));
+    },
+    onSuccess: () => {
+      invalidators.afterCategoryWrite(qc);
+      toast.success('Order saved');
+    },
+    onError: (err) => toastError(err, 'Failed to save order'),
   });
 }
 

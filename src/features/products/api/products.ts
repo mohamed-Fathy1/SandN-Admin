@@ -9,7 +9,7 @@ import type {
 
 export interface VariantPayload {
   size?: string;
-  color: string;
+  color?: string;
   quantity: number;
 }
 

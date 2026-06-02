@@ -242,7 +242,7 @@
       "bulkDelete": {
         "title_one": "Delete {{count}} variant?",
         "title_other": "Delete {{count}} variants?",
-        "description": "The selected variants will be removed. Orders that reference them will keep historical pricing but won't be re-orderable.",
+        "description": "The selected variants will be removed. Orders that reference them will keep historical pricing but won’t be re-orderable.",
         "confirmLabel": "Delete"
       }
     }

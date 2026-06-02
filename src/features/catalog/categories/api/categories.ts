@@ -7,6 +7,7 @@ export interface CategoryPayload {
   groupSize: string;
   iconId: string;
   imageUrl: string;
+  order: number;
 }
 
 // API populates the icon on Category under `image_svg` (legacy field name).

@@ -1156,7 +1156,7 @@ function VariantRowItem({
       exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
       className={cn(
-        'group/row relative flex items-start gap-3 rounded-xl border bg-card p-3 transition-all hover:border-border-medium',
+        'group/row relative flex items-start gap-3 rounded-xl border bg-card p-3 transition-[border-color,box-shadow] duration-150 ease-out hover:border-border-medium',
         hasRowErr
           ? 'border-destructive/30 shadow-[inset_3px_0_0_0_var(--color-destructive)]'
           : 'border-border'
@@ -1216,7 +1216,6 @@ function VariantRowItem({
             )}
             placeholder={t('form.fields.color')}
             disabled={isPending}
-            clearable={false}
             hasError={Boolean(rowErrs?.color)}
           />
           {rowErrs?.color ? (
@@ -1309,7 +1308,7 @@ function computeSectionState(
   const classDone = Boolean(v.category);
   const classErr = Boolean(errs.category || errs.subCategory);
   const variantsDone =
-    v.variants.length > 0 && v.variants.every((x) => x.size && x.color);
+    v.variants.length > 0 && v.variants.every((x) => x.size);
   const variantsErr = Boolean(errs.variants || errs.variantRows);
   const mediaDone = Boolean(v.defaultImage);
   const mediaErr = Boolean(errs.defaultImage || errs.albumImages);

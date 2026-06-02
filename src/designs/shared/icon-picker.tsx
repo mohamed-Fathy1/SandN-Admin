@@ -97,7 +97,7 @@ export function IconPicker({
                 disabled={disabled}
                 onClick={() => onChange(icon._id)}
                 className={cn(
-                  'group relative flex aspect-square items-center justify-center rounded-lg border transition-all',
+                  'group relative flex aspect-square items-center justify-center rounded-lg border transition-[border-color,background-color,box-shadow] duration-150 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   'disabled:cursor-not-allowed disabled:opacity-50',
                   selected

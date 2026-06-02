@@ -50,7 +50,7 @@
   },
   "hero": {
     "title": "Hero Slider",
-    "subtitle": "Each slide pairs a small and a large banner. They drive the storefront's homepage.",
+    "subtitle": "Each slide pairs a small and a large banner. They drive the storefront’s homepage.",
     "addSlide": "Add slide",
     "addFirstSlide": "Add first slide",
     "new": "New hero slide",
@@ -59,7 +59,7 @@
     "ariaDelete": "Delete hero slide",
     "empty": {
       "title": "Homepage hero is empty",
-      "description": "Without a slide the storefront's homepage will load with a blank banner. Add one to bring it back."
+      "description": "Without a slide the storefront’s homepage will load with a blank banner. Add one to bring it back."
     },
     "form": {
       "description": "Upload one small and one large image. Both go live together.",

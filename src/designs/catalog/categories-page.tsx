@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Pencil, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   AdminFormField,
@@ -11,6 +11,7 @@ import {
   ConfirmDialog,
   FormSheet,
   IconPicker,
+  NumberInput,
   SearchableSelect,
   TableToolbar,
   Tabs,
@@ -26,6 +27,7 @@ import {
   useCreateCategory,
   useDeletedCategories,
   useHardDeleteCategory,
+  useReorderCategories,
   useRestoreCategory,
   useSoftDeleteCategory,
   useUpdateCategory,
@@ -39,6 +41,7 @@ import { emptyBilingual, toLocalized } from '@/shared/utils/bilingual';
 import { formatDate, formatGroupName } from '@/shared/utils/format';
 import { mapApiErrorsToFields } from '@/shared/utils/forms';
 import { idOf } from '@/shared/utils/relations';
+import { SortableCategoryList } from './sortable-category-list';
 
 type Tab = 'active' | 'deleted';
 
@@ -51,6 +54,8 @@ export function CategoriesPage() {
   const [softDeleting, setSoftDeleting] = useState<ApiCategory | null>(null);
   const [hardDeleting, setHardDeleting] = useState<ApiCategory | null>(null);
   const [search, setSearch] = useState('');
+  const [reorderMode, setReorderMode] = useState(false);
+  const [reorderedItems, setReorderedItems] = useState<ApiCategory[]>([]);
 
   const activeQuery = useCategories();
   const deletedQuery = useDeletedCategories();
@@ -59,6 +64,7 @@ export function CategoriesPage() {
   const softDelete = useSoftDeleteCategory();
   const restore = useRestoreCategory();
   const hardDelete = useHardDeleteCategory();
+  const reorder = useReorderCategories();
 
   const currentQuery = tab === 'active' ? activeQuery : deletedQuery;
   const normalizedSearch = search.trim().toLowerCase();
@@ -134,6 +140,14 @@ export function CategoriesPage() {
         },
       },
       {
+        id: 'order',
+        header: t('categories.columns.order'),
+        accessorKey: 'order',
+        cell: ({ row }) => (
+          <span className="tabular-nums text-muted-foreground">{row.original.order}</span>
+        ),
+      },
+      {
         id: 'created',
         header: t('categories.columns.created'),
         accessorFn: (c) => c.createdAt ?? '',
@@ -205,41 +219,100 @@ export function CategoriesPage() {
 
   const sheetOpen = creating || editing !== null;
 
+  const enterReorder = () => {
+    setReorderedItems(activeQuery.data ?? []);
+    setReorderMode(true);
+  };
+  const exitReorder = () => {
+    setReorderMode(false);
+    setReorderedItems([]);
+  };
+
+  const reorderDiff = useMemo(() => {
+    if (!reorderMode) return [];
+    return reorderedItems
+      .map((c, i) => ({ category: c, newOrder: i }))
+      .filter(({ category, newOrder }) => category.order !== newOrder);
+  }, [reorderMode, reorderedItems]);
+
+  const saveReorder = () => {
+    if (reorderDiff.length === 0) return;
+    const updates = reorderDiff.map(({ category, newOrder }) => ({
+      id: category._id,
+      payload: {
+        name: category.name,
+        groupSize: idOf(category.groupSize),
+        iconId: category.iconId ?? category.icon?._id ?? '',
+        imageUrl: category.image?.mediaUrl ?? '',
+        order: newOrder,
+      },
+    }));
+    reorder.mutate(updates, { onSuccess: exitReorder });
+  };
+
   return (
     <>
       <PageHeader
         title={t('categories.title')}
-        subtitle={t('categories.subtitle')}
+        subtitle={reorderMode ? t('categories.reorder.subtitle') : t('categories.subtitle')}
         action={
-          <Button onClick={() => setCreating(true)}>
-            <Plus size={16} strokeWidth={1.5} aria-hidden />
-            {t('categories.addCategory')}
-          </Button>
+          reorderMode ? (
+            <Button variant="ghost" onClick={exitReorder} disabled={reorder.isPending}>
+              <X size={16} strokeWidth={1.5} aria-hidden />
+              {t('categories.reorder.cancel')}
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              {tab === 'active' && (activeQuery.data?.length ?? 0) > 1 ? (
+                <Button variant="ghost" onClick={enterReorder}>
+                  <ArrowUpDown size={16} strokeWidth={1.5} aria-hidden />
+                  {t('categories.reorder.enter')}
+                </Button>
+              ) : null}
+              <Button onClick={() => setCreating(true)}>
+                <Plus size={16} strokeWidth={1.5} aria-hidden />
+                {t('categories.addCategory')}
+              </Button>
+            </div>
+          )
         }
         tabs={
-          <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-            <TabsList>
-              <TabsTrigger value="active">{t('categories.tabs.active')}</TabsTrigger>
-              <TabsTrigger value="deleted">{t('categories.tabs.deleted')}</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          reorderMode ? undefined : (
+            <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+              <TabsList>
+                <TabsTrigger value="active">{t('categories.tabs.active')}</TabsTrigger>
+                <TabsTrigger value="deleted">{t('categories.tabs.deleted')}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )
         }
       />
 
-      <div className="mb-4">
-        <TableToolbar
-          search={search}
-          onSearchChange={setSearch}
-          searchPlaceholder={t('categories.searchPlaceholder')}
-          meta={
-            currentQuery.data
-              ? t('categories.meta', { count: filteredData?.length ?? 0, total: currentQuery.data.length })
-              : undefined
-          }
+      {reorderMode ? (
+        <ReorderPanel
+          items={reorderedItems}
+          onReorder={setReorderedItems}
+          groups={groupsQuery.data ?? []}
+          dirtyCount={reorderDiff.length}
+          onSave={saveReorder}
+          isSaving={reorder.isPending}
         />
-      </div>
+      ) : (
+        <>
+          <div className="mb-4">
+            <TableToolbar
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder={t('categories.searchPlaceholder')}
+              meta={
+                currentQuery.data
+                  ? t('categories.meta', { count: filteredData?.length ?? 0, total: currentQuery.data.length })
+                  : undefined
+              }
+            />
+          </div>
 
-      <AdminTable
+          <AdminTable
         data={filteredData}
         columns={columns}
         isLoading={currentQuery.isPending}
@@ -321,6 +394,8 @@ export function CategoriesPage() {
             ) : undefined,
         }}
       />
+        </>
+      )}
 
       <CategoryFormSheet
         key={editing?._id ?? (creating ? 'create' : 'closed')}
@@ -330,6 +405,7 @@ export function CategoriesPage() {
           setEditing(null);
         }}
         entity={editing}
+        categories={activeQuery.data ?? []}
         groups={groupsQuery.data ?? []}
         icons={iconsQuery.data ?? []}
         iconsLoading={iconsQuery.isPending}
@@ -371,6 +447,7 @@ interface CategoryFormSheetProps {
   open: boolean;
   onClose: () => void;
   entity: ApiCategory | null;
+  categories: ApiCategory[];
   groups: ApiGroup[];
   icons: ApiCategoryIcon[];
   iconsLoading?: boolean;
@@ -381,6 +458,7 @@ function CategoryFormSheet({
   open,
   onClose,
   entity,
+  categories,
   groups,
   icons,
   iconsLoading,
@@ -401,11 +479,15 @@ function CategoryFormSheet({
     ?? (entity?.icon?.key
       ? (icons.find((i) => i.key === entity.icon?.key)?._id ?? '')
       : '');
+  // On create, append to the end of the list. On edit, keep the existing slot.
+  const nextOrder =
+    categories.length === 0 ? 0 : Math.max(...categories.map((c) => c.order)) + 1;
   const initial: CategoryFormValues = {
     name: entity?.name ?? emptyBilingual(),
     groupSize: entity ? idOf(entity.groupSize) : '',
     iconId: seedIconId,
     imageUrl: entity?.image?.mediaUrl ?? '',
+    order: entity?.order ?? nextOrder,
   };
   const [values, setValues] = useState<CategoryFormValues>(initial);
   const [errors, setErrors] = useState<{
@@ -413,6 +495,7 @@ function CategoryFormSheet({
     groupSize?: string;
     iconId?: string;
     imageUrl?: string;
+    order?: string;
   }>({});
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -432,6 +515,8 @@ function CategoryFormSheet({
           next.iconId = iss.message;
         } else if (iss.path[0] === 'imageUrl' && !next.imageUrl) {
           next.imageUrl = iss.message;
+        } else if (iss.path[0] === 'order' && !next.order) {
+          next.order = iss.message;
         }
       });
       setErrors(next);
@@ -451,6 +536,8 @@ function CategoryFormSheet({
           next.iconId = msg;
         } else if (head === 'imageUrl') {
           next.imageUrl = msg;
+        } else if (head === 'order') {
+          next.order = msg;
         }
       }
       setErrors(next);
@@ -534,7 +621,66 @@ function CategoryFormSheet({
             aspectRatio="3 / 2"
           />
         </AdminFormField>
+
+        <AdminFormField
+          label={t('categories.form.order')}
+          required
+          error={errors.order}
+          hint={t('categories.form.orderHint')}
+        >
+          <NumberInput
+            value={values.order}
+            onChange={(v) => setValues((p) => ({ ...p, order: typeof v === 'number' ? v : 0 }))}
+            clampMin={0}
+            disabled={isPending}
+            hasError={Boolean(errors.order)}
+          />
+        </AdminFormField>
       </form>
     </FormSheet>
+  );
+}
+
+interface ReorderPanelProps {
+  items: ApiCategory[];
+  onReorder: (next: ApiCategory[]) => void;
+  groups: ApiGroup[];
+  dirtyCount: number;
+  onSave: () => void;
+  isSaving: boolean;
+}
+
+function ReorderPanel({
+  items,
+  onReorder,
+  groups,
+  dirtyCount,
+  onSave,
+  isSaving,
+}: ReorderPanelProps) {
+  const { t } = useTranslation('catalog');
+  return (
+    <div className="space-y-4">
+      <SortableCategoryList
+        items={items}
+        onReorder={onReorder}
+        groups={groups}
+        disabled={isSaving}
+      />
+      <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 rounded-xl border border-border bg-card/95 p-3 shadow-md backdrop-blur">
+        <p className="text-xs text-muted-foreground">
+          {dirtyCount > 0
+            ? t('categories.meta', { count: dirtyCount, total: items.length })
+            : t('categories.reorder.noChanges')}
+        </p>
+        <Button
+          onClick={onSave}
+          disabled={dirtyCount === 0}
+          isLoading={isSaving}
+        >
+          {t('categories.reorder.save')}
+        </Button>
+      </div>
+    </div>
   );
 }

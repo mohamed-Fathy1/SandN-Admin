@@ -8,7 +8,10 @@ export const variantFormSchema = z.object({
     .trim()
     .optional()
     .transform((v) => (v && v.length > 0 ? v : DEFAULT_VARIANT_SIZE)),
-  color: z.string().min(1, 'Pick a color'),
+  color: z
+    .string()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
   quantity: z.number().int().min(0, 'Quantity cannot be negative'),
 });
 

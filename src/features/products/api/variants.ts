@@ -6,7 +6,7 @@ export interface CreateVariantPayload {
   productId: string;
   /** Optional — server defaults to "one size" when omitted. */
   size?: string;
-  color: string;
+  color?: string;
   quantity: number;
 }
 
