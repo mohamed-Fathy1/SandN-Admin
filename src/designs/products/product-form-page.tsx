@@ -110,8 +110,24 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
   const { t } = useTranslation('products');
   const isEdit = Boolean(productId);
   const productQuery = useProduct(productId);
+  const subCategoriesQueryOuter = useSubCategories();
 
-  if (isEdit && productQuery.isPending) {
+  // Some product detail responses come back with `category: null` even though a
+  // subCategory is set (the wishlist → product detail flow hits this). Derive
+  // the parent category from the subCategory's catalog entry so the
+  // classification fields populate on first render.
+  const enrichedProduct = useMemo<ApiProduct | null>(() => {
+    if (!productQuery.data) return null;
+    const p = productQuery.data;
+    if (idOf(p.category)) return p;
+    const subId = idOf(p.subCategory);
+    if (!subId) return p;
+    const sub = subCategoriesQueryOuter.data?.find((s) => s._id === subId);
+    if (!sub) return p;
+    return { ...p, category: sub.category };
+  }, [productQuery.data, subCategoriesQueryOuter.data]);
+
+  if (isEdit && (productQuery.isPending || subCategoriesQueryOuter.isPending)) {
     return (
       <>
         <PageHeader
@@ -142,8 +158,8 @@ export function ProductFormPage({ productId }: ProductFormPageProps) {
 
   return (
     <ProductFormInner
-      key={productQuery.data?._id ?? 'new'}
-      existing={productQuery.data ?? null}
+      key={enrichedProduct?._id ?? 'new'}
+      existing={enrichedProduct}
     />
   );
 }
