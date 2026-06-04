@@ -32,7 +32,7 @@ export function MobileSidebar() {
           <div className="relative flex h-full flex-col">
             <div className="flex h-16 items-center justify-between px-4">
               <Dialog.Title asChild>
-                <span className="m-0 inline-flex items-baseline gap-0.5">
+                <span dir="ltr" className="m-0 inline-flex items-baseline gap-0.5">
                   <span className="font-display text-2xl leading-none text-sidebar-foreground-active">S</span>
                   <span className="font-display text-2xl italic leading-none text-accent">&amp;</span>
                   <span className="font-display text-2xl leading-none text-sidebar-foreground-active">N</span>

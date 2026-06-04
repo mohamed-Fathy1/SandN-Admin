@@ -33,6 +33,7 @@ export function SidebarNav({
           {showBrand && !collapsed ? (
             <Link
               to="/"
+              dir="ltr"
               onClick={onNavigate}
               className="group inline-flex items-baseline gap-0.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label={tCommon('appName')}
