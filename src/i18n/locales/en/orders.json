@@ -123,6 +123,62 @@
       "description": "The customer will be notified."
     }
   },
+  "payment": {
+    "title": "Payment",
+    "panel": {
+      "total": "Total",
+      "collected": "Collected",
+      "remaining": "Remaining"
+    },
+    "status": {
+      "unpaid": "Unpaid",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "refund_pending": "Refund pending",
+      "refunded": "Refunded"
+    },
+    "method": {
+      "instapay": "InstaPay",
+      "vodafone_cash": "Vodafone Cash",
+      "bank_transfer": "Bank transfer",
+      "cash": "Cash",
+      "other": "Other"
+    },
+    "txnType": {
+      "deposit": "Deposit",
+      "balance_on_delivery": "Balance on delivery",
+      "refund": "Refund"
+    },
+    "ledger": {
+      "empty": "No payments recorded yet.",
+      "receipt": "Receipt",
+      "viewReceipt": "View receipt"
+    },
+    "actions": {
+      "recordPayment": "Record payment",
+      "recordRefund": "Record refund"
+    },
+    "recordSheet": {
+      "title": "Record payment",
+      "description": "Log a deposit or transfer received outside the system.",
+      "amount": "Amount",
+      "amountHint": "Remaining: {{value}}",
+      "method": "Method",
+      "note": "Note",
+      "notePlaceholder": "Sender phone / transfer reference",
+      "receipt": "Receipt image",
+      "submit": "Record payment"
+    },
+    "refundSheet": {
+      "title": "Record refund",
+      "description": "Confirm the {{value}} held was returned to the customer.",
+      "method": "Method",
+      "note": "Note",
+      "notePlaceholder": "Refund reference",
+      "receipt": "Receipt image",
+      "submit": "Record refund"
+    }
+  },
   "toast": {
     "updateStatus": { "success": "Order status updated", "error": "Could not update status" },
     "cancel": { "success": "Order cancelled", "error": "Could not cancel order" }

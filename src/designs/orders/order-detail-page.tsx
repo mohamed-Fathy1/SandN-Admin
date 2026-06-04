@@ -28,6 +28,8 @@ import {
   isTerminal,
   nextStatus,
 } from '@/features/orders/lib/status-machine';
+import { OrderPaymentPanel } from './order-payment-panel';
+import { PaymentStatusBadge } from './payment-status-badge';
 import { cn } from '@/shared/utils/cn';
 import { formatDateTime, formatEGP } from '@/shared/utils/format';
 import { idOf, nameOf } from '@/shared/utils/relations';
@@ -117,7 +119,10 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 </span>
               </p>
             </div>
-            <StatusBadge status={order.status} />
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <StatusBadge status={order.status} />
+              <PaymentStatusBadge status={order.payment.status} size="sm" />
+            </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-6 sm:mt-8 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
@@ -195,6 +200,8 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
             </div>
             <ProductsList products={order.products ?? []} />
           </Card>
+
+          <OrderPaymentPanel order={order} />
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">

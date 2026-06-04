@@ -123,6 +123,62 @@
       "description": "سيتم إخطار العميل."
     }
   },
+  "payment": {
+    "title": "الدفع",
+    "panel": {
+      "total": "الإجمالي",
+      "collected": "المُحصَّل",
+      "remaining": "المتبقي"
+    },
+    "status": {
+      "unpaid": "غير مدفوع",
+      "partially_paid": "مدفوع جزئيًا",
+      "paid": "مدفوع بالكامل",
+      "refund_pending": "بانتظار الاسترداد",
+      "refunded": "تم الاسترداد"
+    },
+    "method": {
+      "instapay": "إنستا باي",
+      "vodafone_cash": "فودافون كاش",
+      "bank_transfer": "تحويل بنكي",
+      "cash": "نقدًا",
+      "other": "أخرى"
+    },
+    "txnType": {
+      "deposit": "عربون",
+      "balance_on_delivery": "المتبقي عند الاستلام",
+      "refund": "استرداد"
+    },
+    "ledger": {
+      "empty": "لم يُسجَّل أي دفع بعد.",
+      "receipt": "الإيصال",
+      "viewReceipt": "عرض الإيصال"
+    },
+    "actions": {
+      "recordPayment": "تسجيل دفعة",
+      "recordRefund": "تسجيل استرداد"
+    },
+    "recordSheet": {
+      "title": "تسجيل دفعة",
+      "description": "سجّل عربونًا أو تحويلًا تم استلامه خارج النظام.",
+      "amount": "المبلغ",
+      "amountHint": "المتبقي: {{value}}",
+      "method": "طريقة الدفع",
+      "note": "ملاحظة",
+      "notePlaceholder": "هاتف المُرسِل / مرجع التحويل",
+      "receipt": "صورة الإيصال",
+      "submit": "تسجيل الدفعة"
+    },
+    "refundSheet": {
+      "title": "تسجيل استرداد",
+      "description": "أكِّد إرجاع المبلغ المُحتجز ({{value}}) إلى العميل.",
+      "method": "طريقة الاسترداد",
+      "note": "ملاحظة",
+      "notePlaceholder": "مرجع الاسترداد",
+      "receipt": "صورة الإيصال",
+      "submit": "تسجيل الاسترداد"
+    }
+  },
   "toast": {
     "updateStatus": { "success": "تم تحديث حالة الطلب", "error": "تعذر تحديث الحالة" },
     "cancel": { "success": "تم إلغاء الطلب", "error": "تعذر إلغاء الطلب" }

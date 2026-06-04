@@ -22,6 +22,7 @@ import { useLocaleStore } from '@/shared/stores/locale-store';
 import { useOrders } from '@/features/orders/hooks/use-orders';
 import { prefetchOrder } from '@/features/orders/hooks/use-orders';
 import { ORDER_STATUS_TABS } from '@/features/orders/lib/status-meta';
+import { PaymentStatusBadge } from './payment-status-badge';
 import type { ApiOrder } from '@/shared/types/api';
 import { formatEGP } from '@/shared/utils/format';
 import { nameOf } from '@/shared/utils/relations';
@@ -193,7 +194,14 @@ export function OrdersListPage({
         id: 'status',
         header: t('list.columns.status'),
         enableSorting: false,
-        cell: ({ row }) => <StatusBadge status={row.original.status} size="sm" />,
+        cell: ({ row }) => (
+          <div className="flex flex-col items-start gap-1">
+            <StatusBadge status={row.original.status} size="sm" />
+            {row.original.payment.status !== 'unpaid' ? (
+              <PaymentStatusBadge status={row.original.payment.status} size="sm" />
+            ) : null}
+          </div>
+        ),
       },
       {
         id: 'actions',
@@ -331,7 +339,12 @@ export function OrdersListPage({
                       <span className="truncate text-[11px] text-light-foreground">· {placed}</span>
                     ) : null}
                   </span>
-                  <StatusBadge status={order.status} size="sm" />
+                  <div className="flex flex-col items-end gap-1">
+                    <StatusBadge status={order.status} size="sm" />
+                    {order.payment.status !== 'unpaid' ? (
+                      <PaymentStatusBadge status={order.payment.status} size="sm" />
+                    ) : null}
+                  </div>
                 </div>
                 <p className="mt-1 truncate text-sm font-medium text-foreground">{name}</p>
                 <div className="mt-2 flex items-end justify-between gap-2">

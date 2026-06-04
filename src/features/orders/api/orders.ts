@@ -1,7 +1,17 @@
 import { api } from '@/shared/lib/axios';
 import type { ApiResponse } from '@/shared/types';
-import type { ApiOrder, ApiOrderProduct } from '@/shared/types/api';
-import type { OrderStatus } from '@/config/constants';
+import type {
+  ApiOrder,
+  ApiOrderProduct,
+  OrderPayment,
+  PaymentTransaction,
+} from '@/shared/types/api';
+import type {
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  PaymentTxnType,
+} from '@/config/constants';
 
 export interface OrdersListResponse {
   orders: ApiOrder[];
@@ -46,6 +56,44 @@ function normalizeProduct(raw: unknown): ApiOrderProduct {
   };
 }
 
+function normalizeTransaction(raw: unknown): PaymentTransaction {
+  const tx = (raw ?? {}) as Record<string, unknown>;
+  const receipt = tx.receiptImage as { mediaUrl?: unknown; mediaId?: unknown } | undefined;
+  return {
+    amount: num(tx.amount, 0),
+    type: (tx.type as PaymentTxnType) ?? 'deposit',
+    method: (tx.method as PaymentMethod) ?? 'other',
+    note: typeof tx.note === 'string' ? tx.note : undefined,
+    receiptImage:
+      receipt && typeof receipt.mediaUrl === 'string'
+        ? { mediaUrl: receipt.mediaUrl, mediaId: String(receipt.mediaId ?? '') }
+        : undefined,
+    recordedBy: String(tx.recordedBy ?? ''),
+    recordedAt: String(tx.recordedAt ?? ''),
+  };
+}
+
+/**
+ * Build a guaranteed `payment` object + `remainingAmount` for any order, even
+ * legacy ones that predate the feature (then payment defaults to unpaid/empty).
+ * `remainingAmount` is trusted from the API when present; only derived as fallback.
+ */
+function normalizePayment(
+  raw: unknown,
+  total: number
+): { payment: OrderPayment; remainingAmount: number } {
+  const p = (raw ?? {}) as Record<string, unknown>;
+  const totalCollected = num(p.totalCollected, 0);
+  const status = (typeof p.status === 'string' ? p.status : 'unpaid') as PaymentStatus;
+  const transactions = Array.isArray(p.transactions)
+    ? p.transactions.map(normalizeTransaction)
+    : [];
+  return {
+    payment: { totalCollected, status, transactions },
+    remainingAmount: total - totalCollected,
+  };
+}
+
 function normalizeOrder(raw: unknown): ApiOrder {
   const o = (raw ?? {}) as Record<string, unknown>;
   const customer = o.customer as { phone?: string } | string | undefined;
@@ -74,6 +122,10 @@ function normalizeOrder(raw: unknown): ApiOrder {
     0
   );
 
+  const { payment, remainingAmount: derivedRemaining } = normalizePayment(o.payment, total);
+  // Trust the API's `remainingAmount` when present; only fall back to the derived value.
+  const remainingAmount = o.remainingAmount != null ? num(o.remainingAmount, derivedRemaining) : derivedRemaining;
+
   return {
     ...(o as object),
     _id: String(o._id ?? ''),
@@ -97,6 +149,8 @@ function normalizeOrder(raw: unknown): ApiOrder {
     discount: num(o.discount, 0),
     total,
     status: o.status as OrderStatus,
+    payment,
+    remainingAmount,
     createdAt: String(o.createdAt ?? ''),
     updatedAt: String(o.updatedAt ?? ''),
   } as ApiOrder;
@@ -142,6 +196,41 @@ export async function updateOrderStatus(
 export async function applyFreeShipping(id: string): Promise<ApiOrder> {
   const { data } = await api.patch<ApiResponse<RawOrderSingleResponse>>(
     `/order/admin/free-shipping/${id}`
+  );
+  return normalizeOrder(data.data?.order);
+}
+
+export interface RecordPaymentBody {
+  amount: number;
+  method: PaymentMethod;
+  note?: string;
+  receiptImageUrl?: string;
+}
+
+export async function recordOrderPayment(
+  orderId: string,
+  body: RecordPaymentBody
+): Promise<ApiOrder> {
+  const { data } = await api.post<ApiResponse<RawOrderSingleResponse>>(
+    `/order/admin/payment/${orderId}`,
+    body
+  );
+  return normalizeOrder(data.data?.order);
+}
+
+export interface RecordRefundBody {
+  method: PaymentMethod;
+  note?: string;
+  receiptImageUrl?: string;
+}
+
+export async function recordOrderRefund(
+  orderId: string,
+  body: RecordRefundBody
+): Promise<ApiOrder> {
+  const { data } = await api.post<ApiResponse<RawOrderSingleResponse>>(
+    `/order/admin/refund/${orderId}`,
+    body
   );
   return normalizeOrder(data.data?.order);
 }

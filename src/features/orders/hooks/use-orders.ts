@@ -8,7 +8,11 @@ import {
   applyFreeShipping,
   fetchOrder,
   fetchOrders,
+  recordOrderPayment,
+  recordOrderRefund,
   updateOrderStatus,
+  type RecordPaymentBody,
+  type RecordRefundBody,
 } from '../api/orders';
 
 export function prefetchOrder(qc: QueryClient, id: string) {
@@ -80,5 +84,31 @@ export function useApplyFreeShipping() {
       toast.success('Free shipping applied');
     },
     onError: (err) => toastError(err, 'Failed to apply free shipping'),
+  });
+}
+
+export function useRecordOrderPayment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: RecordPaymentBody }) =>
+      recordOrderPayment(id, body),
+    onSuccess: (_data, vars) => {
+      invalidators.afterOrderWrite(qc, vars.id);
+      toast.success('Payment recorded successfully');
+    },
+    onError: (err) => toastError(err, 'Could not record payment'),
+  });
+}
+
+export function useRecordOrderRefund() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: RecordRefundBody }) =>
+      recordOrderRefund(id, body),
+    onSuccess: (_data, vars) => {
+      invalidators.afterOrderWrite(qc, vars.id);
+      toast.success('Refund recorded');
+    },
+    onError: (err) => toastError(err, 'Could not record refund'),
   });
 }

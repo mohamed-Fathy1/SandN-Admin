@@ -1,5 +1,12 @@
 import type { BilingualText } from './index';
-import type { OrderStatus, OfferType, HeroImageType } from '@/config/constants';
+import type {
+  OrderStatus,
+  OfferType,
+  HeroImageType,
+  PaymentMethod,
+  PaymentStatus,
+  PaymentTxnType,
+} from '@/config/constants';
 
 /**
  * Denormalized media document the backend returns on GETs.
@@ -192,6 +199,27 @@ export interface ApiOrderProduct {
   color?: string | ApiColor | null;
 }
 
+/**
+ * A single payment ledger entry. `recordedBy` is an INTERNAL admin id —
+ * never render it in any customer-facing UI.
+ */
+export interface PaymentTransaction {
+  amount: number;
+  type: PaymentTxnType;
+  method: PaymentMethod;
+  note?: string;
+  receiptImage?: Media;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export interface OrderPayment {
+  /** Net collected so far (deposits + cash-on-delivery − refunds). */
+  totalCollected: number;
+  status: PaymentStatus;
+  transactions: PaymentTransaction[];
+}
+
 export interface ApiOrder {
   _id: string;
   orderNumber: string;
@@ -213,6 +241,10 @@ export interface ApiOrder {
   discount?: number;
   total: number;
   status: OrderStatus;
+  /** Optional deposit / payment tracking. Always present after normalization. */
+  payment: OrderPayment;
+  /** Derived: `total − payment.totalCollected`. Trust this field; never recompute. */
+  remainingAmount: number;
   createdAt: string;
   updatedAt: string;
 }

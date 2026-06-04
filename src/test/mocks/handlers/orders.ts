@@ -1,11 +1,21 @@
 import { http, HttpResponse } from 'msw';
-import type { ApiOrder } from '@/shared/types/api';
-import type { OrderStatus } from '@/config/constants';
+import type { ApiOrder, OrderPayment, PaymentTransaction } from '@/shared/types/api';
+import type { OrderStatus, PaymentMethod, PaymentStatus } from '@/config/constants';
 
 const API = 'https://api.test.local';
 
+function emptyPayment(): OrderPayment {
+  return { totalCollected: 0, status: 'unpaid', transactions: [] };
+}
+
+function paymentStatusFor(total: number, collected: number): PaymentStatus {
+  if (collected <= 0) return 'unpaid';
+  if (collected >= total) return 'paid';
+  return 'partially_paid';
+}
+
 function makeOrder(overrides: Partial<ApiOrder> = {}): ApiOrder {
-  return {
+  const base: ApiOrder = {
     _id: 'ord-1',
     orderNumber: 'ORD-100',
     customer: 'cust-1',
@@ -22,24 +32,53 @@ function makeOrder(overrides: Partial<ApiOrder> = {}): ApiOrder {
     shippingCost: 75,
     total: 1075,
     status: 'ordered',
+    payment: emptyPayment(),
+    remainingAmount: 1075,
     createdAt: '2026-05-01T10:00:00.000Z',
     updatedAt: '2026-05-01T10:00:00.000Z',
-    ...overrides,
   };
+  const merged: ApiOrder = { ...base, ...overrides };
+  // Keep remaining consistent with total/collected unless explicitly overridden.
+  if (overrides.remainingAmount == null) {
+    merged.remainingAmount = merged.total - merged.payment.totalCollected;
+  }
+  return merged;
 }
 
-const store = new Map<string, ApiOrder>([
-  ['ord-1', makeOrder({ _id: 'ord-1', orderNumber: 'ORD-100', status: 'ordered' })],
-  ['ord-2', makeOrder({ _id: 'ord-2', orderNumber: 'ORD-101', status: 'confirmed' })],
-]);
+function seedOrders(): Array<[string, ApiOrder]> {
+  return [
+    ['ord-1', makeOrder({ _id: 'ord-1', orderNumber: 'ORD-100', status: 'ordered' })],
+    ['ord-2', makeOrder({ _id: 'ord-2', orderNumber: 'ORD-101', status: 'confirmed' })],
+    // Cancelled order that held a 200 deposit → owes a refund.
+    [
+      'ord-3',
+      makeOrder({
+        _id: 'ord-3',
+        orderNumber: 'ORD-102',
+        status: 'cancelled',
+        payment: {
+          totalCollected: 200,
+          status: 'refund_pending',
+          transactions: [
+            {
+              amount: 200,
+              type: 'deposit',
+              method: 'instapay',
+              recordedBy: 'admin-mock',
+              recordedAt: '2026-05-01T11:00:00.000Z',
+            },
+          ],
+        },
+      }),
+    ],
+  ];
+}
+
+const store = new Map<string, ApiOrder>(seedOrders());
 
 export function resetOrdersStore() {
   store.clear();
-  store.set('ord-1', makeOrder({ _id: 'ord-1', orderNumber: 'ORD-100', status: 'ordered' }));
-  store.set(
-    'ord-2',
-    makeOrder({ _id: 'ord-2', orderNumber: 'ORD-101', status: 'confirmed' })
-  );
+  for (const [id, order] of seedOrders()) store.set(id, order);
 }
 
 export const ordersHandlers = [
@@ -122,6 +161,109 @@ export const ordersHandlers = [
       statusCode: 200,
       data: { order: updated },
       message: 'OK',
+      success: true,
+    });
+  }),
+
+  http.post(`${API}/order/admin/payment/:id`, async ({ params, request }) => {
+    const id = String(params.id);
+    const order = store.get(id);
+    if (!order) {
+      return HttpResponse.json(
+        { statusCode: 404, success: false, message: 'Order not found', error: [] },
+        { status: 404 }
+      );
+    }
+    const body = (await request.json()) as {
+      amount: number;
+      method: PaymentMethod;
+      note?: string;
+      receiptImageUrl?: string;
+    };
+    const remaining = order.total - order.payment.totalCollected;
+    if (body.amount > remaining) {
+      return HttpResponse.json(
+        {
+          statusCode: 400,
+          success: false,
+          message: 'Payment amount exceeds the remaining order total',
+          error: [],
+        },
+        { status: 400 }
+      );
+    }
+    const txn: PaymentTransaction = {
+      amount: body.amount,
+      type: 'deposit',
+      method: body.method,
+      note: body.note,
+      receiptImage: body.receiptImageUrl
+        ? { mediaUrl: body.receiptImageUrl, mediaId: 'receipt-mock' }
+        : undefined,
+      recordedBy: 'admin-mock',
+      recordedAt: '2026-05-02T10:00:00.000Z',
+    };
+    const totalCollected = order.payment.totalCollected + body.amount;
+    const updated: ApiOrder = {
+      ...order,
+      payment: {
+        totalCollected,
+        status: paymentStatusFor(order.total, totalCollected),
+        transactions: [...order.payment.transactions, txn],
+      },
+      remainingAmount: order.total - totalCollected,
+    };
+    store.set(id, updated);
+    return HttpResponse.json({
+      statusCode: 200,
+      data: { order: updated },
+      message: 'Payment recorded successfully',
+      success: true,
+    });
+  }),
+
+  http.post(`${API}/order/admin/refund/:id`, async ({ params, request }) => {
+    const id = String(params.id);
+    const order = store.get(id);
+    if (!order) {
+      return HttpResponse.json(
+        { statusCode: 404, success: false, message: 'Order not found', error: [] },
+        { status: 404 }
+      );
+    }
+    if (order.payment.status !== 'refund_pending') {
+      return HttpResponse.json(
+        { statusCode: 400, success: false, message: 'This order has no pending refund', error: [] },
+        { status: 400 }
+      );
+    }
+    const body = (await request.json()) as {
+      method: PaymentMethod;
+      note?: string;
+      receiptImageUrl?: string;
+    };
+    const txn: PaymentTransaction = {
+      amount: order.payment.totalCollected,
+      type: 'refund',
+      method: body.method,
+      note: body.note,
+      recordedBy: 'admin-mock',
+      recordedAt: '2026-05-03T10:00:00.000Z',
+    };
+    const updated: ApiOrder = {
+      ...order,
+      payment: {
+        totalCollected: 0,
+        status: 'refunded',
+        transactions: [...order.payment.transactions, txn],
+      },
+      remainingAmount: order.total,
+    };
+    store.set(id, updated);
+    return HttpResponse.json({
+      statusCode: 200,
+      data: { order: updated },
+      message: 'Refund recorded successfully',
       success: true,
     });
   }),

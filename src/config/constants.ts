@@ -27,6 +27,7 @@ export const S3_FOLDERS = [
   'SubCategory',
   'SocialReview',
   'Product',
+  'PaymentReceipts',
 ] as const;
 
 export type S3Folder = (typeof S3_FOLDERS)[number];
@@ -45,6 +46,29 @@ export const ORDER_STATUSES = [
 ] as const;
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+// ─────────────────────────── Order payment / deposit ───────────────────────────
+// Payment status is tracked independently from the order (fulfilment) status above.
+export const PAYMENT_METHODS = [
+  'instapay',
+  'vodafone_cash',
+  'bank_transfer',
+  'cash',
+  'other',
+] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const PAYMENT_STATUSES = [
+  'unpaid',
+  'partially_paid',
+  'paid',
+  'refund_pending',
+  'refunded',
+] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const PAYMENT_TXN_TYPES = ['deposit', 'balance_on_delivery', 'refund'] as const;
+export type PaymentTxnType = (typeof PAYMENT_TXN_TYPES)[number];
 
 export const OFFER_TYPES = ['fixed_discount', 'free_shipping'] as const;
 export type OfferType = (typeof OFFER_TYPES)[number];
