@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useBlocker, useNavigate } from '@tanstack/react-router';
+import { useBlocker, useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
@@ -176,7 +176,20 @@ const SECTIONS: { id: SectionId; labelKey: string }[] = [
 
 function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
   const navigate = useNavigate();
+  const router = useRouter();
+  const canGoBack = useCanGoBack();
   const { t } = useTranslation('products');
+
+  // Return to the list exactly where the user came from (page + filters intact)
+  // instead of resetting to page 1. Falls back to the default list view when the
+  // form was opened via a deep link / refresh with no in-app history to pop.
+  const goBackToList = () => {
+    if (canGoBack) {
+      router.history.back();
+    } else {
+      navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } });
+    }
+  };
   const { t: tCommon } = useTranslation('common');
   const isEdit = Boolean(existing);
 
@@ -350,10 +363,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
     };
     const onSavedSuccess = () => {
       justSavedRef.current = true;
-      navigate({
-        to: ROUTES.products,
-        search: { page: 1, search: '', tab: 'active', flags: [] },
-      });
+      goBackToList();
     };
     const onSavedError = (err: unknown) => {
       const fieldMap = mapApiErrorsToFields(err);
@@ -475,7 +485,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
         }
         action={
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => navigate({ to: ROUTES.products, search: { page: 1, search: '', tab: 'active', flags: [] } })}>
+            <Button variant="ghost" onClick={goBackToList}>
               <ArrowLeft size={16} strokeWidth={1.5} aria-hidden />
               {t('form.header.back')}
             </Button>
