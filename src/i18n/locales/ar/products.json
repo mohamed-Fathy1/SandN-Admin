@@ -256,11 +256,19 @@
     "deleteSelected": "حذف المحددات ({{count}})",
     "discard": "تجاهل",
     "savingCount": "جارٍ حفظ {{count}}…",
+    "saveChanges_zero": "حفظ التغييرات",
     "saveChanges_one": "حفظ تغيير واحد",
-    "saveChanges_other": "حفظ {{count}} تغييراً",
+    "saveChanges_two": "حفظ تغييرين",
+    "saveChanges_few": "حفظ {{count}} تغييرات",
+    "saveChanges_many": "حفظ {{count}} تغييراً",
+    "saveChanges_other": "حفظ {{count}} تغيير",
     "confirm": {
       "bulkDelete": {
-        "title_one": "حذف {{count}} نوع؟",
+        "title_zero": "حذف {{count}} نوع؟",
+        "title_one": "حذف نوع واحد؟",
+        "title_two": "حذف نوعين؟",
+        "title_few": "حذف {{count}} أنواع؟",
+        "title_many": "حذف {{count}} نوعاً؟",
         "title_other": "حذف {{count}} نوع؟",
         "description": "ستُزال الأنواع المحددة. الطلبات المرتبطة تحتفظ بالأسعار السابقة لكن لن يُعاد طلبها.",
         "confirmLabel": "حذف"
