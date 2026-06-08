@@ -12,6 +12,10 @@ export const TabsList = forwardRef<
     ref={ref}
     className={cn(
       'inline-flex h-10 max-w-full items-center justify-start gap-0.5 overflow-x-auto rounded-full border border-border bg-card p-1 shadow-[0_1px_0_rgba(64,20,35,0.02)] [scrollbar-width:none] sm:gap-1 [&::-webkit-scrollbar]:hidden',
+      // Lock touch gestures to horizontal panning so dragging the tab strip
+      // sideways doesn't also scroll the page vertically (and don't chain the
+      // overscroll to the page when reaching either end).
+      'touch-pan-x overscroll-x-contain',
       className
     )}
     {...props}
