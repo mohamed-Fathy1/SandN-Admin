@@ -1,0 +1,33 @@
+{
+  "title": "Backups",
+  "subtitle": "A daily backup of your website's data, kept safe in case anything ever goes wrong. If a day's backup is missing or you see a red alert, notify the developer team right away.",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing…",
+  "contact": {
+    "help": "Problem with the backups? Reach the developer team on WhatsApp:",
+    "aria": "Contact the developer team on WhatsApp at 01025502697"
+  },
+  "badge": {
+    "healthy": "Backups healthy",
+    "overdue": "Backup overdue — check the system",
+    "gaps_one": "{{count}} missing day",
+    "gaps_other": "{{count}} missing days"
+  },
+  "summary": {
+    "lastBackup": "Last backup: {{relative}}",
+    "kept_one": "{{count}} kept",
+    "kept_other": "{{count}} kept"
+  },
+  "table": {
+    "title": "History",
+    "subtitle": "Newest first. Times shown in your local timezone.",
+    "date": "Date",
+    "size": "Size",
+    "file": "File",
+    "missing": "Missing — backup failed"
+  },
+  "empty": {
+    "title": "No backups found yet",
+    "description": "Once the daily backup job runs, its history will appear here."
+  }
+}

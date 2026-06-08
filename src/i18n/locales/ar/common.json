@@ -48,7 +48,11 @@
   "table": {
     "empty": "لا توجد سجلات",
     "emptyFiltered": "لا توجد سجلات تطابق التصفية",
+    "rowsSelected_zero": "لم يتم تحديد أي سجل",
     "rowsSelected_one": "تم تحديد سجل واحد",
+    "rowsSelected_two": "تم تحديد سجلين",
+    "rowsSelected_few": "تم تحديد {{count}} سجلات",
+    "rowsSelected_many": "تم تحديد {{count}} سجلاً",
     "rowsSelected_other": "تم تحديد {{count}} سجل",
     "page": "صفحة",
     "of": "من",
@@ -177,7 +181,11 @@
     "selectRow": "تحديد الصف",
     "bulkActions": "إجراءات جماعية",
     "openRow": "فتح الصف",
+    "selectedCount_zero": "لم يتم تحديد شيء",
     "selectedCount_one": "تم تحديد واحد",
+    "selectedCount_two": "تم تحديد اثنين",
+    "selectedCount_few": "تم تحديد {{count}}",
+    "selectedCount_many": "تم تحديد {{count}}",
     "selectedCount_other": "تم تحديد {{count}}",
     "clear": "مسح"
   }

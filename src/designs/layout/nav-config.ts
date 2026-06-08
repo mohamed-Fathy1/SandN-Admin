@@ -13,6 +13,7 @@ import {
   Sparkles,
   Truck,
   Shapes,
+  DatabaseBackup,
 } from 'lucide-react';
 import { ROUTES } from '@/config/constants';
 
@@ -59,6 +60,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { labelKey: 'items.shipping', to: ROUTES.shipping, icon: Truck },
     ],
   },
+  {
+    labelKey: 'groups.maintenance',
+    items: [{ labelKey: 'items.backups', to: ROUTES.backups, icon: DatabaseBackup }],
+  },
 ];
 
 export const BREADCRUMB_TITLE_KEYS: Record<string, string> = {
@@ -80,4 +85,5 @@ export const BREADCRUMB_TITLE_KEYS: Record<string, string> = {
   '/content/hero': 'breadcrumb.heroSlider',
   '/content/social-reviews': 'breadcrumb.socialReviews',
   '/shipping': 'breadcrumb.shipping',
+  '/maintenance/backups': 'breadcrumb.backups',
 };

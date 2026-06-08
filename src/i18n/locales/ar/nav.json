@@ -2,7 +2,8 @@
   "groups": {
     "catalog": "الكتالوج",
     "operations": "العمليات",
-    "marketing": "التسويق"
+    "marketing": "التسويق",
+    "maintenance": "الصيانة"
   },
   "items": {
     "dashboard": "الرئيسية",
@@ -18,7 +19,8 @@
     "offers": "العروض",
     "heroSlider": "البانر الرئيسي",
     "socialReviews": "تقييمات وسائل التواصل",
-    "shipping": "الشحن"
+    "shipping": "الشحن",
+    "backups": "النسخ الاحتياطية"
   },
   "breadcrumb": {
     "dashboard": "الرئيسية",
@@ -38,6 +40,7 @@
     "offers": "العروض",
     "heroSlider": "البانر الرئيسي",
     "socialReviews": "تقييمات وسائل التواصل",
-    "shipping": "الشحن"
+    "shipping": "الشحن",
+    "backups": "النسخ الاحتياطية"
   }
 }

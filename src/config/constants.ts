@@ -105,4 +105,5 @@ export const ROUTES = {
   offers: '/offers',
   shipping: '/shipping',
   wishlist: '/wishlist',
+  backups: '/maintenance/backups',
 } as const;

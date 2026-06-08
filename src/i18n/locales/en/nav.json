@@ -2,7 +2,8 @@
   "groups": {
     "catalog": "Catalog",
     "operations": "Operations",
-    "marketing": "Marketing"
+    "marketing": "Marketing",
+    "maintenance": "Maintenance"
   },
   "items": {
     "dashboard": "Dashboard",
@@ -18,7 +19,8 @@
     "offers": "Offers",
     "heroSlider": "Hero Slider",
     "socialReviews": "Social Reviews",
-    "shipping": "Shipping"
+    "shipping": "Shipping",
+    "backups": "Backups"
   },
   "breadcrumb": {
     "dashboard": "Dashboard",
@@ -38,6 +40,7 @@
     "offers": "Offers",
     "heroSlider": "Hero Slider",
     "socialReviews": "Social Reviews",
-    "shipping": "Shipping"
+    "shipping": "Shipping",
+    "backups": "Backups"
   }
 }

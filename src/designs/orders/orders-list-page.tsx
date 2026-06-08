@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -236,6 +236,23 @@ export function OrdersListPage({
   const activeTabLabel =
     status ? t(`status.${status}`) : t('tabs.all');
 
+  // Keep the active status tab visible inside the horizontally-scrollable pill
+  // on mobile — Radix Tabs doesn't auto-scroll the active trigger into view, so
+  // a deep-linked status (e.g. ?status=deleted) could land off-screen. Only
+  // scroll when the active tab isn't already fully visible, to avoid needless work.
+  const tabsListRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const list = tabsListRef.current;
+    if (!list) return;
+    const active = list.querySelector<HTMLElement>('[data-state="active"]');
+    if (!active) return;
+    const listRect = list.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    if (activeRect.left < listRect.left || activeRect.right > listRect.right) {
+      active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+  }, [tabValue]);
+
   return (
     <PageTransition>
       <PageHeader
@@ -246,7 +263,7 @@ export function OrdersListPage({
             value={tabValue}
             onValueChange={(v) => onStatusChange(v === 'all' ? undefined : (v as OrderStatus))}
           >
-            <TabsList className="flex-wrap">
+            <TabsList ref={tabsListRef}>
               {ORDER_STATUS_TABS.map((tab) => {
                 const count = tabCounts?.[tab.value];
                 const showCount = tabCounts && count !== undefined;

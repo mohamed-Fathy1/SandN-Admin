@@ -323,3 +323,29 @@ export interface ApiProductAnalysis {
     total: number;
   };
 }
+
+// ─────────────────────────── Maintenance · Backups ───────────────────────────
+// MongoDB backup history read straight from the S3 bucket (source of truth).
+// A missing UTC calendar day in the sequence means that day's backup did not land.
+export interface BackupItem {
+  fileName: string; // "backup-2026-06-08_043744.gz"
+  key: string; // "mongo/backup-2026-06-08_043744.gz"
+  createdAt: string; // ISO-8601 UTC
+  sizeBytes: number;
+  size: string; // pre-formatted, e.g. "40.3 KB"
+}
+
+export interface BackupSummary {
+  bucket: string;
+  region: string;
+  total: number;
+  latestAt: string | null; // ISO-8601 UTC
+  latestSize: string | null;
+  hoursSinceLatest: number | null;
+  healthy: boolean; // true when the newest backup is < 26h old
+}
+
+export interface BackupHistory {
+  summary: BackupSummary;
+  backups: BackupItem[]; // already sorted newest-first
+}

@@ -11,6 +11,7 @@ import { wishlistHandlers } from './handlers/wishlist';
 import { catalogSupportHandlers } from './handlers/catalog-support';
 import { iconsHandlers } from './handlers/icons';
 import { productsHandlers } from './handlers/products';
+import { backupHandlers } from './handlers/backups';
 
 export const server = setupServer(
   ...authHandlers,
@@ -24,5 +25,6 @@ export const server = setupServer(
   ...shippingHandlers,
   ...heroHandlers,
   ...socialReviewHandlers,
-  ...wishlistHandlers
+  ...wishlistHandlers,
+  ...backupHandlers
 );

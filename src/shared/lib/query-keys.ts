@@ -77,4 +77,7 @@ export const adminQueryKeys = {
   wishlist: {
     list: (params: WishlistParams) => ['admin', 'wishlist', 'list', params] as const,
   },
+  backups: {
+    all: ['admin', 'backups'] as const,
+  },
 } as const;
