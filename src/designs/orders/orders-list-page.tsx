@@ -269,7 +269,9 @@ export function OrdersListPage({
                 const showCount = tabCounts && count !== undefined;
                 return (
                   <TabsTrigger key={tab.value} value={tab.value} className="group">
-                    <span>{t(tab.labelKey)}</span>
+                    {/* Match the badge's h-4 box so the label's vertical position
+                        stays put whether or not a count badge is rendered. */}
+                    <span className="inline-flex h-4 items-center">{t(tab.labelKey)}</span>
                     {showCount ? (
                       <span
                         className={cn(
