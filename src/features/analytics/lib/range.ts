@@ -11,11 +11,16 @@ import type { AnalyticsParams } from '@/shared/types/api';
  * custom date pickers always show real dates and the URL is unambiguous — GA
  * accepts ISO dates just the same.
  *
- * Default range is **today → today**: the dashboard opens on today's numbers and
- * the user widens the range at will via the preset chips or custom pickers.
+ * Default range is the **last 7 days → today**: GA has processing latency on the
+ * current day, so a today-only default would open on an empty dashboard even
+ * when recent days have data. The user can narrow to "today" (or anything else)
+ * via the preset chips or custom pickers.
  */
 
 const YMD = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Number of days the dashboard spans by default (last N days, inclusive). */
+const DEFAULT_RANGE_DAYS = 7;
 
 /** Local-timezone `YYYY-MM-DD` for today. */
 export function todayIso(): string {
@@ -87,16 +92,17 @@ export function detectPreset(range: AnalyticsParams): PresetKey | null {
 }
 
 /**
- * Zod schema for the analytics route's search params. Defaults to today on both
- * ends and recomputes "today" on each parse so the range stays correct across a
- * midnight rollover. Invalid values fall back to today rather than throwing.
+ * Zod schema for the analytics route's search params. Defaults to the last
+ * 7 days (start) through today (end), recomputed on each parse so the range
+ * stays correct across a midnight rollover. Invalid values fall back to the
+ * same defaults rather than throwing.
  */
 export const analyticsSearchSchema = z.object({
   startDate: z
     .string()
     .regex(YMD)
-    .default(() => todayIso())
-    .catch(() => todayIso()),
+    .default(() => isoDaysAgo(DEFAULT_RANGE_DAYS - 1))
+    .catch(() => isoDaysAgo(DEFAULT_RANGE_DAYS - 1)),
   endDate: z
     .string()
     .regex(YMD)

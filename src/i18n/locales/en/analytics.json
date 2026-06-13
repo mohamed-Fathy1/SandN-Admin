@@ -2,7 +2,7 @@
   "header": {
     "eyebrow": "Analytics",
     "title": "Store Analytics",
-    "subtitle": "Live visitor activity from Google Analytics. Defaults to today — widen the range with the quick presets or pick custom dates."
+    "subtitle": "Live visitor activity from Google Analytics. Defaults to the last 7 days — change the range with the quick presets or pick custom dates."
   },
   "range": {
     "quickRanges": "Quick ranges",

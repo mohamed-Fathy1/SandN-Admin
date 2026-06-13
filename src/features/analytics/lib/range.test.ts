@@ -28,15 +28,15 @@ describe('analytics range', () => {
     expect(detectPreset({ startDate: '2020-01-01', endDate: '2020-01-15' })).toBeNull();
   });
 
-  it('search schema defaults missing dates to today', () => {
+  it('search schema defaults missing dates to the last 7 days → today', () => {
     const parsed = analyticsSearchSchema.parse({});
-    expect(parsed.startDate).toBe(todayIso());
+    expect(parsed.startDate).toBe(isoDaysAgo(6));
     expect(parsed.endDate).toBe(todayIso());
   });
 
-  it('search schema falls back to today for malformed dates', () => {
+  it('search schema falls back to the default start for malformed dates', () => {
     const parsed = analyticsSearchSchema.parse({ startDate: 'garbage', endDate: '2026-06-13' });
-    expect(parsed.startDate).toBe(todayIso());
+    expect(parsed.startDate).toBe(isoDaysAgo(6));
     expect(parsed.endDate).toBe('2026-06-13');
   });
 
