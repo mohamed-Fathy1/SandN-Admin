@@ -1,0 +1,77 @@
+{
+  "header": {
+    "eyebrow": "الإحصائيات",
+    "title": "إحصائيات المتجر",
+    "subtitle": "نشاط الزوّار مباشرةً من Google Analytics. يبدأ افتراضيًا بتاريخ اليوم — وسّع النطاق باستخدام النطاقات السريعة أو اختر تواريخ مخصّصة."
+  },
+  "range": {
+    "quickRanges": "نطاقات سريعة",
+    "from": "من",
+    "to": "إلى",
+    "refresh": "تحديث",
+    "presets": {
+      "today": "اليوم",
+      "7d": "آخر ٧ أيام",
+      "30d": "آخر ٣٠ يومًا",
+      "90d": "آخر ٩٠ يومًا",
+      "custom": "مخصّص"
+    }
+  },
+  "kpi": {
+    "activeUsers": "المستخدمون النشطون",
+    "sessions": "الجلسات",
+    "screenPageViews": "مشاهدات الصفحات",
+    "pageViews": "مشاهدات الصفحات",
+    "newUsers": "مستخدمون جدد",
+    "newUsers_zero": "لا مستخدمين جدد",
+    "newUsers_one": "مستخدم جديد واحد",
+    "newUsers_two": "مستخدمان جديدان",
+    "newUsers_few": "{{count}} مستخدمين جدد",
+    "newUsers_many": "{{count}} مستخدمًا جديدًا",
+    "newUsers_other": "{{count}} مستخدم جديد",
+    "avgSession": "متوسط الجلسة",
+    "avgSessionHelper": "متوسط مدة الجلسة"
+  },
+  "trend": {
+    "title": "التغيّر عبر الوقت",
+    "subtitle": "النشاط اليومي خلال النطاق المحدّد",
+    "subtitleRecent_one": "النشاط اليومي · آخر يوم",
+    "subtitleRecent_two": "النشاط اليومي · آخر يومين",
+    "subtitleRecent_few": "النشاط اليومي · آخر {{count}} أيام",
+    "subtitleRecent_many": "النشاط اليومي · آخر {{count}} يومًا",
+    "subtitleRecent_other": "النشاط اليومي · آخر {{count}} يوم",
+    "metric": "المقياس"
+  },
+  "topPages": {
+    "title": "أكثر الصفحات زيارة",
+    "subtitle": "الصفحات الأكثر زيارة خلال النطاق",
+    "home": "الصفحة الرئيسية",
+    "unknownProduct": "صفحة منتج",
+    "viewsLabel_zero": "مشاهدة",
+    "viewsLabel_one": "مشاهدة",
+    "viewsLabel_two": "مشاهدتان",
+    "viewsLabel_few": "مشاهدات",
+    "viewsLabel_many": "مشاهدة",
+    "viewsLabel_other": "مشاهدة",
+    "kinds": {
+      "home": "الرئيسية",
+      "product": "منتج",
+      "other": "صفحة"
+    }
+  },
+  "sources": {
+    "title": "مصادر الزيارات",
+    "subtitle": "من أين أتت الجلسات",
+    "totalLabel": "جلسة",
+    "buckets": {
+      "(direct)": "زيارة مباشرة",
+      "(not set)": "غير محدّد",
+      "(none)": "بدون مصدر",
+      "(organic)": "بحث طبيعي"
+    }
+  },
+  "empty": {
+    "title": "لا توجد بيانات لهذا النطاق",
+    "description": "لا يوجد نشاط في التواريخ المحدّدة. جرّب نطاقًا أوسع."
+  }
+}

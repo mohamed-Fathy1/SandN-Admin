@@ -14,6 +14,7 @@ import enOrders from './locales/en/orders.json';
 import enWishlist from './locales/en/wishlist.json';
 import enMarketing from './locales/en/marketing.json';
 import enMaintenance from './locales/en/maintenance.json';
+import enAnalytics from './locales/en/analytics.json';
 
 import arCommon from './locales/ar/common.json';
 import arNav from './locales/ar/nav.json';
@@ -26,6 +27,7 @@ import arOrders from './locales/ar/orders.json';
 import arWishlist from './locales/ar/wishlist.json';
 import arMarketing from './locales/ar/marketing.json';
 import arMaintenance from './locales/ar/maintenance.json';
+import arAnalytics from './locales/ar/analytics.json';
 
 export const NAMESPACES = [
   'common',
@@ -39,6 +41,7 @@ export const NAMESPACES = [
   'wishlist',
   'marketing',
   'maintenance',
+  'analytics',
 ] as const;
 
 const resources = {
@@ -54,6 +57,7 @@ const resources = {
     wishlist: enWishlist,
     marketing: enMarketing,
     maintenance: enMaintenance,
+    analytics: enAnalytics,
   },
   ar: {
     common: arCommon,
@@ -67,6 +71,7 @@ const resources = {
     wishlist: arWishlist,
     marketing: arMarketing,
     maintenance: arMaintenance,
+    analytics: arAnalytics,
   },
 } as const;
 

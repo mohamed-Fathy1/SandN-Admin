@@ -12,6 +12,7 @@ import { catalogSupportHandlers } from './handlers/catalog-support';
 import { iconsHandlers } from './handlers/icons';
 import { productsHandlers } from './handlers/products';
 import { backupHandlers } from './handlers/backups';
+import { analyticsHandlers } from './handlers/analytics';
 
 export const server = setupServer(
   ...authHandlers,
@@ -26,5 +27,6 @@ export const server = setupServer(
   ...heroHandlers,
   ...socialReviewHandlers,
   ...wishlistHandlers,
-  ...backupHandlers
+  ...backupHandlers,
+  ...analyticsHandlers
 );

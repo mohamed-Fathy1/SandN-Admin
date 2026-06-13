@@ -84,6 +84,13 @@ export const UPLOAD_LIMITS = {
 export const CURRENCY_CODE = 'EGP';
 export const CURRENCY_SUFFIX = CURRENCY_CODE;
 
+/**
+ * Public storefront origin (customer-facing site). Used to turn GA4 page paths
+ * (e.g. `/products/<id>`) into clickable live links. No trailing slash, so
+ * `STOREFRONT_URL + pagePath` never produces a doubled `//`.
+ */
+export const STOREFRONT_URL = 'https://sn-lingerie.com';
+
 export const ROUTES = {
   login: '/login',
   loginVerify: '/login/verify',
@@ -106,4 +113,5 @@ export const ROUTES = {
   shipping: '/shipping',
   wishlist: '/wishlist',
   backups: '/maintenance/backups',
+  analytics: '/analytics',
 } as const;

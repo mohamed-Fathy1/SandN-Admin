@@ -7,6 +7,7 @@
   },
   "items": {
     "dashboard": "Dashboard",
+    "analytics": "Analytics",
     "products": "Products",
     "categories": "Categories",
     "categoryIcons": "Category Icons",
@@ -24,6 +25,7 @@
   },
   "breadcrumb": {
     "dashboard": "Dashboard",
+    "analytics": "Analytics",
     "products": "Products",
     "productNew": "New Product",
     "productEdit": "Edit Product",

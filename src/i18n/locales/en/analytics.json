@@ -1,0 +1,66 @@
+{
+  "header": {
+    "eyebrow": "Analytics",
+    "title": "Store Analytics",
+    "subtitle": "Live visitor activity from Google Analytics. Defaults to today — widen the range with the quick presets or pick custom dates."
+  },
+  "range": {
+    "quickRanges": "Quick ranges",
+    "from": "From",
+    "to": "To",
+    "refresh": "Refresh",
+    "presets": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "custom": "Custom"
+    }
+  },
+  "kpi": {
+    "activeUsers": "Active Users",
+    "sessions": "Sessions",
+    "screenPageViews": "Page Views",
+    "pageViews": "Page Views",
+    "newUsers": "New Users",
+    "newUsers_one": "{{count}} new user",
+    "newUsers_other": "{{count}} new users",
+    "avgSession": "Avg. Session",
+    "avgSessionHelper": "Average session length"
+  },
+  "trend": {
+    "title": "Trend",
+    "subtitle": "Daily activity over the selected range",
+    "subtitleRecent_one": "Recent daily activity · last day",
+    "subtitleRecent_other": "Recent daily activity · last {{count}} days",
+    "metric": "Metric"
+  },
+  "topPages": {
+    "title": "Top Pages",
+    "subtitle": "Most-visited pages over the range",
+    "home": "Home page",
+    "unknownProduct": "Product page",
+    "viewsLabel_one": "view",
+    "viewsLabel_other": "views",
+    "kinds": {
+      "home": "Homepage",
+      "product": "Product",
+      "other": "Page"
+    }
+  },
+  "sources": {
+    "title": "Traffic Sources",
+    "subtitle": "Where sessions came from",
+    "totalLabel": "Sessions",
+    "buckets": {
+      "(direct)": "Direct",
+      "(not set)": "Not set",
+      "(none)": "None",
+      "(organic)": "Organic"
+    }
+  },
+  "empty": {
+    "title": "No data for this range",
+    "description": "There's no analytics activity for the selected dates. Try a wider range."
+  }
+}

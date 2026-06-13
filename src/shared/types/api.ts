@@ -349,3 +349,41 @@ export interface BackupHistory {
   summary: BackupSummary;
   backups: BackupItem[]; // already sorted newest-first
 }
+
+// ─────────────────────────── Analytics · GA4 ───────────────────────────
+// Read-only proxy over the Google Analytics 4 Data API. Every endpoint shares
+// the same `{ startDate, endDate }` query and returns rows under a small
+// envelope: `data.data = { startDate, endDate, rows }`.
+export interface AnalyticsParams {
+  startDate: string; // ISO `YYYY-MM-DD` or a GA relative keyword (e.g. "7daysAgo")
+  endDate: string;
+}
+
+/** Inner payload shared by all three analytics endpoints. */
+export interface AnalyticsEnvelope<TRow> {
+  startDate: string; // resolved range echoed back by GA
+  endDate: string;
+  rows: TRow[];
+}
+
+/** One row per day, ascending by date (`/analytics/overview`). */
+export interface AnalyticsOverviewRow {
+  date: string; // ISO `YYYY-MM-DD`
+  activeUsers: number;
+  sessions: number;
+  screenPageViews: number;
+  newUsers: number;
+  averageSessionDuration: number; // seconds (float) — format before display
+}
+
+/** Most-visited pages, busiest first, max 20 (`/analytics/top-pages`). */
+export interface AnalyticsTopPage {
+  pagePath: string; // e.g. "/" or "/products/<productId>"
+  screenPageViews: number;
+}
+
+/** Session sources, largest first, max 20 (`/analytics/traffic-sources`). */
+export interface AnalyticsTrafficSource {
+  source: string; // "google", "(direct)", "(not set)", "instagram", …
+  sessions: number;
+}

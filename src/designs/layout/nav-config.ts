@@ -14,6 +14,7 @@ import {
   Truck,
   Shapes,
   DatabaseBackup,
+  BarChart3,
 } from 'lucide-react';
 import { ROUTES } from '@/config/constants';
 
@@ -30,7 +31,10 @@ export interface NavGroup {
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    items: [{ labelKey: 'items.dashboard', to: ROUTES.dashboard, icon: LayoutDashboard }],
+    items: [
+      { labelKey: 'items.dashboard', to: ROUTES.dashboard, icon: LayoutDashboard },
+      { labelKey: 'items.analytics', to: ROUTES.analytics, icon: BarChart3 },
+    ],
   },
   {
     labelKey: 'groups.catalog',
@@ -68,6 +72,7 @@ export const NAV_GROUPS: NavGroup[] = [
 
 export const BREADCRUMB_TITLE_KEYS: Record<string, string> = {
   '/': 'breadcrumb.dashboard',
+  '/analytics': 'breadcrumb.analytics',
   '/products': 'breadcrumb.products',
   '/products/new': 'breadcrumb.productNew',
   '/products/$productId': 'breadcrumb.productEdit',

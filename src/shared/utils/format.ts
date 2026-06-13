@@ -30,6 +30,20 @@ export function formatNumber(value: number | undefined | null): string {
   return new Intl.NumberFormat(activeLocale() === 'ar' ? 'ar-EG' : 'en-US').format(value);
 }
 
+/**
+ * Formats a duration given in **seconds** as a compact `Xm Ys` string
+ * (e.g. `116.127` → `1m 56s`, `42` → `42s`). GA4's `averageSessionDuration`
+ * arrives as a float of seconds; round before display.
+ */
+export function formatDuration(seconds: number | undefined | null): string {
+  if (seconds == null || Number.isNaN(seconds)) return '—';
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  if (m === 0) return `${s}s`;
+  return `${m}m ${s}s`;
+}
+
 export function formatDate(value: string | number | Date | undefined | null): string {
   if (value == null) return '—';
   const date = typeof value === 'string' || typeof value === 'number' ? new Date(value) : value;
