@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { lazy, Suspense, useId, useState } from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
@@ -8,6 +8,11 @@ import { cn } from '@/shared/utils/cn';
 import type { BilingualText } from '@/shared/types';
 import { isBilingualFilled } from '@/shared/utils/bilingual';
 
+// Heavy (ProseMirror) — only pulled in when a field opts into rich text.
+const RichTextEditor = lazy(() =>
+  import('./rich-text-editor').then((m) => ({ default: m.RichTextEditor }))
+);
+
 type Lang = 'en' | 'ar';
 
 interface BilingualInputProps {
@@ -15,6 +20,8 @@ interface BilingualInputProps {
   value: BilingualText;
   onChange: (value: BilingualText) => void;
   multiline?: boolean;
+  /** Render a WYSIWYG HTML editor instead of a plain textarea (implies multiline). */
+  richText?: boolean;
   required?: boolean;
   placeholder?: { en?: string; ar?: string };
   error?: { ar?: string; en?: string };
@@ -27,6 +34,7 @@ export function BilingualInput({
   value,
   onChange,
   multiline = false,
+  richText = false,
   required,
   placeholder,
   error,
@@ -81,7 +89,20 @@ export function BilingualInput({
         </TabsPrimitive.List>
 
         <TabsPrimitive.Content value="en">
-          {multiline ? (
+          {multiline && richText ? (
+            <Suspense fallback={<EditorFallback />}>
+              <RichTextEditor
+                id={`${baseId}-en`}
+                dir="ltr"
+                value={value.en}
+                onChange={(html) => onChange({ ...value, en: html })}
+                placeholder={placeholder?.en}
+                hasError={hasEnError}
+                ariaLabel={label ? `${label} (English)` : 'English'}
+                ariaDescribedBy={hasEnError ? `${baseId}-en-err` : undefined}
+              />
+            </Suspense>
+          ) : multiline ? (
             <Textarea
               id={`${baseId}-en`}
               dir="ltr"
@@ -113,7 +134,20 @@ export function BilingualInput({
         </TabsPrimitive.Content>
 
         <TabsPrimitive.Content value="ar">
-          {multiline ? (
+          {multiline && richText ? (
+            <Suspense fallback={<EditorFallback />}>
+              <RichTextEditor
+                id={`${baseId}-ar`}
+                dir="rtl"
+                value={value.ar}
+                onChange={(html) => onChange({ ...value, ar: html })}
+                placeholder={placeholder?.ar}
+                hasError={hasArError}
+                ariaLabel={label ? `${label} (عربي)` : 'عربي'}
+                ariaDescribedBy={hasArError ? `${baseId}-ar-err` : undefined}
+              />
+            </Suspense>
+          ) : multiline ? (
             <Textarea
               id={`${baseId}-ar`}
               dir="rtl"
@@ -145,6 +179,15 @@ export function BilingualInput({
         </TabsPrimitive.Content>
       </TabsPrimitive.Root>
     </div>
+  );
+}
+
+function EditorFallback() {
+  return (
+    <div
+      aria-hidden
+      className="h-[188px] animate-pulse rounded-xl border border-border-medium bg-muted/40"
+    />
   );
 }
 

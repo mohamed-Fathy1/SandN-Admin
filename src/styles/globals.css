@@ -281,3 +281,54 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* Rich-text editor content — Tailwind v4 Preflight strips heading/list styles,
+   so restore visible formatting for the WYSIWYG editor. Logical
+   `padding-inline-start` keeps list indentation correct in RTL. */
+.rte-content {
+  line-height: 1.7;
+}
+.rte-content:focus {
+  outline: none;
+}
+.rte-content :where(h2) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.75em 0 0.4em;
+}
+.rte-content :where(h3) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.6em 0 0.3em;
+}
+.rte-content :where(ul) {
+  list-style: disc;
+  padding-inline-start: 1.5em;
+  margin: 0.5em 0;
+}
+.rte-content :where(ol) {
+  list-style: decimal;
+  padding-inline-start: 1.5em;
+  margin: 0.5em 0;
+}
+.rte-content :where(li) {
+  margin: 0.2em 0;
+}
+.rte-content :where(p) {
+  margin: 0.5em 0;
+}
+.rte-content :where(a) {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+/* Placeholder for the empty editor (from @tiptap/extension-placeholder). */
+.rte-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-light-foreground);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.rte-content[dir='rtl'] p.is-editor-empty:first-child::before {
+  float: right;
+}

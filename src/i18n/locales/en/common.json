@@ -79,6 +79,20 @@
     "hint": "PNG, JPG or WEBP — max 5 MB",
     "uploading": "Uploading…"
   },
+  "richText": {
+    "toolbar": "Text formatting",
+    "bold": "Bold",
+    "italic": "Italic",
+    "heading2": "Heading",
+    "heading3": "Subheading",
+    "bulletList": "Bullet list",
+    "orderedList": "Numbered list",
+    "link": "Link",
+    "linkUrl": "Link URL",
+    "linkPlaceholder": "https://example.com",
+    "apply": "Apply",
+    "remove": "Remove"
+  },
   "confirmDialog": {
     "title": "Are you sure?",
     "description": "This action cannot be undone.",

@@ -18,6 +18,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export { Checkbox } from './checkbox';
 
 export { BilingualInput } from './bilingual-input';
+export { RichTextEditor, type RichTextEditorProps } from './rich-text-editor';
 
 export { ConfirmDialog } from './confirm-dialog';
 export { FormSheet } from './form-sheet';

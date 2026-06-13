@@ -537,6 +537,7 @@ function ProductFormInner({ existing }: { existing: ApiProduct | null }) {
                 label={t('form.fields.description')}
                 required
                 multiline
+                richText
                 value={values.description}
                 onChange={(description) => setValues((p) => ({ ...p, description }))}
                 error={errors.description}

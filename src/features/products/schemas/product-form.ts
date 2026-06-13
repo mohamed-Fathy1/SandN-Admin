@@ -1,6 +1,11 @@
 import { z } from 'zod';
+import { htmlToText } from '@/shared/utils/html';
 
 export const DEFAULT_VARIANT_SIZE = 'one size';
+
+/** Rich-text description holds HTML; validate the visible text length, not the markup. */
+const MIN_DESCRIPTION_TEXT = 10;
+const hasMinText = (html: string) => htmlToText(html).length >= MIN_DESCRIPTION_TEXT;
 
 export const variantFormSchema = z.object({
   size: z
@@ -22,8 +27,8 @@ export const productFormSchema = z
       ar: z.string().trim().min(2, 'Arabic name is required'),
     }),
     description: z.object({
-      en: z.string().trim().min(10, 'English description is required'),
-      ar: z.string().trim().min(10, 'Arabic description is required'),
+      en: z.string().trim().refine(hasMinText, 'English description is required'),
+      ar: z.string().trim().refine(hasMinText, 'Arabic description is required'),
     }),
     price: z.number().positive('Price must be greater than 0'),
     wholesalePrice: z.number().positive('Wholesale price must be greater than 0'),

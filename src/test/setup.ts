@@ -36,6 +36,36 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
   Object.defineProperty(globalThis, 'ResizeObserver', { value: ResizeObserverStub });
 }
 
+// ProseMirror (Tiptap) queries layout coordinates on mount; jsdom does not
+// implement these geometry APIs, so stub them so the editor can render in tests.
+if (typeof document !== 'undefined' && typeof document.elementFromPoint !== 'function') {
+  document.elementFromPoint = () => null;
+}
+if (typeof Range !== 'undefined') {
+  const emptyRectList = {
+    length: 0,
+    item: () => null,
+    [Symbol.iterator]: function* () {},
+  } as unknown as DOMRectList;
+  const emptyRect = {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON() {},
+  } as DOMRect;
+  if (typeof Range.prototype.getClientRects !== 'function') {
+    Range.prototype.getClientRects = () => emptyRectList;
+  }
+  if (typeof Range.prototype.getBoundingClientRect !== 'function') {
+    Range.prototype.getBoundingClientRect = () => emptyRect;
+  }
+}
+
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();

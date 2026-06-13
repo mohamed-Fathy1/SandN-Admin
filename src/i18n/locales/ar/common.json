@@ -83,6 +83,20 @@
     "hint": "PNG أو JPG أو WEBP — بحد أقصى 5 ميجابايت",
     "uploading": "جارٍ الرفع…"
   },
+  "richText": {
+    "toolbar": "تنسيق النص",
+    "bold": "غامق",
+    "italic": "مائل",
+    "heading2": "عنوان",
+    "heading3": "عنوان فرعي",
+    "bulletList": "قائمة نقطية",
+    "orderedList": "قائمة مرقّمة",
+    "link": "رابط",
+    "linkUrl": "عنوان الرابط",
+    "linkPlaceholder": "https://example.com",
+    "apply": "تطبيق",
+    "remove": "إزالة"
+  },
   "confirmDialog": {
     "title": "هل أنت متأكد؟",
     "description": "لا يمكن التراجع عن هذا الإجراء.",

@@ -32,6 +32,10 @@ export default defineConfig({
           ],
           'motion': ['framer-motion'],
           'recharts': ['recharts'],
+          // NB: omit '@tiptap/pm' — it is a meta-package with only subpath
+          // exports (no root entry), so listing it as a chunk entry breaks the
+          // build. Its ProseMirror modules are pulled in transitively here.
+          'tiptap': ['@tiptap/react', '@tiptap/starter-kit', '@tiptap/extension-placeholder'],
         },
       },
     },
