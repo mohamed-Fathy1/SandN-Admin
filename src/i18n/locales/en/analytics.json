@@ -62,5 +62,111 @@
   "empty": {
     "title": "No data for this range",
     "description": "There's no analytics activity for the selected dates. Try a wider range."
+  },
+  "tabs": {
+    "overview": "Overview",
+    "behavior": "Behavior"
+  },
+  "clarity": {
+    "window": "Last 3 days",
+    "lastUpdated": "Updated {{time}}",
+    "callsRemaining_one": "{{count}} / 10 refresh left",
+    "callsRemaining_other": "{{count}} / 10 refreshes left",
+    "refresh": "Refresh",
+    "refreshExhausted": "Daily live-refresh limit reached — try again tomorrow.",
+    "dimension": {
+      "options": {
+        "Browser": "Browser",
+        "Device": "Device",
+        "OS": "Operating system",
+        "Country": "Country",
+        "Source": "Source",
+        "Medium": "Medium",
+        "Campaign": "Campaign",
+        "Channel": "Channel",
+        "URL": "Page URL",
+        "Referrer": "Referrer"
+      }
+    },
+    "stale": {
+      "badge": "Cached data",
+      "description": "Showing cached data — the daily live-refresh limit was reached, so this may not be fresh."
+    },
+    "kpi": {
+      "sessions": "Sessions",
+      "pagesPerSession": "{{value}} pages / session",
+      "distinctUsersLabel": "Distinct users",
+      "botSessions": "Bot sessions",
+      "botCount_one": "{{count}} bot session",
+      "botCount_other": "{{count}} bot sessions",
+      "avgScroll": "Avg. scroll depth",
+      "engagement": "Active time",
+      "engagementHelper": "Total time {{total}}"
+    },
+    "behaviour": {
+      "title": "Session quality",
+      "subtitle": "Share of sessions affected by each friction signal — lower is better.",
+      "worst": "Most frequent: {{metric}} · {{percent}}",
+      "sessionsAffected_one": "{{count}} session",
+      "sessionsAffected_other": "{{count}} sessions",
+      "metrics": {
+        "DeadClickCount": {
+          "label": "Dead clicks",
+          "description": "Clicks that produced no response."
+        },
+        "RageClickCount": {
+          "label": "Rage clicks",
+          "description": "Rapid repeated clicks signalling frustration."
+        },
+        "QuickbackClick": {
+          "label": "Quick-backs",
+          "description": "Users leaving a page almost immediately."
+        },
+        "ExcessiveScroll": {
+          "label": "Excessive scroll",
+          "description": "Sessions with unusually heavy scrolling."
+        },
+        "ScriptErrorCount": {
+          "label": "Script errors",
+          "description": "JavaScript errors during the session."
+        },
+        "ErrorClickCount": {
+          "label": "Error clicks",
+          "description": "Clicks that triggered an error."
+        }
+      }
+    },
+    "breakdown": {
+      "heading": "Behavior breakdown",
+      "pickLabel": "Break down by",
+      "subtitle": "Sessions by {{dimension}}, busiest first",
+      "sessionsTotal_one": "{{count}} session total",
+      "sessionsTotal_other": "{{count}} sessions total",
+      "empty": {
+        "title": "No breakdown data",
+        "description": "There's no data for this dimension in the last 3 days."
+      }
+    },
+    "empty": {
+      "title": "Not enough data in the last 3 days",
+      "description": "Microsoft Clarity hasn't recorded enough activity to show behavioural insights yet. Check back once the store has more traffic."
+    },
+    "lowData": {
+      "title": "No significant activity in the last 3 days",
+      "description": "The numbers below will fill in automatically once Microsoft Clarity records more traffic."
+    },
+    "error": {
+      "rateLimit": {
+        "title": "Daily Clarity limit reached",
+        "description": "The live data limit for today has been used and nothing is cached yet. Please try again tomorrow.",
+        "retry": "Try again"
+      }
+    },
+    "toast": {
+      "refreshOk": "Behavioural data refreshed",
+      "refreshStale": "Refreshed — showing cached data (live limit reached)",
+      "rateLimited": "Daily live-refresh limit reached — try again tomorrow.",
+      "refreshFail": "Couldn't refresh behavioural data"
+    }
   }
 }

@@ -73,5 +73,127 @@
   "empty": {
     "title": "لا توجد بيانات لهذا النطاق",
     "description": "لا يوجد نشاط في التواريخ المحدّدة. جرّب نطاقًا أوسع."
+  },
+  "tabs": {
+    "overview": "نظرة عامة",
+    "behavior": "السلوك"
+  },
+  "clarity": {
+    "window": "آخر ٣ أيام",
+    "lastUpdated": "آخر تحديث {{time}}",
+    "callsRemaining_zero": "لا تحديثات متبقية · ٠ / ١٠",
+    "callsRemaining_one": "تحديث واحد متبقٍ · ١ / ١٠",
+    "callsRemaining_two": "تحديثان متبقيان · ٢ / ١٠",
+    "callsRemaining_few": "{{count}} تحديثات متبقية · / ١٠",
+    "callsRemaining_many": "{{count}} تحديثًا متبقيًا · / ١٠",
+    "callsRemaining_other": "{{count}} / ١٠ تحديث متبقٍ",
+    "refresh": "تحديث",
+    "refreshExhausted": "تم الوصول للحد اليومي للتحديث المباشر — حاول غدًا.",
+    "dimension": {
+      "options": {
+        "Browser": "المتصفّح",
+        "Device": "الجهاز",
+        "OS": "نظام التشغيل",
+        "Country": "الدولة",
+        "Source": "المصدر",
+        "Medium": "الوسيط",
+        "Campaign": "الحملة",
+        "Channel": "القناة",
+        "URL": "رابط الصفحة",
+        "Referrer": "المُحيل"
+      }
+    },
+    "stale": {
+      "badge": "بيانات مخزّنة",
+      "description": "نعرض بيانات مخزّنة — تم الوصول للحد اليومي للتحديث المباشر، لذا قد لا تكون هذه البيانات محدّثة."
+    },
+    "kpi": {
+      "sessions": "الجلسات",
+      "pagesPerSession": "{{value}} صفحة / جلسة",
+      "distinctUsersLabel": "المستخدمون المميّزون",
+      "botSessions": "جلسات الروبوتات",
+      "botCount_zero": "لا جلسات روبوتات",
+      "botCount_one": "جلسة روبوت واحدة",
+      "botCount_two": "جلستا روبوت",
+      "botCount_few": "{{count}} جلسات روبوتات",
+      "botCount_many": "{{count}} جلسة روبوت",
+      "botCount_other": "{{count}} جلسة روبوت",
+      "avgScroll": "متوسط عمق التمرير",
+      "engagement": "وقت النشاط",
+      "engagementHelper": "الوقت الإجمالي {{total}}"
+    },
+    "behaviour": {
+      "title": "جودة الجلسات",
+      "subtitle": "نسبة الجلسات المتأثّرة بكل إشارة احتكاك — الأقل أفضل.",
+      "worst": "الأكثر تكرارًا: {{metric}} · {{percent}}",
+      "sessionsAffected_zero": "لا جلسات",
+      "sessionsAffected_one": "جلسة واحدة",
+      "sessionsAffected_two": "جلستان",
+      "sessionsAffected_few": "{{count}} جلسات",
+      "sessionsAffected_many": "{{count}} جلسة",
+      "sessionsAffected_other": "{{count}} جلسة",
+      "metrics": {
+        "DeadClickCount": {
+          "label": "نقرات ميتة",
+          "description": "نقرات لم ينتج عنها أي استجابة."
+        },
+        "RageClickCount": {
+          "label": "نقرات غاضبة",
+          "description": "نقرات متكرّرة سريعة تدل على الإحباط."
+        },
+        "QuickbackClick": {
+          "label": "رجوع سريع",
+          "description": "مستخدمون غادروا الصفحة فورًا تقريبًا."
+        },
+        "ExcessiveScroll": {
+          "label": "تمرير مفرط",
+          "description": "جلسات بها تمرير كثيف بشكل غير معتاد."
+        },
+        "ScriptErrorCount": {
+          "label": "أخطاء برمجية",
+          "description": "أخطاء جافاسكربت أثناء الجلسة."
+        },
+        "ErrorClickCount": {
+          "label": "نقرات خاطئة",
+          "description": "نقرات تسبّبت في حدوث خطأ."
+        }
+      }
+    },
+    "breakdown": {
+      "heading": "تصنيف السلوك",
+      "pickLabel": "التصنيف حسب",
+      "subtitle": "الجلسات حسب {{dimension}}، الأكثر أولًا",
+      "sessionsTotal_zero": "لا جلسات",
+      "sessionsTotal_one": "جلسة واحدة إجمالًا",
+      "sessionsTotal_two": "جلستان إجمالًا",
+      "sessionsTotal_few": "{{count}} جلسات إجمالًا",
+      "sessionsTotal_many": "{{count}} جلسة إجمالًا",
+      "sessionsTotal_other": "{{count}} جلسة إجمالًا",
+      "empty": {
+        "title": "لا توجد بيانات تصنيف",
+        "description": "لا توجد بيانات لهذا التصنيف في آخر ٣ أيام."
+      }
+    },
+    "empty": {
+      "title": "لا توجد بيانات كافية في آخر ٣ أيام",
+      "description": "لم يسجّل Microsoft Clarity نشاطًا كافيًا لعرض تحليلات السلوك بعد. عاود التحقّق عندما يزداد نشاط المتجر."
+    },
+    "lowData": {
+      "title": "لا يوجد نشاط كافٍ في آخر ٣ أيام",
+      "description": "ستظهر الأرقام بالأسفل تلقائيًا بمجرّد أن يسجّل Microsoft Clarity المزيد من الزيارات."
+    },
+    "error": {
+      "rateLimit": {
+        "title": "تم الوصول للحد اليومي لـ Clarity",
+        "description": "تم استهلاك حد البيانات المباشرة لليوم ولا توجد بيانات مخزّنة بعد. من فضلك حاول غدًا.",
+        "retry": "حاول مجددًا"
+      }
+    },
+    "toast": {
+      "refreshOk": "تم تحديث بيانات السلوك",
+      "refreshStale": "تم التحديث — نعرض بيانات مخزّنة (تم بلوغ الحد المباشر)",
+      "rateLimited": "تم الوصول للحد اليومي للتحديث المباشر — حاول غدًا.",
+      "refreshFail": "تعذّر تحديث بيانات السلوك"
+    }
   }
 }

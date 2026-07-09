@@ -387,3 +387,52 @@ export interface AnalyticsTrafficSource {
   source: string; // "google", "(direct)", "(not set)", "instagram", …
   sessions: number;
 }
+
+// ────────────────────── Analytics · Microsoft Clarity ──────────────────────
+// Behavioural analytics proxy over the Microsoft Clarity Data Export API for the
+// last 3 days. A single endpoint (`GET /analytics/clarity`) returns every metric
+// block in one payload. Clarity is rate-limited to 10 live calls/day, so the
+// server caches results ~6h — never auto-refresh; only pass `refresh=true` on an
+// explicit user action, and only while `remainingLiveCalls > 0`.
+
+/** Breakdown dimensions accepted by the `dimension1` query param. */
+export type ClarityDimension =
+  | 'Browser'
+  | 'Device'
+  | 'Country'
+  | 'OS'
+  | 'Source'
+  | 'Medium'
+  | 'Campaign'
+  | 'Channel'
+  | 'URL'
+  | 'Referrer';
+
+/** Request params — both optional. Omit `dimension1` for the aggregate view. */
+export interface ClarityParams {
+  dimension1?: ClarityDimension;
+  refresh?: boolean;
+}
+
+/**
+ * One metric block. Clarity returns numbers as **strings** (parse before use),
+ * and `information` can be `[]` when there's no data for the range. Row shapes
+ * vary by `metricName` (scalar quality metrics vs. dimension breakdown rows), so
+ * rows are typed loosely and read via the helpers in `lib/clarity.ts`.
+ */
+export interface ClarityMetric {
+  metricName: string;
+  information: Array<Record<string, string | number | null>>;
+}
+
+/** Unwrapped `data` payload of `GET /analytics/clarity`. */
+export interface ClarityInsights {
+  dimension1: string | null;
+  fetchedAt: string; // ISO timestamp of when Clarity was last queried
+  fromCache: boolean; // true = served from the server-side cache
+  stale: boolean; // true = NOT fresh (rate limit hit) — show a badge
+  liveCallsToday: number; // live Clarity calls spent today
+  remainingLiveCalls: number; // out of 10/day — disable Refresh at 0
+  note: string | null; // human-readable reason when stale, else null
+  metrics: ClarityMetric[];
+}

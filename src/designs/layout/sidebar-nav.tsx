@@ -71,7 +71,7 @@ export function SidebarNav({
 
       <Tooltip.Provider delayDuration={300}>
         <nav
-          className="flex-1 overflow-y-auto px-3 pb-4"
+          className="flex-1 overflow-y-auto px-3 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ overscrollBehavior: 'contain' }}
         >
           {NAV_GROUPS.map((group, gIdx) => (

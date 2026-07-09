@@ -1,5 +1,9 @@
 import type { OrderStatus } from '@/config/constants';
-import type { AnalyticsParams, ApiProductFilters } from '@/shared/types/api';
+import type {
+  AnalyticsParams,
+  ApiProductFilters,
+  ClarityDimension,
+} from '@/shared/types/api';
 
 export type ProductsListParams = ApiProductFilters;
 
@@ -88,5 +92,7 @@ export const adminQueryKeys = {
       ['admin', 'analytics', 'top-pages', params] as const,
     trafficSources: (params: AnalyticsParams) =>
       ['admin', 'analytics', 'traffic-sources', params] as const,
+    clarity: (dimension: ClarityDimension | null) =>
+      ['admin', 'analytics', 'clarity', dimension] as const,
   },
 } as const;

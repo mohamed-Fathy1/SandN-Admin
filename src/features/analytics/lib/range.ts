@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { z } from 'zod';
 import type { AnalyticsParams } from '@/shared/types/api';
+import { CLARITY_DIMENSIONS } from './clarity';
 
 /**
  * Analytics date-range helpers.
@@ -108,6 +109,13 @@ export const analyticsSearchSchema = z.object({
     .regex(YMD)
     .default(() => todayIso())
     .catch(() => todayIso()),
+  // Which analytics tab is active. Lives in the URL so it survives reloads and
+  // is shareable. Defaults to the GA overview.
+  tab: z.enum(['overview', 'behavior']).default('overview').catch('overview'),
+  // Clarity breakdown dimension (Behavior tab). The breakdown is always shown —
+  // the headline metrics arrive in the same payload — so this defaults rather
+  // than being optional.
+  dimension: z.enum(CLARITY_DIMENSIONS).default('Device').catch('Device'),
 });
 
 export type AnalyticsSearch = z.infer<typeof analyticsSearchSchema>;

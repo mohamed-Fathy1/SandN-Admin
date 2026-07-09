@@ -20,6 +20,10 @@ import {
   PageTransition,
   QueryErrorState,
   Skeleton,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Thumbnail,
 } from '@/designs/shared';
 import { PageHeader } from '@/designs/layout/page-header';
@@ -33,22 +37,72 @@ import type {
   AnalyticsOverviewRow,
   AnalyticsParams,
   AnalyticsTopPage,
+  ClarityDimension,
 } from '@/shared/types/api';
 import { AnalyticsRangeControls } from './analytics-range-controls';
 import type { TrendMetric } from './analytics-trend-chart';
+import { ClarityPanel } from './clarity-panel';
 import { TRAFFIC_SOURCE_COLORS } from './palette';
 
 const AnalyticsTrendChart = lazy(() => import('./analytics-trend-chart'));
 const TrafficSourcesChart = lazy(() => import('./traffic-sources-chart'));
 
+export type AnalyticsTab = 'overview' | 'behavior';
+
 interface AnalyticsPageProps {
+  tab: AnalyticsTab;
+  onTabChange: (tab: AnalyticsTab) => void;
   range: AnalyticsParams;
   onRangeChange: (range: AnalyticsParams) => void;
+  dimension: ClarityDimension;
+  onDimensionChange: (dimension: ClarityDimension) => void;
 }
 
 const TREND_METRICS: TrendMetric[] = ['activeUsers', 'sessions', 'screenPageViews', 'newUsers'];
 
-export function AnalyticsPage({ range, onRangeChange }: AnalyticsPageProps) {
+export function AnalyticsPage({
+  tab,
+  onTabChange,
+  range,
+  onRangeChange,
+  dimension,
+  onDimensionChange,
+}: AnalyticsPageProps) {
+  const { t } = useTranslation('analytics');
+
+  return (
+    <PageTransition>
+      <Tabs value={tab} onValueChange={(v) => onTabChange(v as AnalyticsTab)}>
+        <PageHeader
+          eyebrow={t('header.eyebrow')}
+          title={t('header.title')}
+          subtitle={t('header.subtitle')}
+          tabs={
+            <TabsList>
+              <TabsTrigger value="overview">{t('tabs.overview')}</TabsTrigger>
+              <TabsTrigger value="behavior">{t('tabs.behavior')}</TabsTrigger>
+            </TabsList>
+          }
+        />
+
+        <TabsContent value="overview">
+          <OverviewTab range={range} onRangeChange={onRangeChange} />
+        </TabsContent>
+
+        <TabsContent value="behavior">
+          <ClarityPanel dimension={dimension} onDimensionChange={onDimensionChange} />
+        </TabsContent>
+      </Tabs>
+    </PageTransition>
+  );
+}
+
+interface OverviewTabProps {
+  range: AnalyticsParams;
+  onRangeChange: (range: AnalyticsParams) => void;
+}
+
+function OverviewTab({ range, onRangeChange }: OverviewTabProps) {
   const { t } = useTranslation('analytics');
   const { overview, topPages, trafficSources } = useAnalytics(range);
   const [metric, setMetric] = useState<TrendMetric>('activeUsers');
@@ -89,13 +143,7 @@ export function AnalyticsPage({ range, onRangeChange }: AnalyticsPageProps) {
   }, [overview.data]);
 
   return (
-    <PageTransition>
-      <PageHeader
-        eyebrow={t('header.eyebrow')}
-        title={t('header.title')}
-        subtitle={t('header.subtitle')}
-      />
-
+    <>
       <AnalyticsRangeControls
         range={range}
         onChange={onRangeChange}
@@ -167,7 +215,7 @@ export function AnalyticsPage({ range, onRangeChange }: AnalyticsPageProps) {
           <TrafficSourcesCard query={trafficSources} />
         </FadeUp>
       </div>
-    </PageTransition>
+    </>
   );
 }
 
