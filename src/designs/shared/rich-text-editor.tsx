@@ -118,13 +118,18 @@ export function RichTextEditor({
   }, [editor]);
 
   // Controlled-value sync without clobbering the cursor: only push the
-  // external value in when it diverges from the editor's current HTML.
+  // external value in when it diverges from the editor's current HTML, and
+  // restore the selection afterwards (setContent otherwise jumps the caret to
+  // the end of the document).
   useEffect(() => {
     if (!editor) return;
     const incoming = descriptionToEditorHtml(value);
     const current = editor.isEmpty ? '' : editor.getHTML();
     if (incoming !== current) {
+      const { from, to } = editor.state.selection;
       editor.commands.setContent(incoming, { emitUpdate: false });
+      const max = editor.state.doc.content.size;
+      editor.commands.setTextSelection({ from: Math.min(from, max), to: Math.min(to, max) });
     }
   }, [editor, value]);
 
